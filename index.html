@@ -66,7 +66,7 @@
     <div id="adminPanel" style="display:none">
       <div class="card">
         <h3>Results Management (Admin)</h3>
-        <p class="muted">Edit results inline → Save → bets auto-resolve correctly.</p>
+        <p class="muted">Edit results inline → Save. Bets will auto-resolve.</p>
         <div id="adminResultsTable"></div>
       </div>
 
@@ -207,7 +207,7 @@
 
   // ===== ADMIN RESULTS TABLE =====
   async function renderAdminResultsTable() {
-    const snap = await db.ref('matches').get();
+    const snap = await db.ref('matches').once('value');
     const matches = snap.val() || {};
     const rows = Object.keys(matches).map(k => {
       const m = matches[k];
@@ -219,61 +219,82 @@
   async function saveInlineResult(matchId) {
     const val = document.getElementById('res_'+matchId).value.trim() || null;
     await db.ref('matches/'+matchId+'/result').set(val);
-    if (val) await resolveBetsForMatch(matchId, val);
-    else await reverseResolutionsForMatch(matchId);
-    alert('Result saved – bets resolved correctly!');
+    if (val) {
+        await resolveBetsForMatch(matchId, val);
+    } else {
+        await reverseResolutionsForMatch(matchId);
+    }
+    alert('Result saved and bets updated!');
     renderAdminResultsTable();
   }
 
-  async function reverseResolutionsForMatch(matchId) {
-    const snap = await db.ref('bets').get();
-    const bets = snap.val() || {};
-    for (const user in bets) {
-      const bet = bets[user][matchId];
-      if (bet && bet.resolved && bet.win) {
-        await db.ref('users/'+user+'/credits').transaction(c => (c||0) - (bet.payout||0));
-      }
-      if (bet) await db.ref('bets/'+user+'/'+matchId).update({resolved:false, win:false, payout:null});
-    }
-  }
-
-  // ===== FIXED BET RESOLUTION =====
+  // ===== IMPROVED RESOLUTION LOGIC =====
   async function resolveBetsForMatch(matchId, resultStr) {
+    console.log("Resolving match:", matchId, "with result:", resultStr);
     const [matchSnap, betsSnap] = await Promise.all([
-      db.ref('matches/'+matchId).get(),
-      db.ref('bets').get()
+      db.ref('matches/'+matchId).once('value'),
+      db.ref('bets').once('value')
     ]);
+    
     const match = matchSnap.val();
     if (!match) return;
+    
     const odds = match.odds || {'1':1, 'X':1, '2':1};
-    const [g1, g2] = resultStr.split('-').map(Number);
+    
+    // Robust parsing: handles "2-1", "2:1", "2 - 1"
+    const scores = resultStr.split(/[-:]/).map(s => parseInt(s.trim()));
+    if (scores.length < 2 || isNaN(scores[0]) || isNaN(scores[1])) {
+        console.error("Invalid result format");
+        return;
+    }
+    const [g1, g2] = scores;
     const outcome = g1 > g2 ? '1' : g1 < g2 ? '2' : 'X';
-    const bets = betsSnap.val() || {};
+    
+    const allBets = betsSnap.val() || {};
 
-    for (const user in bets) {
-      const userBet = bets[user][matchId];
+    for (const username in allBets) {
+      const userBet = allBets[username][matchId];
       if (!userBet) continue;
 
-      // Reverse previous resolution if any
-      if (userBet.resolved && userBet.win) {
-        await db.ref('users/'+user+'/credits').transaction(c => (c||0) - (userBet.payout||0));
+      console.log("Processing bet for user:", username);
+
+      // 1. If previously resolved as a WIN, we MUST subtract it first to avoid double credits
+      if (userBet.resolved && userBet.win && userBet.payout) {
+        console.log("Reversing previous win for", username, ": -", userBet.payout);
+        await db.ref('users/'+username+'/credits').transaction(c => Number(c || 0) - Number(userBet.payout));
       }
 
-      // Resolve anew
+      // 2. Determine if it's a win NOW
+      const isWin = userBet.outcome.toString().toUpperCase() === outcome.toUpperCase();
       const stake = Number(userBet.stake) || 0;
-      if (userBet.outcome === outcome) {
-        const payout = Math.round(stake * odds[outcome] * 100) / 100;
-        await db.ref('bets/'+user+'/'+matchId).update({resolved:true, win:true, payout});
-        await db.ref('users/'+user+'/credits').transaction(c => (c||0) + payout);
+
+      if (isWin) {
+        const payout = Math.round(stake * (Number(odds[outcome]) || 1) * 100) / 100;
+        console.log("User WON! Adding payout:", payout);
+        await db.ref('bets/'+username+'/'+matchId).update({resolved:true, win:true, payout: payout});
+        await db.ref('users/'+username+'/credits').transaction(c => Number(c || 0) + payout);
       } else {
-        await db.ref('bets/'+user+'/'+matchId).update({resolved:true, win:false, payout:0});
+        console.log("User LOST.");
+        await db.ref('bets/'+username+'/'+matchId).update({resolved:true, win:false, payout: 0});
       }
     }
   }
 
-  // ===== EXPORT XLSX =====
+  async function reverseResolutionsForMatch(matchId) {
+    const snap = await db.ref('bets').once('value');
+    const allBets = snap.val() || {};
+    for (const username in allBets) {
+      const bet = allBets[username][matchId];
+      if (bet && bet.resolved && bet.win) {
+        await db.ref('users/'+username+'/credits').transaction(c => Number(c || 0) - Number(bet.payout || 0));
+      }
+      if (bet) await db.ref('bets/'+username+'/'+matchId).update({resolved:false, win:false, payout:null});
+    }
+  }
+
+  // ===== REST OF APP LOGIC =====
   async function exportResultsAndTeamsXLSX() {
-    const [mSnap, tSnap] = await Promise.all([db.ref('matches').get(), db.ref('teams').get()]);
+    const [mSnap, tSnap] = await Promise.all([db.ref('matches').once('value'), db.ref('teams').once('value')]);
     const matches = mSnap.val() || {};
     const teams = tSnap.val() || {};
     const matchArr = Object.values(matches).map(m => ({
@@ -287,12 +308,11 @@
   }
 
   async function confirmClearResultsAndTeams() {
-    if (!confirm('Delete ALL matches & teams? Cannot be undone!')) return;
+    if (!confirm('Delete ALL matches & teams?')) return;
     await Promise.all([db.ref('matches').set(null), db.ref('teams').set(null)]);
     alert('Cleared!');
   }
 
-  // ===== QUICK USER MGMT, TEAMS, BETS, RENDERING, LISTENERS (unchanged but clean) =====
   async function quickAddUser() {
     const u = document.getElementById('quickNewUserName').value.trim();
     const p = document.getElementById('quickNewUserPass').value || '1234';
@@ -302,7 +322,7 @@
     alert('User added'); refreshUserDropdown();
   }
   async function refreshUserDropdown() {
-    const snap = await db.ref('users').get();
+    const snap = await db.ref('users').once('value');
     const users = snap.val() || {};
     const sel = document.getElementById('removeUserSelect');
     sel.innerHTML = '<option>-- select --</option>' + Object.keys(users).map(u => `<option value="${u}">${u} (${users[u].credits})</option>`).join('');
@@ -325,7 +345,7 @@
   }
 
   async function loadTeams() {
-    const snap = await db.ref('teams').get();
+    const snap = await db.ref('teams').once('value');
     const teams = snap.val() || {};
     const list = Object.values(teams).map(t => `<div class="team-box"><strong>${t.name}</strong> — Group ${t.group} <button class="small ghost" onclick="deleteTeam('${t.id}')">Delete</button></div>`).join('') || '<div class="muted">No teams</div>';
     document.getElementById('teamsList').innerHTML = list;
@@ -337,7 +357,7 @@
   async function deleteTeam(id) {
     if (!confirm('Delete team and its matches?')) return;
     await db.ref('teams/'+id).set(null);
-    const snap = await db.ref('matches').get();
+    const snap = await db.ref('matches').once('value');
     const updates = {};
     Object.keys(snap.val()||{}).forEach(m => {
       const match = snap.val()[m];
@@ -364,14 +384,15 @@
   async function placeBet(matchId, outcome, stakeInputId) {
     const stake = Number(document.getElementById(stakeInputId).value);
     if (!stake || stake <= 0) return alert('Invalid stake');
-    const credSnap = await db.ref('users/'+currentUser+'/credits').get();
-    const credits = credSnap.val() || 0;
+    const credSnap = await db.ref('users/'+currentUser+'/credits').once('value');
+    const credits = Number(credSnap.val()) || 0;
     if (stake > credits) return alert('Not enough credits');
-    const res = await db.ref('users/'+currentUser+'/credits').transaction(c => (c||0) - stake);
+    
+    const res = await db.ref('users/'+currentUser+'/credits').transaction(c => Number(c || 0) - stake);
     if (res.committed) {
       await db.ref('bets/'+currentUser+'/'+matchId).set({outcome, stake, placedAt: Date.now(), resolved: false});
       alert('Bet placed!');
-    } else alert('Failed');
+    } else alert('Transaction failed');
   }
 
   function renderResults(matches) {
@@ -387,7 +408,7 @@
 
   async function renderUserBets() {
     if (currentIsAdmin) return;
-    const [matchesSnap, betsSnap] = await Promise.all([db.ref('matches').get(), db.ref('bets/'+currentUser).get()]);
+    const [matchesSnap, betsSnap] = await Promise.all([db.ref('matches').once('value'), db.ref('bets/'+currentUser).once('value')]);
     const matches = matchesSnap.val() || {};
     const myBets = betsSnap.val() || {};
     let html = '';
@@ -415,7 +436,8 @@
     const teamStats = {};
     Object.values(matches).forEach(m => {
       if (!m.group || !m.result || !m.homeId || !m.awayId) return;
-      const [g1, g2] = m.result.split('-').map(Number);
+      const scores = m.result.split(/[-:]/).map(s => parseInt(s.trim()));
+      const [g1, g2] = scores;
       teamStats[m.homeId] = teamStats[m.homeId] || {gf:0, ga:0, pts:0};
       teamStats[m.awayId] = teamStats[m.awayId] || {gf:0, ga:0, pts:0};
       teamStats[m.homeId].gf += g1; teamStats[m.homeId].ga += g2;
@@ -425,7 +447,7 @@
       else { teamStats[m.homeId].pts += 1; teamStats[m.awayId].pts += 1; }
     });
 
-    const teamsSnap = await db.ref('teams').get();
+    const teamsSnap = await db.ref('teams').once('value');
     const teams = teamsSnap.val() || {};
     const groupA = [], groupB = [];
     Object.values(teams).forEach(t => {
