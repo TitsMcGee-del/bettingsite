@@ -212,7 +212,6 @@
 
         <div class="card">
           <h3>Live Resolution & Cleanup</h3>
-          <p class="badge" style="background:none; color:var(--text-muted)">Enter scores to resolve or delete games.</p>
           <div id="adminResultsTable" style="max-height: 400px; overflow-y: auto;"></div>
         </div>
       </div>
@@ -247,7 +246,6 @@
   </div>
 
 <script>
-  // Firebase Configuration
   const firebaseConfig = {
     apiKey: "AIzaSyDPgcnptW0O2OFlE-_TOsTXctjG6RPBZm8",
     authDomain: "fc26-full-bets.firebaseapp.com",
@@ -263,7 +261,6 @@
   const ADMIN_PASSWORD = 'IBM99ibm';
   let currentUser = null, currentIsAdmin = false;
 
-  // View Controllers
   function hideAll() { ['landing','adminLogin','userLogin','app'].forEach(id => document.getElementById(id).style.display = 'none'); }
   function showAdminLogin() { hideAll(); document.getElementById('adminLogin').style.display = 'block'; }
   function showUserLogin() { hideAll(); document.getElementById('userLogin').style.display = 'block'; }
@@ -309,9 +306,7 @@
     });
   }
 
-  // --- REAL-TIME USER ACTIVITY ---
   function listenToUserActivity() {
-    // Listen to user's bets. Whenever a match they bet on gets resolved, this triggers.
     db.ref('bets/'+currentUser).on('value', bSnap => {
       const myBets = bSnap.val() || {};
       db.ref('matches').once('value', mSnap => {
@@ -323,31 +318,33 @@
 
         document.getElementById('notifList').innerHTML = items.map(i => `
           <div class="notif-item">
-            <span><strong>${i.match ? i.match.home + ' v ' + i.match.away : 'Deleted Match'}</strong> (${i.match?.result || '-'})</span>
-            <span class="${i.win ? 'win' : 'loss'}">${i.win ? '+' + i.payout + ' Creds' : 'Loss'}</span>
+            <span><strong>${i.match ? i.match.home + ' v ' + i.match.away : 'Match'}</strong> (${i.match?.result || '-'})</span>
+            <span class="${i.win ? 'win' : 'loss'}">${i.win ? '+' + i.payout : 'Loss'}</span>
           </div>
         `).join('') || '<p class="muted">Waiting for match resolutions...</p>';
       });
     });
   }
 
-  // --- TEAM & STRENGTH LOGIC ---
-
   async function addTeam() {
-    const name = document.getElementById('teamName').value.trim();
+    const nameInput = document.getElementById('teamName');
+    const name = nameInput.value.trim();
     if (!name) return;
     const id = 't_' + Date.now();
-    await db.ref('teams/'+id).set({ id, name, group: 'Unassigned', history: ['-','-','-','-','-'] });
-    document.getElementById('teamName').value = '';
-    loadTeams();
+    try {
+      await db.ref('teams/'+id).set({ id, name, group: 'Unassigned', history: ['-','-','-','-','-'] });
+      nameInput.value = '';
+      loadTeams();
+    } catch(e) { console.error(e); }
   }
 
   async function loadTeams() {
     const [tSnap, hSnap] = await Promise.all([db.ref('teams').get(), db.ref('settings/headers').get()]);
-    const teams = Object.values(tSnap.val() || {});
+    const teamsData = tSnap.val() || {};
+    const teams = Object.values(teamsData);
     const headers = hSnap.val() || ['D1','D2','D3','D4','D5'];
     
-    headers.forEach((h, i) => document.getElementById('h'+i).value = h);
+    headers.forEach((h, i) => { if(document.getElementById('h'+i)) document.getElementById('h'+i).value = h; });
 
     document.getElementById('teamsTableBody').innerHTML = teams.map(t => {
       const hist = t.history || ['-','-','-','-','-'];
@@ -360,18 +357,13 @@
       </tr>`;
     }).join('');
 
-    // Update Group Assignment Table
     document.getElementById('groupAdminTable').innerHTML = `<table><thead><tr><th>Team</th><th>Group</th></tr></thead><tbody>` + 
-      teams.map(t => `<tr>
-        <td>${t.name}</td>
-        <td>
+      teams.map(t => `<tr><td>${t.name}</td><td>
           <select style="margin:0" onchange="updateGroup('${t.id}', this.value)">
             <option value="Unassigned" ${t.group === 'Unassigned' ? 'selected' : ''}>Unassigned</option>
             <option value="A" ${t.group === 'A' ? 'selected' : ''}>Group A</option>
             <option value="B" ${t.group === 'B' ? 'selected' : ''}>Group B</option>
-          </select>
-        </td>
-      </tr>`).join('') + `</tbody></table>`;
+          </select></td></tr>`).join('') + `</tbody></table>`;
 
     const opts = '<option value="">-- Select Team --</option>' + teams.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
     document.getElementById('gmHome').innerHTML = opts;
@@ -394,14 +386,12 @@
   async function updateGroup(id, v) { await db.ref(`teams/${id}/group`).set(v); listenAll(); }
   async function deleteTeam(id) { if(confirm('Remove team?')) { await db.ref('teams/'+id).set(null); loadTeams(); } }
 
-  // --- ODDS & MATCH LOGIC ---
-
   async function suggestOdds() {
     const hId = document.getElementById('gmHome').value, aId = document.getElementById('gmAway').value;
     if (!hId || !aId || hId === aId) return alert('Select two teams');
     const snap = await db.ref('teams').get();
-    const t = snap.val();
-    const sH = parseFloat(calculateStrength(t[hId].history)) || 0.1, sA = parseFloat(calculateStrength(t[aId].history)) || 0.1;
+    const t = snap.val() || {};
+    const sH = parseFloat(calculateStrength(t[hId]?.history || [])) || 0.1, sA = parseFloat(calculateStrength(t[aId]?.history || [])) || 0.1;
     const total = sH + sA, pH = (sH/total)*0.8, pA = (sA/total)*0.8, pX = 0.2;
     document.getElementById('gmOdd1').value = (1/pH).toFixed(2);
     document.getElementById('gmOddX').value = (1/pX).toFixed(2);
@@ -412,16 +402,16 @@
 
   function createMatch() {
     const hId = document.getElementById('gmHome').value, aId = document.getElementById('gmAway').value;
-    const odds = {'1': parseFloat(document.getElementById('gmOdd1').value), 'X': parseFloat(document.getElementById('gmOddX').value), '2': parseFloat(document.getElementById('gmOdd2').value)};
-    if (!hId || isNaN(odds['1'])) return alert('Fill all data');
+    const o1 = parseFloat(document.getElementById('gmOdd1').value);
+    const oX = parseFloat(document.getElementById('gmOddX').value);
+    const o2 = parseFloat(document.getElementById('gmOdd2').value);
+    if (!hId || isNaN(o1)) return alert('Fill all data');
     const hName = document.querySelector('#gmHome option:checked').textContent, aName = document.querySelector('#gmAway option:checked').textContent;
-    db.ref('matches/m_'+Date.now()).set({ home: hName, homeId: hId, away: aName, awayId: aId, odds, result: null, created: Date.now() });
+    db.ref('matches/m_'+Date.now()).set({ home: hName, homeId: hId, away: aName, awayId: aId, odds: {'1':o1,'X':oX,'2':o2}, result: null, created: Date.now() });
     alert('Match Scheduled');
   }
 
-  async function deleteMatch(id) {
-    if(confirm('Delete this match? This cannot be undone.')) await db.ref('matches/'+id).set(null);
-  }
+  async function deleteMatch(id) { if(confirm('Delete match?')) await db.ref('matches/'+id).set(null); }
 
   async function resolveBets(mid, res) {
     const [mS, bS] = await Promise.all([db.ref('matches/'+mid).get(), db.ref('bets').get()]);
@@ -430,8 +420,7 @@
     for (const u in allBets) {
       const b = allBets[u][mid];
       if (!b || b.resolved) continue;
-      const win = b.outcome === outcome;
-      const payout = win ? Math.round(b.stake * m.odds[outcome] * 100) / 100 : 0;
+      const win = b.outcome === outcome, payout = win ? Math.round(b.stake * m.odds[outcome] * 100) / 100 : 0;
       await db.ref(`bets/${u}/${mid}`).update({ resolved: true, win, payout, resolvedAt });
       if (win) await db.ref(`users/${u}/credits`).transaction(c => (c||0) + payout);
     }
@@ -445,8 +434,6 @@
     await resolveBets(id, res);
   }
 
-  // --- UI RENDERERS ---
-
   function listenAll() {
     db.ref('matches').on('value', snap => {
       const m = snap.val() || {};
@@ -458,18 +445,14 @@
   }
 
   function renderAdminResolution(m) {
-    const html = Object.keys(m).map(k => {
+    document.getElementById('adminResultsTable').innerHTML = Object.keys(m).map(k => {
       const match = m[k], [sh, sa] = (match.result || '-').split('-');
       return `<div style="padding:12px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
         <span style="font-size:0.85rem"><strong>${match.home}</strong> v <strong>${match.away}</strong></span>
-        <div>
-          <input id="resH_${k}" value="${sh||''}" class="score-input"> : <input id="resA_${k}" value="${sa||''}" class="score-input">
+        <div><input id="resH_${k}" value="${sh||''}" class="score-input"> : <input id="resA_${k}" value="${sa||''}" class="score-input">
           <button class="small" onclick="saveScore('${k}')">Save</button>
-          <button class="small danger" style="padding:6px 10px" onclick="deleteMatch('${k}')">✕</button>
-        </div>
-      </div>`;
-    }).join('');
-    document.getElementById('adminResultsTable').innerHTML = html || 'No matches.';
+          <button class="small danger" onclick="deleteMatch('${k}')">✕</button></div></div>`;
+    }).join('') || 'No matches.';
   }
 
   async function renderStandings(matches) {
@@ -479,24 +462,19 @@
       const [gH, gA] = m.result.split('-').map(Number);
       [m.homeId, m.awayId].forEach(id => stats[id] = stats[id] || {p: 0, gd: 0});
       stats[m.homeId].gd += (gH - gA); stats[m.awayId].gd += (gA - gH);
-      if (gH > gA) stats[m.homeId].p += 3; 
-      else if (gA > gH) stats[m.awayId].p += 3; 
-      else { stats[m.homeId].p += 1; stats[m.awayId].p += 1; }
+      if (gH > gA) stats[m.homeId].p += 3; else if (gA > gH) stats[m.awayId].p += 3; else { stats[m.homeId].p += 1; stats[m.awayId].p += 1; }
     });
     const tSnap = await db.ref('teams').get();
     const teams = tSnap.val() || {};
     const grpA = [], grpB = [];
     Object.values(teams).forEach(t => {
       const s = stats[t.id] || {p: 0, gd: 0};
-      if (t.group === 'A') grpA.push({n: t.name, ...s});
-      else if (t.group === 'B') grpB.push({n: t.name, ...s});
+      if (t.group === 'A') grpA.push({n: t.name, ...s}); else if (t.group === 'B') grpB.push({n: t.name, ...s});
     });
     const srt = arr => arr.sort((a,b) => b.p - a.p || b.gd - a.gd);
-    document.getElementById('standingsDisplay').innerHTML = `
-      <div class="row">
+    document.getElementById('standingsDisplay').innerHTML = `<div class="row">
         <div class="col"><h5>Group A</h5>${makeStandingTable(srt(grpA))}</div>
-        <div class="col"><h5>Group B</h5>${makeStandingTable(srt(grpB))}</div>
-      </div>`;
+        <div class="col"><h5>Group B</h5>${makeStandingTable(srt(grpB))}</div></div>`;
   }
 
   function makeStandingTable(arr) {
@@ -505,22 +483,17 @@
   }
 
   function renderUserBets(m, myB) {
-    const html = Object.keys(m).map(k => {
+    document.getElementById('betsArea').innerHTML = Object.keys(m).map(k => {
       const match = m[k], b = myB[k];
-      return `<div class="card" style="margin:0">
-        <strong>${match.home} vs ${match.away}</strong><br>
+      return `<div class="card" style="margin:0"><strong>${match.home} vs ${match.away}</strong><br>
         <small class="muted">1(${match.odds['1']}) X(${match.odds['X']}) 2(${match.odds['2']})</small><hr style="opacity:0.1">
-        ${match.result ? (b ? `Result: ${match.result} | Bet: ${b.outcome} → ${b.win ? '<span class="win">WIN</span>' : '<span class="loss">LOSS</span>'}` : 'Market Closed') : 
+        ${match.result ? (b ? `Result: ${match.result} | Bet: ${b.outcome} → ${b.win ? '<span class="win">WIN</span>' : '<span class="loss">LOSS</span>'}` : 'Closed') : 
         (b ? `<div class="badge" style="width:100%; text-align:center">Pending: ${b.outcome} (${b.stake})</div>` : `
           <div style="display:flex; gap:5px">
             <select id="p_${k}"><option value="1">1</option><option value="X">X</option><option value="2">2</option></select>
             <input id="s_${k}" placeholder="Stake" style="width:70px"/>
-            <button class="small" onclick="placeBet('${k}','p_${k}','s_${k}')">Bet</button>
-          </div>
-        `)}
-      </div>`;
-    }).join('');
-    document.getElementById('betsArea').innerHTML = html || 'No active markets.';
+            <button class="small" onclick="placeBet('${k}','p_${k}','s_${k}')">Bet</button></div>`)}</div>`;
+    }).join('') || 'No active markets.';
   }
 
   async function placeBet(mid, pid, sid) {
@@ -529,7 +502,7 @@
     if (stake > 0 && stake <= creds) {
       await db.ref(`users/${currentUser}/credits`).transaction(c => (c||0) - stake);
       await db.ref(`bets/${currentUser}/${mid}`).set({ outcome: out, stake, resolved: false });
-    } else alert('Check stake vs credits');
+    }
   }
 
   function renderResultsList(m) {
