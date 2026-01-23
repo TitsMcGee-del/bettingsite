@@ -170,7 +170,10 @@
       <div class="card">
         <h3>Team & Performance Metrics</h3>
         <div class="row" style="margin-bottom:20px; align-items: flex-end;">
-          <div style="flex:3"><label class="badge">New Team Name</label><input id="teamName" placeholder="e.g. Manchester City" /></div>
+          <div style="flex:3">
+            <label class="badge">New Team Name</label>
+            <input id="teamName" placeholder="e.g. Manchester City" />
+          </div>
           <button onclick="addTeam()" style="flex:1; height: 42px;">Register Team</button>
         </div>
         
@@ -297,7 +300,6 @@
       listenToUserActivity();
     }
     listenAll();
-    loadTeams();
   }
 
   function updateCredits() {
@@ -313,19 +315,18 @@
         const matches = mSnap.val() || {};
         const items = Object.keys(myBets).map(k => ({...myBets[k], match: matches[k]}))
           .filter(b => b.resolved)
-          .sort((a,b) => (b.resolvedAt || 0) - (a.resolvedAt || 0))
-          .slice(0, 5);
+          .sort((a,b) => (b.resolvedAt || 0) - (a.resolvedAt || 0)).slice(0, 5);
 
         document.getElementById('notifList').innerHTML = items.map(i => `
           <div class="notif-item">
             <span><strong>${i.match ? i.match.home + ' v ' + i.match.away : 'Match'}</strong> (${i.match?.result || '-'})</span>
             <span class="${i.win ? 'win' : 'loss'}">${i.win ? '+' + i.payout : 'Loss'}</span>
-          </div>
-        `).join('') || '<p class="muted">Waiting for match resolutions...</p>';
+          </div>`).join('') || '<p class="muted">No recent activity.</p>';
       });
     });
   }
 
+  // TEAM ACTIONS
   async function addTeam() {
     const nameInput = document.getElementById('teamName');
     const name = nameInput.value.trim();
@@ -333,69 +334,33 @@
     const id = 't_' + Date.now();
     try {
       await db.ref('teams/'+id).set({ id, name, group: 'Unassigned', history: ['-','-','-','-','-'] });
-      nameInput.value = '';
-      loadTeams();
-    } catch(e) { console.error(e); }
-  }
-
-  async function loadTeams() {
-    const [tSnap, hSnap] = await Promise.all([db.ref('teams').get(), db.ref('settings/headers').get()]);
-    const teamsData = tSnap.val() || {};
-    const teams = Object.values(teamsData);
-    const headers = hSnap.val() || ['D1','D2','D3','D4','D5'];
-    
-    headers.forEach((h, i) => { if(document.getElementById('h'+i)) document.getElementById('h'+i).value = h; });
-
-    document.getElementById('teamsTableBody').innerHTML = teams.map(t => {
-      const hist = t.history || ['-','-','-','-','-'];
-      const str = calculateStrength(hist);
-      return `<tr>
-        <td><strong>${t.name}</strong></td>
-        ${hist.map((v, i) => `<td><input type="text" value="${v}" onchange="updateTeamPoint('${t.id}', ${i}, this.value)"></td>`).join('')}
-        <td style="font-weight:700; color:var(--primary)">${str}</td>
-        <td><button class="small ghost" style="color:var(--danger)" onclick="deleteTeam('${t.id}')">Del</button></td>
-      </tr>`;
-    }).join('');
-
-    document.getElementById('groupAdminTable').innerHTML = `<table><thead><tr><th>Team</th><th>Group</th></tr></thead><tbody>` + 
-      teams.map(t => `<tr><td>${t.name}</td><td>
-          <select style="margin:0" onchange="updateGroup('${t.id}', this.value)">
-            <option value="Unassigned" ${t.group === 'Unassigned' ? 'selected' : ''}>Unassigned</option>
-            <option value="A" ${t.group === 'A' ? 'selected' : ''}>Group A</option>
-            <option value="B" ${t.group === 'B' ? 'selected' : ''}>Group B</option>
-          </select></td></tr>`).join('') + `</tbody></table>`;
-
-    const opts = '<option value="">-- Select Team --</option>' + teams.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
-    document.getElementById('gmHome').innerHTML = opts;
-    document.getElementById('gmAway').innerHTML = opts;
-  }
-
-  function calculateStrength(hist) {
-    const pts = hist.filter(p => p !== '-' && !isNaN(parseFloat(p))).map(parseFloat);
-    if (!pts.length) return 0;
-    return (pts.reduce((a, b) => a + b, 0) / pts.length).toFixed(2);
+      nameInput.value = ''; // Clear only on success
+    } catch(e) { 
+      alert("Error adding team: " + e.message); 
+    }
   }
 
   async function updateTeamPoint(id, i, v) {
     let final = v.trim() === '-' ? '-' : (parseFloat(v) || 0).toFixed(2);
-    await db.ref(`teams/${id}/history/${i}`).set(final);
-    loadTeams();
+    db.ref(`teams/${id}/history/${i}`).set(final);
   }
 
-  async function updateGlobalHeaders(i, v) { await db.ref(`settings/headers/${i}`).set(v); }
-  async function updateGroup(id, v) { await db.ref(`teams/${id}/group`).set(v); listenAll(); }
-  async function deleteTeam(id) { if(confirm('Remove team?')) { await db.ref('teams/'+id).set(null); loadTeams(); } }
+  async function updateGlobalHeaders(i, v) { db.ref(`settings/headers/${i}`).set(v); }
+  async function updateGroup(id, v) { db.ref(`teams/${id}/group`).set(v); }
+  async function deleteTeam(id) { if(confirm('Remove team?')) db.ref('teams/'+id).set(null); }
 
+  // MATCH ACTIONS
   async function suggestOdds() {
     const hId = document.getElementById('gmHome').value, aId = document.getElementById('gmAway').value;
     if (!hId || !aId || hId === aId) return alert('Select two teams');
-    const snap = await db.ref('teams').get();
-    const t = snap.val() || {};
-    const sH = parseFloat(calculateStrength(t[hId]?.history || [])) || 0.1, sA = parseFloat(calculateStrength(t[aId]?.history || [])) || 0.1;
-    const total = sH + sA, pH = (sH/total)*0.8, pA = (sA/total)*0.8, pX = 0.2;
-    document.getElementById('gmOdd1').value = (1/pH).toFixed(2);
-    document.getElementById('gmOddX').value = (1/pX).toFixed(2);
-    document.getElementById('gmOdd2').value = (1/pA).toFixed(2);
+    db.ref('teams').once('value', snap => {
+      const t = snap.val() || {};
+      const sH = parseFloat(calculateStrength(t[hId]?.history || [])) || 0.1, sA = parseFloat(calculateStrength(t[aId]?.history || [])) || 0.1;
+      const total = sH + sA, pH = (sH/total)*0.8, pA = (sA/total)*0.8, pX = 0.2;
+      document.getElementById('gmOdd1').value = (1/pH).toFixed(2);
+      document.getElementById('gmOddX').value = (1/pX).toFixed(2);
+      document.getElementById('gmOdd2').value = (1/pA).toFixed(2);
+    });
   }
 
   function resetOddsSuggestion() { ['gmOdd1','gmOddX','gmOdd2'].forEach(id => document.getElementById(id).value = ''); }
@@ -408,10 +373,17 @@
     if (!hId || isNaN(o1)) return alert('Fill all data');
     const hName = document.querySelector('#gmHome option:checked').textContent, aName = document.querySelector('#gmAway option:checked').textContent;
     db.ref('matches/m_'+Date.now()).set({ home: hName, homeId: hId, away: aName, awayId: aId, odds: {'1':o1,'X':oX,'2':o2}, result: null, created: Date.now() });
-    alert('Match Scheduled');
   }
 
-  async function deleteMatch(id) { if(confirm('Delete match?')) await db.ref('matches/'+id).set(null); }
+  async function deleteMatch(id) { if(confirm('Delete match?')) db.ref('matches/'+id).set(null); }
+
+  async function saveScore(id) {
+    const h = document.getElementById('resH_'+id).value, a = document.getElementById('resA_'+id).value;
+    if (h === '' || a === '') return;
+    const res = h + '-' + a;
+    await db.ref(`matches/${id}/result`).set(res);
+    resolveBets(id, res);
+  }
 
   async function resolveBets(mid, res) {
     const [mS, bS] = await Promise.all([db.ref('matches/'+mid).get(), db.ref('bets').get()]);
@@ -426,22 +398,52 @@
     }
   }
 
-  async function saveScore(id) {
-    const h = document.getElementById('resH_'+id).value, a = document.getElementById('resA_'+id).value;
-    if (h === '' || a === '') return;
-    const res = h + '-' + a;
-    await db.ref(`matches/${id}/result`).set(res);
-    await resolveBets(id, res);
-  }
-
+  // LISTENERS & RENDERING
   function listenAll() {
+    // 1. Teams & Headers Listener
+    db.ref('settings/headers').on('value', s => {
+      const h = s.val() || ['D1','D2','D3','D4','D5'];
+      h.forEach((v, i) => { if(document.getElementById('h'+i)) document.getElementById('h'+i).value = v; });
+    });
+
+    db.ref('teams').on('value', snap => {
+      const teamsObj = snap.val() || {};
+      const teams = Object.values(teamsObj);
+      renderTeamsUI(teams);
+      renderGroupAdmin(teams);
+      const opts = '<option value="">-- Select --</option>' + teams.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+      document.getElementById('gmHome').innerHTML = opts; document.getElementById('gmAway').innerHTML = opts;
+    });
+
+    // 2. Matches Listener
     db.ref('matches').on('value', snap => {
       const m = snap.val() || {};
-      renderResultsList(m); renderStandings(m);
+      renderResultsList(m); 
+      renderStandings(m);
       if (currentIsAdmin) renderAdminResolution(m);
       else db.ref('bets/'+currentUser).once('value', b => renderUserBets(m, b.val() || {}));
     });
+
+    // 3. User Leaderboard
     db.ref('users').on('value', s => renderLeaderboard(s.val() || {}));
+  }
+
+  function renderTeamsUI(teams) {
+    document.getElementById('teamsTableBody').innerHTML = teams.map(t => {
+      const hist = t.history || ['-','-','-','-','-'];
+      return `<tr><td><strong>${t.name}</strong></td>
+        ${hist.map((v, i) => `<td><input type="text" value="${v}" onchange="updateTeamPoint('${t.id}', ${i}, this.value)"></td>`).join('')}
+        <td style="font-weight:700; color:var(--primary)">${calculateStrength(hist)}</td>
+        <td><button class="small ghost" style="color:var(--danger)" onclick="deleteTeam('${t.id}')">Del</button></td></tr>`;
+    }).join('');
+  }
+
+  function renderGroupAdmin(teams) {
+    document.getElementById('groupAdminTable').innerHTML = `<table><thead><tr><th>Team</th><th>Assignment</th></tr></thead><tbody>` + 
+      teams.map(t => `<tr><td>${t.name}</td><td><select style="margin:0" onchange="updateGroup('${t.id}', this.value)">
+          <option value="Unassigned" ${t.group==='Unassigned'?'selected':''}>Unassigned</option>
+          <option value="A" ${t.group==='A'?'selected':''}>Group A</option>
+          <option value="B" ${t.group==='B'?'selected':''}>Group B</option></select></td></tr>`).join('') + `</tbody></table>`;
   }
 
   function renderAdminResolution(m) {
@@ -455,7 +457,7 @@
     }).join('') || 'No matches.';
   }
 
-  async function renderStandings(matches) {
+  function renderStandings(matches) {
     const stats = {};
     Object.values(matches).forEach(m => {
       if (!m.result) return;
@@ -464,17 +466,17 @@
       stats[m.homeId].gd += (gH - gA); stats[m.awayId].gd += (gA - gH);
       if (gH > gA) stats[m.homeId].p += 3; else if (gA > gH) stats[m.awayId].p += 3; else { stats[m.homeId].p += 1; stats[m.awayId].p += 1; }
     });
-    const tSnap = await db.ref('teams').get();
-    const teams = tSnap.val() || {};
-    const grpA = [], grpB = [];
-    Object.values(teams).forEach(t => {
-      const s = stats[t.id] || {p: 0, gd: 0};
-      if (t.group === 'A') grpA.push({n: t.name, ...s}); else if (t.group === 'B') grpB.push({n: t.name, ...s});
-    });
-    const srt = arr => arr.sort((a,b) => b.p - a.p || b.gd - a.gd);
-    document.getElementById('standingsDisplay').innerHTML = `<div class="row">
+    db.ref('teams').once('value', snap => {
+      const teams = snap.val() || {}, grpA = [], grpB = [];
+      Object.values(teams).forEach(t => {
+        const s = stats[t.id] || {p: 0, gd: 0};
+        if (t.group === 'A') grpA.push({n: t.name, ...s}); else if (t.group === 'B') grpB.push({n: t.name, ...s});
+      });
+      const srt = arr => arr.sort((a,b) => b.p - a.p || b.gd - a.gd);
+      document.getElementById('standingsDisplay').innerHTML = `<div class="row">
         <div class="col"><h5>Group A</h5>${makeStandingTable(srt(grpA))}</div>
         <div class="col"><h5>Group B</h5>${makeStandingTable(srt(grpB))}</div></div>`;
+    });
   }
 
   function makeStandingTable(arr) {
@@ -491,8 +493,7 @@
         (b ? `<div class="badge" style="width:100%; text-align:center">Pending: ${b.outcome} (${b.stake})</div>` : `
           <div style="display:flex; gap:5px">
             <select id="p_${k}"><option value="1">1</option><option value="X">X</option><option value="2">2</option></select>
-            <input id="s_${k}" placeholder="Stake" style="width:70px"/>
-            <button class="small" onclick="placeBet('${k}','p_${k}','s_${k}')">Bet</button></div>`)}</div>`;
+            <input id="s_${k}" placeholder="Stake" style="width:70px"/><button class="small" onclick="placeBet('${k}','p_${k}','s_${k}')">Bet</button></div>`)}</div>`;
     }).join('') || 'No active markets.';
   }
 
@@ -505,9 +506,13 @@
     }
   }
 
+  function calculateStrength(hist) {
+    const pts = hist.filter(p => p !== '-' && !isNaN(parseFloat(p))).map(parseFloat);
+    return pts.length ? (pts.reduce((a, b) => a + b, 0) / pts.length).toFixed(2) : 0;
+  }
+
   function renderResultsList(m) {
-    const rows = Object.values(m).map(x => `<tr><td>${x.home} v ${x.away}</td><td>${x.result || '—'}</td></tr>`).join('');
-    document.getElementById('resultsTable').innerHTML = `<table>${rows}</table>`;
+    document.getElementById('resultsTable').innerHTML = `<table>` + Object.values(m).map(x => `<tr><td>${x.home} v ${x.away}</td><td>${x.result || '—'}</td></tr>`).join('') + `</table>`;
   }
 
   function renderLeaderboard(users) {
