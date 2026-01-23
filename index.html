@@ -6,6 +6,7 @@
   <title>Bet365 Elite Dashboard</title>
   
   <style>
+    /* Bet365 Color Palette */
     :root {
       --b365-dark-green: #007355;
       --b365-bright-green: #12ed80;
@@ -42,18 +43,18 @@
     }
     .refresh-btn:hover { background: var(--b365-bright-green); color: #000; }
 
-    /* Admin Tabs */
-    .tab-bar { display: flex; background: #404040; border-bottom: 1px solid var(--b365-border); }
+    /* Navigation Tabs */
+    .tab-bar { display: flex; background: #404040; border-bottom: 1px solid var(--b365-border); overflow-x: auto; }
     .tab-item {
       padding: 14px 24px; cursor: pointer; border-right: 1px solid var(--b365-border);
-      font-size: 0.9rem; font-weight: 600; color: var(--b365-text-gray);
+      font-size: 0.9rem; font-weight: 600; color: var(--b365-text-gray); white-space: nowrap;
     }
     .tab-item.active {
       background: var(--b365-card-bg); color: var(--b365-accent-yellow);
       border-bottom: 2px solid var(--b365-accent-yellow);
     }
 
-    .container { padding: 20px; max-width: 1300px; margin: 0 auto; }
+    .container { padding: 20px; max-width: 1400px; margin: 0 auto; }
     
     .card { background: var(--b365-card-bg); border-radius: 2px; margin-bottom: 20px; border: 1px solid var(--b365-border); }
     .card-header {
@@ -67,16 +68,24 @@
       background: #444; border: 1px solid #555; color: white;
       padding: 10px; margin: 5px 0; width: 100%; box-sizing: border-box;
     }
+    
+    /* Compact inputs for history */
+    input.hist-input {
+      width: 40px; text-align: center; padding: 4px; display: inline-block; margin: 0 2px;
+    }
 
     button.action-btn {
       background: var(--b365-accent-yellow); color: #000; border: none;
       padding: 12px; width: 100%; font-weight: bold; cursor: pointer;
       text-transform: uppercase; margin-top: 10px;
     }
+    button.ghost-btn {
+      background: #555; color: #fff; border: none; padding: 8px; width: 100%; cursor: pointer; margin-top: 5px;
+    }
 
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th { text-align: left; background: #333; color: var(--b365-text-gray); padding: 12px; font-size: 0.75rem; text-transform: uppercase; }
-    td { padding: 12px; border-bottom: 1px solid var(--b365-border); font-size: 0.9rem; }
+    th { text-align: left; background: #333; color: var(--b365-text-gray); padding: 10px; font-size: 0.75rem; text-transform: uppercase; }
+    td { padding: 10px; border-bottom: 1px solid var(--b365-border); font-size: 0.9rem; vertical-align: middle; }
 
     .match-row { display: grid; grid-template-columns: 1fr 240px; padding: 15px; border-bottom: 1px solid var(--b365-border); }
     .odds-group { display: flex; gap: 8px; }
@@ -87,10 +96,6 @@
     .odd-box:hover { background: #505050; border: 1px solid var(--b365-bright-green); }
     .odd-val { color: var(--b365-accent-yellow); font-weight: bold; display: block; font-size: 1.1rem; }
     .odd-lbl { font-size: 0.7rem; color: var(--b365-text-gray); }
-
-    .badge { padding: 4px 8px; border-radius: 3px; font-size: 0.7rem; font-weight: bold; }
-    .win { color: var(--b365-bright-green); }
-    .loss { color: #ff4444; }
 
     #login-screen { max-width: 400px; margin: 100px auto; }
   </style>
@@ -136,6 +141,9 @@
                 <select id="gmHome"></select>
                 <div style="text-align:center; padding: 5px; color: var(--b365-text-gray);">vs</div>
                 <select id="gmAway"></select>
+                
+                <button class="ghost-btn" onclick="suggestOdds()">💡 Suggest Odds from Strength</button>
+
                 <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-top:10px">
                   <input id="o1" placeholder="1 (Odd)" />
                   <input id="oX" placeholder="X (Odd)" />
@@ -173,8 +181,21 @@
             </div>
           </div>
           <div class="card">
-            <div class="card-header">Group Assignments & Management</div>
-            <div id="admin-teams-table-area"></div>
+            <div class="card-header">Team Strength & Group Management</div>
+            <div style="overflow-x:auto;">
+              <table id="admin-teams-table">
+                <thead>
+                  <tr>
+                    <th>Team</th>
+                    <th>Group</th>
+                    <th>Form History (Recent -> Old)</th>
+                    <th>Strength</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-teams-body"></tbody>
+              </table>
+            </div>
           </div>
         </div>
 
@@ -199,7 +220,7 @@
         </div>
       </div>
 
-      <div id="standings-area" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:15px; margin-top:20px;"></div>
+      <div id="standings-area" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:15px; margin-top:20px;"></div>
 
     </div>
   </div>
@@ -257,32 +278,86 @@
     el.classList.add('active');
   }
 
-  // --- ADMIN ACTIONS ---
+  // --- LOGIC ---
   async function registerTeam() {
     const name = document.getElementById('tName').value.trim();
     const group = document.getElementById('tGroup').value;
     if (!name) return;
     const id = 't_' + Date.now();
     try {
-      await db.ref('teams/' + id).set({ id, name, group });
+      // Init with empty history
+      await db.ref('teams/' + id).set({ 
+        id, name, group, history: ['-','-','-','-','-'] 
+      });
       document.getElementById('tName').value = '';
-    } catch(e) { alert("Permission Denied. Update Firebase rules for groups A-E."); }
+    } catch(e) { alert("Permission Denied."); }
   }
 
-  async function updateTeamGroup(id, newGroup) {
-    await db.ref(`teams/${id}/group`).set(newGroup);
+  async function updateTeamData(id, field, value) {
+    // Generic updater
+    await db.ref(`teams/${id}/${field}`).set(value);
+  }
+
+  async function updateHistory(id, index, val) {
+    const clean = val.trim() === '-' ? '-' : (parseFloat(val) || 0);
+    await db.ref(`teams/${id}/history/${index}`).set(clean);
   }
 
   async function deleteTeam(id) {
     if(confirm('Remove team?')) await db.ref(`teams/${id}`).remove();
   }
 
+  // --- ODDS & STRENGTH ---
+  async function suggestOdds() {
+    const hId = document.getElementById('gmHome').value;
+    const aId = document.getElementById('gmAway').value;
+    if(!hId || !aId || hId === aId) return alert("Select two different teams");
+
+    const [t1, t2] = await Promise.all([
+      db.ref('teams/'+hId).get(),
+      db.ref('teams/'+aId).get()
+    ]);
+    
+    const sH = calcStrength(t1.val().history);
+    const sA = calcStrength(t2.val().history);
+
+    // Basic algo: Weighted probability + House Edge
+    const total = sH + sA;
+    if (total === 0) return alert("Both teams have 0 strength. Update history first.");
+    
+    // Probabilities (Approximate)
+    const pH = (sH / total) * 0.85; // Home advantage/strength
+    const pA = (sA / total) * 0.85; 
+    const pX = 0.15; // Flat draw chance base
+
+    // Convert to Decimals
+    const o1 = (1 / pH).toFixed(2);
+    const oX = (1 / pX).toFixed(2);
+    const o2 = (1 / pA).toFixed(2);
+
+    document.getElementById('o1').value = isFinite(o1) ? o1 : 2.00;
+    document.getElementById('oX').value = isFinite(oX) ? oX : 3.50;
+    document.getElementById('o2').value = isFinite(o2) ? o2 : 2.00;
+  }
+
+  function calcStrength(hist) {
+    if (!hist) return 0.5; // default
+    const nums = hist.filter(x => x !== '-' && !isNaN(parseFloat(x))).map(Number);
+    if (nums.length === 0) return 0.1; 
+    return nums.reduce((a,b) => a+b, 0) / nums.length;
+  }
+
+  // --- MATCHES ---
   function createMatch() {
     const hId = document.getElementById('gmHome').value;
     const aId = document.getElementById('gmAway').value;
     const hName = document.querySelector('#gmHome option:checked').textContent;
     const aName = document.querySelector('#gmAway option:checked').textContent;
-    const odds = { '1': document.getElementById('o1').value, 'X': document.getElementById('oX').value, '2': document.getElementById('o2').value };
+    const odds = { 
+      '1': document.getElementById('o1').value, 
+      'X': document.getElementById('oX').value, 
+      '2': document.getElementById('o2').value 
+    };
     db.ref('matches/m_'+Date.now()).set({ home: hName, homeId: hId, away: aName, awayId: aId, odds, result: null });
   }
 
@@ -290,10 +365,10 @@
     const res = prompt("Enter Final Score (e.g. 1-1)");
     if (res && /^\d+-\d+$/.test(res)) {
       await db.ref(`matches/${id}/result`).set(res);
-    } else if (res) alert("Format must be #-#");
+    }
   }
 
-  // --- LISTENERS ---
+  // --- RENDERERS ---
   function initListeners() {
     db.ref('teams').on('value', s => {
       const teams = Object.values(s.val() || {});
@@ -316,17 +391,28 @@
   }
 
   function renderAdminTeamsTable(teams) {
-    const html = `<table><thead><tr><th>Team Name</th><th>Current Group</th><th>Actions</th></tr></thead><tbody>` + 
-      teams.map(t => `<tr>
+    const groups = ['A','B','C','D','E'];
+    const html = teams.map(t => {
+      const hist = t.history || ['-','-','-','-','-'];
+      const str = calcStrength(hist).toFixed(2);
+      
+      const histInputs = hist.map((val, i) => 
+        `<input class="hist-input" value="${val}" onchange="updateHistory('${t.id}', ${i}, this.value)">`
+      ).join('');
+
+      const grpSelect = `<select style="margin:0; padding:4px; width:auto;" onchange="updateTeamData('${t.id}', 'group', this.value)">
+          ${groups.map(g => `<option value="${g}" ${t.group===g?'selected':''}>${g}</option>`).join('')}
+        </select>`;
+
+      return `<tr>
         <td><strong>${t.name}</strong></td>
-        <td>
-          <select style="margin:0; padding:4px;" onchange="updateTeamGroup('${t.id}', this.value)">
-            ${['A','B','C','D','E'].map(g => `<option value="${g}" ${t.group===g?'selected':''}>Group ${g}</option>`).join('')}
-          </select>
-        </td>
-        <td><button onclick="deleteTeam('${t.id}')" style="background:transparent; color:#ff4444; border:none; cursor:pointer;">Delete</button></td>
-      </tr>`).join('') + `</tbody></table>`;
-    document.getElementById('admin-teams-table-area').innerHTML = html || '<p style="padding:15px">No teams registered.</p>';
+        <td>${grpSelect}</td>
+        <td style="white-space:nowrap">${histInputs}</td>
+        <td style="color:var(--b365-accent-yellow); font-weight:bold;">${str}</td>
+        <td><button onclick="deleteTeam('${t.id}')" style="background:transparent; color:#ff4444; border:none; cursor:pointer;">X</button></td>
+      </tr>`;
+    }).join('');
+    document.getElementById('admin-teams-body').innerHTML = html;
   }
 
   function renderAdminMatches(matches) {
@@ -336,7 +422,7 @@
         <button class="refresh-btn" style="font-size:0.7rem; padding:4px 8px;" onclick="setScore('${id}')">${m.result || 'Settlement'}</button>
       </div>
     `).join('');
-    document.getElementById('admin-match-list').innerHTML = html || 'No matches scheduled.';
+    document.getElementById('admin-match-list').innerHTML = html || 'No matches.';
   }
 
   function renderUserOdds(matches) {
@@ -350,7 +436,7 @@
         </div>
       </div>
     `).join('');
-    document.getElementById('user-betting-odds').innerHTML = html || '<div style="padding:20px; color:#888;">No active markets at the moment.</div>';
+    document.getElementById('user-betting-odds').innerHTML = html || '<div style="padding:20px; color:#888;">No active markets.</div>';
   }
 
   async function updateStandings(teams) {
