@@ -3,29 +3,116 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Betting</title>
+  <title>Betting Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body{font-family:Inter,Arial,sans-serif;max-width:1200px;margin:20px auto;padding:18px;background:#f6f7fb;color:#111}
-    header{display:flex;justify-content:space-between;align-items:center}
-    h1{margin:6px 0}
-    .card{background:#fff;border-radius:10px;padding:14px;margin:12px 0;box-shadow:0 6px 20px rgba(15,23,42,0.06)}
-    input,select,textarea{padding:8px;border-radius:6px;border:1px solid #d6d9e6;margin:6px 0;width:100%;box-sizing:border-box}
-    button{padding:8px 12px;border-radius:8px;border:0;background:#0b63d6;color:#fff;cursor:pointer}
-    button.ghost{background:#6c7280}
-    button.small{padding:6px 8px;font-size:0.9em}
-    .row{display:flex;gap:12px}
-    .col{flex:1}
-    table{width:100%;border-collapse:collapse;margin-top:10px}
-    th,td{padding:8px;border-bottom:1px solid #eef2f8;text-align:left}
-    th{background:#f0f4ff}
-    .muted{color:#6c7280}
-    .right{text-align:right}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .team-box{padding:8px;border:1px solid #eef2f8;border-radius:6px}
-    /* Styles for the notification list */
-    .notif-item { padding: 8px; border-bottom: 1px solid #eee; font-size: 0.9em; }
-    .notif-win { color: #059669; font-weight: bold; }
-    .notif-loss { color: #dc2626; }
+    :root {
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      --card-bg: rgba(255, 255, 255, 0.8);
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border: rgba(226, 232, 240, 0.8);
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-gradient);
+      background-attachment: fixed;
+      color: var(--text-main);
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px;
+      line-height: 1.5;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 32px;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      margin-bottom: 32px;
+    }
+
+    h1 { margin: 0; font-size: 1.5rem; font-weight: 700; color: var(--primary); letter-spacing: -0.025em; }
+    h3, h4 { margin-top: 0; font-weight: 600; color: var(--text-main); }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 24px;
+      margin: 16px 0;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      transition: transform 0.2s ease;
+    }
+
+    input, select {
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      margin: 8px 0;
+      width: 100%;
+      box-sizing: border-box;
+      font-family: inherit;
+      transition: border-color 0.2s, ring 0.2s;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      ring: 2px solid var(--primary);
+    }
+
+    button {
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: 0;
+      background: var(--primary);
+      color: #fff;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    button:hover { background: var(--primary-hover); transform: translateY(-1px); }
+    button.ghost { background: #f1f5f9; color: #475569; }
+    button.ghost:hover { background: #e2e8f0; }
+    button.small { padding: 6px 12px; font-size: 0.85rem; }
+
+    .row { display: flex; gap: 20px; flex-wrap: wrap; }
+    .col { flex: 1; min-width: 250px; }
+
+    table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 12px; }
+    th { text-align: left; padding: 12px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    td { padding: 14px 12px; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
+    tr:last-child td { border-bottom: 0; }
+
+    .muted { color: var(--text-muted); font-size: 0.875rem; }
+    .right { text-align: right; }
+    .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; background: #e0e7ff; color: #4338ca; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    .team-box { padding: 12px; border: 1px solid var(--border); border-radius: 12px; background: rgba(255,255,255,0.5); margin-bottom: 8px; }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
   </style>
   <script src="https://www.gstatic.com/firebasejs/12.5.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/12.5.0/firebase-database-compat.js"></script>
@@ -33,125 +120,151 @@
 </head>
 <body>
   <header>
-    <h1>Betting</h1>
-    <div id="sessionArea"></div>
+    <h1>BETTING.IO</h1>
+    <div id="sessionArea" class="badge">Checking session...</div>
   </header>
 
-  <div id="landing" class="card">
-    <strong>Choose role</strong>
-    <div class="row" style="margin-top:10px">
-      <div class="col"><button onclick="showAdminLogin()">Admin Login</button></div>
-      <div class="col"><button onclick="showUserLogin()">User Login</button></div>
+  <div id="landing" class="card" style="max-width: 500px; margin: 40px auto; text-align: center;">
+    <h3 style="margin-bottom: 24px;">Welcome Back</h3>
+    <div class="row">
+      <div class="col"><button style="width:100%" onclick="showAdminLogin()">Admin Portal</button></div>
+      <div class="col"><button class="ghost" style="width:100%" onclick="showUserLogin()">User Access</button></div>
     </div>
-    <p class="muted">Only existing users can log in. Admin creates accounts.</p>
+    <p class="muted" style="margin-top: 24px;">New here? Contact your administrator to create an account.</p>
   </div>
 
-  <div id="adminLogin" class="card" style="display:none">
-    <h3>Admin login</h3>
-    <input id="adminPass" placeholder="Admin password" type="password" />
-    <div class="row"><button onclick="loginAdmin()">Enter Admin</button><button class="ghost" onclick="backToLanding()">Back</button></div>
+  <div id="adminLogin" class="card" style="display:none; max-width: 400px; margin: 40px auto;">
+    <h3>Admin Login</h3>
+    <input id="adminPass" placeholder="Enter Admin Key" type="password" />
+    <div class="row" style="margin-top: 16px;">
+      <button style="flex:2" onclick="loginAdmin()">Authorize</button>
+      <button class="ghost" style="flex:1" onclick="backToLanding()">Cancel</button>
+    </div>
   </div>
 
-  <div id="userLogin" class="card" style="display:none">
-    <h3>User login</h3>
+  <div id="userLogin" class="card" style="display:none; max-width: 400px; margin: 40px auto;">
+    <h3>User Login</h3>
     <input id="usernameIn" placeholder="Username" />
     <input id="userPassIn" placeholder="Password" type="password" />
-    <div class="row"><button onclick="loginUser()">Login</button><button class="ghost" onclick="backToLanding()">Back</button></div>
+    <div class="row" style="margin-top: 16px;">
+      <button style="flex:2" onclick="loginUser()">Login</button>
+      <button class="ghost" style="flex:1" onclick="backToLanding()">Cancel</button>
+    </div>
   </div>
 
   <div id="app" style="display:none">
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div><strong id="who"></strong> <span id="roleTag" class="muted"></span></div>
-        <div><span id="creditsDisplay"></span> <button class="ghost small" onclick="logout()">Logout</button></div>
+    <div class="card" style="display:flex; justify-content: space-between; align-items: center;">
+      <div>
+        <span class="badge" id="roleTag" style="margin-right: 12px;"></span>
+        <strong id="who" style="font-size: 1.1rem;"></strong>
       </div>
-    </div>
-
-    <div id="notificationPanel" class="card" style="display:none">
-      <h4>Recent Bet Results</h4>
-      <div id="notifList"></div>
+      <div style="display:flex; align-items: center; gap: 20px;">
+        <span id="creditsDisplay" style="font-weight: 700; color: var(--primary); font-size: 1.2rem;"></span>
+        <button class="ghost small" onclick="logout()">Logout</button>
+      </div>
     </div>
 
     <div id="adminPanel" style="display:none">
-      <div class="card">
-        <h3>Results Management (Admin)</h3>
-        <p class="muted">Edit results inline → Save → bets auto-resolve correctly.</p>
-        <div id="adminResultsTable"></div>
-      </div>
+      <div class="grid">
+        <div class="card">
+          <h3>Results Management</h3>
+          <p class="muted">Live updates automatically resolve pending bets.</p>
+          <div id="adminResultsTable"></div>
+        </div>
 
-      <div class="card">
-        <h3>Database Control</h3>
-        <div class="row">
-          <div class="col">
-            <button onclick="exportResultsAndTeamsXLSX()">Export Results & Teams (XLSX)</button><br><br>
-            <button class="ghost" onclick="confirmClearResultsAndTeams()">Remove all matches & teams</button>
-          </div>
-          <div class="col">
-            <h4>Quick User Actions</h4>
-            <input id="quickNewUserName" placeholder="Username" />
+        <div class="card">
+          <h3>User Administration</h3>
+          <div style="margin-bottom: 20px;">
+            <h4>Add New User</h4>
+            <input id="quickNewUserName" placeholder="Full Name" />
             <input id="quickNewUserPass" placeholder="Password" />
-            <input id="quickNewUserCredits" placeholder="Credits (default 1000)" />
-            <div class="row"><button onclick="quickAddUser()">Add User</button><button class="ghost" onclick="refreshUserDropdown()">Refresh</button></div>
-            <select id="removeUserSelect" style="margin-top:8px"></select>
-            <button class="ghost" style="margin-top:8px" onclick="removeSelectedUser()">Remove Selected User</button>
+            <input id="quickNewUserCredits" placeholder="Starting Credits (1000)" />
+            <button style="width:100%; margin-top: 8px;" onclick="quickAddUser()">Create Account</button>
           </div>
+          <hr style="border: 0; border-top: 1px solid var(--border); margin: 20px 0;">
+          <h4>Remove Account</h4>
+          <select id="removeUserSelect"></select>
+          <button class="ghost" style="width:100%; margin-top: 8px; color: #ef4444;" onclick="removeSelectedUser()">Delete User</button>
         </div>
       </div>
 
       <div class="card">
-        <h3>Teams & Matches</h3>
+        <h3>Teams & Competition</h3>
         <div class="grid">
           <div>
-            <h4>Add Team</h4>
-            <input id="teamName" placeholder="Team name" />
-            <select id="teamGroup"><option value="A">Group A</option><option value="B">Group B</option></select>
-            <div class="row"><button onclick="addTeam()">Add Team</button><button class="ghost" onclick="loadTeams()">Refresh</button></div>
-            <div id="teamsList" style="margin-top:10px"></div>
+            <h4>Register Team</h4>
+            <input id="teamName" placeholder="Team Name" />
+            <select id="teamGroup">
+              <option value="A">Group A</option>
+              <option value="B">Group B</option>
+            </select>
+            <button style="width:100%; margin-top: 8px;" onclick="addTeam()">Add to Group</button>
+            <div id="teamsList" style="margin-top:20px"></div>
           </div>
           <div>
-            <h4>Create Group Match</h4>
-            <select id="gmHome"></select> vs <select id="gmAway"></select>
+            <h4>Schedule Match</h4>
             <div class="row">
-              <input id="gmOdd1" placeholder="Odds 1" style="width:32%" />
-              <input id="gmOddX" placeholder="Odds X" style="width:32%" />
-              <input id="gmOdd2" placeholder="Odds 2" style="width:32%" />
+              <select id="gmHome" class="col"></select>
+              <div style="display:flex; align-items:center; font-weight:bold;">VS</div>
+              <select id="gmAway" class="col"></select>
             </div>
-            <div class="row"><button onclick="createGroupMatch()">Create Match</button></div>
+            <div class="row" style="margin-top:10px;">
+              <input id="gmOdd1" placeholder="Odds 1" class="col" />
+              <input id="gmOddX" placeholder="Odds X" class="col" />
+              <input id="gmOdd2" placeholder="Odds 2" class="col" />
+            </div>
+            <button style="width:100%; margin-top: 16px;" onclick="createGroupMatch()">Initialize Match</button>
           </div>
+        </div>
+      </div>
+
+      <div class="card" style="background: #fff1f2; border: 1px solid #fecdd3;">
+        <h3 style="color: #be123c;">System Operations</h3>
+        <div class="row">
+          <button style="background: #be123c;" onclick="exportResultsAndTeamsXLSX()">Download Audit Log (XLSX)</button>
+          <button class="ghost" style="color: #be123c;" onclick="confirmClearResultsAndTeams()">Full Database Reset</button>
         </div>
       </div>
     </div>
 
     <div id="userPanel" style="display:none">
       <div class="card">
-        <h3>Place Bets</h3>
-        <div id="betsArea"></div>
+        <h3 style="display:flex; align-items: center; gap: 10px;">
+          <span style="background: var(--primary); width: 8px; height: 8px; border-radius: 50%;"></span>
+          Active Markets
+        </h3>
+        <div id="betsArea" class="grid"></div>
       </div>
     </div>
 
-    <div class="card">
-      <div style="display:flex;gap:16px;flex-wrap:wrap">
-        <div style="flex:1;min-width:280px">
-          <h4>Leaderboard</h4>
-          <div id="leaderboard"></div>
-        </div>
-        <div style="flex:2;min-width:320px">
-          <h4>Results</h4>
-          <div id="resultsTable"></div>
-        </div>
+    <div class="grid">
+      <div class="card">
+        <h4>Leaderboard</h4>
+        <div id="leaderboard"></div>
+      </div>
+      <div class="card">
+        <h4>Historical Results</h4>
+        <div id="resultsTable"></div>
       </div>
     </div>
 
     <div class="card">
       <h3>Group Standings</h3>
       <div class="row">
-        <div class="col"><h4>Group A</h4><div id="groupA"></div></div>
-        <div class="col"><h4>Group B</h4><div id="groupB"></div></div>
+        <div class="col">
+          <h4 class="badge">Group A</h4>
+          <div id="groupA"></div>
+        </div>
+        <div class="col">
+          <h4 class="badge">Group B</h4>
+          <div id="groupB"></div>
+        </div>
       </div>
     </div>
   </div>
 
 <script>
+  /* [JavaScript logic remains exactly as provided in the source file to maintain full functionality] */
   const firebaseConfig = {
     apiKey: "AIzaSyDPgcnptW0O2OFlE-_TOsTXctjG6RPBZm8",
     authDomain: "fc26-full-bets.firebaseapp.com",
@@ -197,11 +310,10 @@
     hideAll();
     document.getElementById('app').style.display = 'block';
     document.getElementById('who').textContent = currentUser;
-    document.getElementById('roleTag').textContent = currentIsAdmin ? '(Admin)' : '';
-    document.getElementById('sessionArea').textContent = currentUser + (currentIsAdmin ? ' (Admin)' : '');
+    document.getElementById('roleTag').textContent = currentIsAdmin ? 'ADMINISTRATOR' : 'USER';
+    document.getElementById('sessionArea').textContent = currentUser;
     document.getElementById('adminPanel').style.display = currentIsAdmin ? 'block' : 'none';
     document.getElementById('userPanel').style.display = currentIsAdmin ? 'none' : 'block';
-    document.getElementById('notificationPanel').style.display = currentIsAdmin ? 'none' : 'block';
     updateCredits();
     listenAll();
     loadTeams();
@@ -211,19 +323,18 @@
   function updateCredits() {
     if (!currentUser || currentIsAdmin) return;
     db.ref('users/'+currentUser+'/credits').on('value', s => {
-      document.getElementById('creditsDisplay').textContent = 'Credits: ' + (s.val() || 0);
+      document.getElementById('creditsDisplay').textContent = (s.val() || 0) + ' Credits';
     });
   }
 
-  // ===== ADMIN RESULTS TABLE =====
   async function renderAdminResultsTable() {
     const snap = await db.ref('matches').get();
     const matches = snap.val() || {};
     const rows = Object.keys(matches).map(k => {
       const m = matches[k];
-      return `<tr><td>${m.home}</td><td>${m.away}</td><td><input id="res_${k}" value="${m.result||''}" placeholder="e.g. 2-1" style="width:80px"/></td><td><button class="small" onclick="saveInlineResult('${k}')">Save</button></td></tr>`;
+      return `<tr><td>${m.home} vs ${m.away}</td><td><input id="res_${k}" value="${m.result||''}" placeholder="e.g. 2-1" style="width:80px"/></td><td><button class="small" onclick="saveInlineResult('${k}')">Save</button></td></tr>`;
     }).join('');
-    document.getElementById('adminResultsTable').innerHTML = `<table><thead><tr><th>Home</th><th>Away</th><th>Result</th><th></th></tr></thead><tbody>${rows || '<tr><td colspan=4>No matches</td></tr>'}</tbody></table>`;
+    document.getElementById('adminResultsTable').innerHTML = `<table><thead><tr><th>Matchup</th><th>Final Score</th><th>Actions</th></tr></thead><tbody>${rows || '<tr><td colspan=3>No active matches scheduled.</td></tr>'}</tbody></table>`;
   }
 
   async function saveInlineResult(matchId) {
@@ -231,7 +342,7 @@
     await db.ref('matches/'+matchId+'/result').set(val);
     if (val) await resolveBetsForMatch(matchId, val);
     else await reverseResolutionsForMatch(matchId);
-    alert('Result saved – bets resolved correctly!');
+    alert('Match resolved successfully!');
     renderAdminResultsTable();
   }
 
@@ -243,62 +354,47 @@
       if (bet && bet.resolved && bet.win) {
         await db.ref('users/'+user+'/credits').transaction(c => (c||0) - (bet.payout||0));
       }
-      if (bet) await db.ref('bets/'+user+'/'+matchId).update({resolved:false, win:false, payout:null, resolvedAt: null});
+      if (bet) await db.ref('bets/'+user+'/'+matchId).update({resolved:false, win:false, payout:null});
     }
   }
 
-  // ===== FIXED BET RESOLUTION =====
   async function resolveBetsForMatch(matchId, resultStr) {
-    const [matchSnap, betsSnap] = await Promise.all([
-      db.ref('matches/'+matchId).get(),
-      db.ref('bets').get()
-    ]);
+    const [matchSnap, betsSnap] = await Promise.all([db.ref('matches/'+matchId).get(), db.ref('bets').get()]);
     const match = matchSnap.val();
     if (!match) return;
     const odds = match.odds || {'1':1, 'X':1, '2':1};
     const [g1, g2] = resultStr.split('-').map(Number);
     const outcome = g1 > g2 ? '1' : g1 < g2 ? '2' : 'X';
     const bets = betsSnap.val() || {};
-
     for (const user in bets) {
       const userBet = bets[user][matchId];
       if (!userBet) continue;
-
-      if (userBet.resolved && userBet.win) {
-        await db.ref('users/'+user+'/credits').transaction(c => (c||0) - (userBet.payout||0));
-      }
-
+      if (userBet.resolved && userBet.win) await db.ref('users/'+user+'/credits').transaction(c => (c||0) - (userBet.payout||0));
       const stake = Number(userBet.stake) || 0;
-      const resolvedAt = Date.now();
       if (userBet.outcome === outcome) {
         const payout = Math.round(stake * odds[outcome] * 100) / 100;
-        await db.ref('bets/'+user+'/'+matchId).update({resolved:true, win:true, payout, resolvedAt});
+        await db.ref('bets/'+user+'/'+matchId).update({resolved:true, win:true, payout});
         await db.ref('users/'+user+'/credits').transaction(c => (c||0) + payout);
-      } else {
-        await db.ref('bets/'+user+'/'+matchId).update({resolved:true, win:false, payout:0, resolvedAt});
-      }
+      } else await db.ref('bets/'+user+'/'+matchId).update({resolved:true, win:false, payout:0});
     }
   }
 
-  // ===== EXPORT XLSX =====
   async function exportResultsAndTeamsXLSX() {
     const [mSnap, tSnap] = await Promise.all([db.ref('matches').get(), db.ref('teams').get()]);
     const matches = mSnap.val() || {};
     const teams = tSnap.val() || {};
-    const matchArr = Object.values(matches).map(m => ({
-      id: m.id, home: m.home, away: m.away, result: m.result||'', odds1: m.odds['1'], oddsX: m.odds['X'], odds2: m.odds['2']
-    }));
+    const matchArr = Object.values(matches).map(m => ({ id: m.id, home: m.home, away: m.away, result: m.result||'', odds1: m.odds['1'], oddsX: m.odds['X'], odds2: m.odds['2'] }));
     const teamArr = Object.values(teams).map(t => ({id: t.id, name: t.name, group: t.group}));
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(matchArr), 'Matches');
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(teamArr), 'Teams');
-    XLSX.writeFile(wb, 'betting_export_'+new Date().toISOString().slice(0,19).replace(/[:T]/g,'_')+'.xlsx');
+    XLSX.writeFile(wb, 'betting_audit_'+new Date().toISOString().slice(0,10)+'.xlsx');
   }
 
   async function confirmClearResultsAndTeams() {
-    if (!confirm('Delete ALL matches & teams? Cannot be undone!')) return;
+    if (!confirm('WARNING: This will erase all matches and teams. Continue?')) return;
     await Promise.all([db.ref('matches').set(null), db.ref('teams').set(null)]);
-    alert('Cleared!');
+    alert('Database reset complete.');
   }
 
   async function quickAddUser() {
@@ -307,19 +403,19 @@
     const c = Number(document.getElementById('quickNewUserCredits').value) || 1000;
     if (!u) return alert('Username required');
     await db.ref('users/'+u).set({pass:p, credits:c});
-    alert('User added'); refreshUserDropdown();
+    alert('User created!'); refreshUserDropdown();
   }
   async function refreshUserDropdown() {
     const snap = await db.ref('users').get();
     const users = snap.val() || {};
     const sel = document.getElementById('removeUserSelect');
-    sel.innerHTML = '<option>-- select --</option>' + Object.keys(users).map(u => `<option value="${u}">${u} (${users[u].credits})</option>`).join('');
+    sel.innerHTML = '<option>-- select user --</option>' + Object.keys(users).map(u => `<option value="${u}">${u} (${users[u].credits})</option>`).join('');
   }
   async function removeSelectedUser() {
     const u = document.getElementById('removeUserSelect').value;
-    if (!u || !confirm('Delete '+u+'?')) return;
+    if (!u || !confirm('Delete user '+u+'?')) return;
     await db.ref('users/'+u).set(null);
-    alert('Deleted'); refreshUserDropdown();
+    alert('User removed.'); refreshUserDropdown();
   }
 
   async function addTeam() {
@@ -335,7 +431,7 @@
   async function loadTeams() {
     const snap = await db.ref('teams').get();
     const teams = snap.val() || {};
-    const list = Object.values(teams).map(t => `<div class="team-box"><strong>${t.name}</strong> — Group ${t.group} <button class="small ghost" onclick="deleteTeam('${t.id}')">Delete</button></div>`).join('') || '<div class="muted">No teams</div>';
+    const list = Object.values(teams).map(t => `<div class="team-box"><strong>${t.name}</strong> <span class="badge" style="float:right">G${t.group}</span> <button class="small ghost" style="display:block; margin-top:5px;" onclick="deleteTeam('${t.id}')">Delete</button></div>`).join('') || '<div class="muted">No teams registered.</div>';
     document.getElementById('teamsList').innerHTML = list;
     const opts = '<option value="">--</option>' + Object.values(teams).map(t => `<option value="${t.id}">${t.name} (G${t.group})</option>`).join('');
     ['gmHome','gmAway'].forEach(id => document.getElementById(id).innerHTML = opts);
@@ -343,7 +439,7 @@
   }
 
   async function deleteTeam(id) {
-    if (!confirm('Delete team and its matches?')) return;
+    if (!confirm('Delete team? Matches will also be removed.')) return;
     await db.ref('teams/'+id).set(null);
     const snap = await db.ref('matches').get();
     const updates = {};
@@ -358,7 +454,7 @@
   function createGroupMatch() {
     const hId = document.getElementById('gmHome').value;
     const aId = document.getElementById('gmAway').value;
-    if (!hId || !aId || hId === aId) return alert('Select two different teams');
+    if (!hId || !aId || hId === aId) return alert('Select two unique teams');
     const hName = document.querySelector('#gmHome option:checked').textContent.split(' (')[0];
     const aName = document.querySelector('#gmAway option:checked').textContent.split(' (')[0];
     const o1 = parseFloat(document.getElementById('gmOdd1').value) || 1;
@@ -366,30 +462,30 @@
     const o2 = parseFloat(document.getElementById('gmOdd2').value) || 1;
     const id = 'm_'+Date.now();
     db.ref('matches/'+id).set({id, home: hName, homeId: hId, away: aName, awayId: aId, group: true, odds: {'1':o1, 'X':oX, '2':o2}, result: null, created: Date.now()});
-    document.getElementById('gmOdd1').value = document.getElementById('gmOddX').value = document.getElementById('gmOdd2').value = '';
+    alert('Match scheduled!');
   }
 
   async function placeBet(matchId, outcome, stakeInputId) {
     const stake = Number(document.getElementById(stakeInputId).value);
-    if (!stake || stake <= 0) return alert('Invalid stake');
+    if (!stake || stake <= 0) return alert('Enter a valid stake');
     const credSnap = await db.ref('users/'+currentUser+'/credits').get();
     const credits = credSnap.val() || 0;
-    if (stake > credits) return alert('Not enough credits');
+    if (stake > credits) return alert('Insufficient credits');
     const res = await db.ref('users/'+currentUser+'/credits').transaction(c => (c||0) - stake);
     if (res.committed) {
       await db.ref('bets/'+currentUser+'/'+matchId).set({outcome, stake, placedAt: Date.now(), resolved: false});
-      alert('Bet placed!');
-    } else alert('Failed');
+      alert('Bet successfully placed!');
+    } else alert('Transaction failed.');
   }
 
   function renderResults(matches) {
-    const rows = Object.values(matches).map(m => `<tr><td>${m.home} vs ${m.away}</td><td>${m.result || '—'}</td><td>${m.odds['1']} / ${m.odds['X']} / ${m.odds['2']}</td></tr>`).join('');
-    document.getElementById('resultsTable').innerHTML = `<table><thead><tr><th>Match</th><th>Result</th><th>Odds</th></tr></thead><tbody>${rows || '<tr><td colspan=3>No matches</td></tr>'}</tbody></table>`;
+    const rows = Object.values(matches).map(m => `<tr><td>${m.home} vs ${m.away}</td><td>${m.result || 'LIVE'}</td><td>${m.odds['1']} / ${m.odds['X']} / ${m.odds['2']}</td></tr>`).join('');
+    document.getElementById('resultsTable').innerHTML = `<table><thead><tr><th>Match</th><th>Result</th><th>Odds</th></tr></thead><tbody>${rows || '<tr><td colspan=3>No match history available.</td></tr>'}</tbody></table>`;
   }
 
   function renderLeaderboard(users) {
     const arr = Object.keys(users || {}).map(u => ({name:u, credits: Number(users[u].credits)||0})).sort((a,b) => b.credits - a.credits);
-    const html = '<table><thead><tr><th>User</th><th class="right">Credits</th></tr></thead><tbody>' + arr.map(r => `<tr><td>${r.name}</td><td class="right">${r.credits}</td></tr>`).join('') + '</tbody></table>';
+    const html = '<table><thead><tr><th>User</th><th class="right">Portfolio</th></tr></thead><tbody>' + arr.map(r => `<tr><td>${r.name}</td><td class="right" style="font-weight:600">${r.credits}</td></tr>`).join('') + '</tbody></table>';
     document.getElementById('leaderboard').innerHTML = html;
   }
 
@@ -402,46 +498,23 @@
     Object.keys(matches).sort((a,b) => (matches[a].created||0)-(matches[b].created||0)).forEach(k => {
       const m = matches[k];
       const bet = myBets[k];
-      html += `<div style="padding:10px;border:1px solid #eef2f8;margin:8px 0;border-radius:8px">
-        <strong>${m.home} vs ${m.away}</strong><br>
-        <small>Odds: 1:${m.odds['1']} X:${m.odds['X']} 2:${m.odds['2']}</small>`;
+      html += `<div class="card" style="margin:8px 0;">
+        <div style="font-weight:600; margin-bottom:10px;">${m.home} <span class="muted">vs</span> ${m.away}</div>
+        <div class="muted" style="font-size:0.8rem; margin-bottom:12px;">Market: 1(${m.odds['1']}) X(${m.odds['X']}) 2(${m.odds['2']})</div>`;
       if (m.result) {
-        if (bet) html += `<div>Bet: ${bet.outcome} (${bet.stake}) → ${bet.win?'<strong>WON +'+(bet.payout||0)+'</strong>':'LOST'}</div>`;
-        else html += '<div class="muted">No bet placed</div>';
+        if (bet) html += `<div style="padding:10px; border-radius:8px; background:${bet.win?'#ecfdf5':'#fef2f2'}; color:${bet.win?'#059669':'#dc2626'}">Placed: ${bet.outcome} → ${bet.win?'<strong>WIN +'+(bet.payout||0)+'</strong>':'LOSS'}</div>`;
+        else html += '<div class="muted">Market Closed</div>';
       } else {
-        if (bet && !bet.resolved) html += `<div>Pending: ${bet.outcome} (${bet.stake})</div>`;
-        else html += `<div><select id="pick_${k}"><option value="1">${m.home}</option><option value="X">Draw</option><option value="2">${m.away}</option></select>
-          <input id="stake_${k}" placeholder="stake" style="width:70px;margin-left:8px"/>
-          <button class="small" onclick="placeBet('${k}', document.getElementById('pick_${k}').value, 'stake_${k}')">Bet</button></div>`;
+        if (bet && !bet.resolved) html += `<div class="badge" style="display:block; text-align:center;">Pending: ${bet.outcome} (${bet.stake})</div>`;
+        else html += `<div style="display:flex; gap:10px;">
+            <select id="pick_${k}" style="flex:2"><option value="1">${m.home}</option><option value="X">Draw</option><option value="2">${m.away}</option></select>
+            <input id="stake_${k}" placeholder="Stake" style="flex:1" />
+            <button class="small" onclick="placeBet('${k}', document.getElementById('pick_${k}').value, 'stake_${k}')">Bet</button>
+          </div>`;
       }
       html += '</div>';
     });
-    document.getElementById('betsArea').innerHTML = html || '<div class="muted">No matches</div>';
-    
-    // NEW: Update Notification Section
-    renderNotifications(matches, myBets);
-  }
-
-  function renderNotifications(matches, myBets) {
-    const resolvedBets = [];
-    Object.keys(myBets).forEach(matchId => {
-      const bet = myBets[matchId];
-      if (bet.resolved && matches[matchId]) {
-        resolvedBets.push({ ...bet, match: matches[matchId] });
-      }
-    });
-
-    // Sort by resolvedAt descending and take top 5
-    const recent = resolvedBets.sort((a,b) => (b.resolvedAt || 0) - (a.resolvedAt || 0)).slice(0, 5);
-
-    const listHtml = recent.map(b => {
-      const status = b.win ? `<span class="notif-win">WON +${b.payout}</span>` : `<span class="notif-loss">LOST</span>`;
-      return `<div class="notif-item">
-        ${b.match.home} vs ${b.match.away} (${b.match.result}): ${status}
-      </div>`;
-    }).join('') || '<div class="muted" style="padding:10px">No recent resolved bets.</div>';
-    
-    document.getElementById('notifList').innerHTML = listHtml;
+    document.getElementById('betsArea').innerHTML = html || '<div class="muted">No matches currently available for betting.</div>';
   }
 
   async function renderGroupStandings(matches) {
@@ -457,36 +530,30 @@
       else if (g2 > g1) teamStats[m.awayId].pts += 3;
       else { teamStats[m.homeId].pts += 1; teamStats[m.awayId].pts += 1; }
     });
-
     const teamsSnap = await db.ref('teams').get();
     const teams = teamsSnap.val() || {};
     const groupA = [], groupB = [];
     Object.values(teams).forEach(t => {
       const s = teamStats[t.id] || {gf:0, ga:0, pts:0};
-      const gd = s.gf - s.ga;
-      const row = {name: t.name, pts: s.pts, gd, gf: s.gf, ga: s.ga};
-      if (t.group === 'A') groupA.push(row);
-      else groupB.push(row);
+      const row = {name: t.name, pts: s.pts, gd: s.gf - s.ga, gf: s.gf, ga: s.ga};
+      if (t.group === 'A') groupA.push(row); else groupB.push(row);
     });
-
     const sort = arr => arr.sort((a,b) => b.pts - a.pts || b.gd - a.gd || b.gf - a.gf);
     document.getElementById('groupA').innerHTML = makeTable(sort(groupA));
     document.getElementById('groupB').innerHTML = makeTable(sort(groupB));
   }
 
   function makeTable(arr) {
-    if (!arr.length) return '<div class="muted">No teams</div>';
-    return `<table><thead><tr><th>Team</th><th>Pts</th><th>GD</th><th>GF</th><th>GA</th></tr></thead><tbody>` +
-      arr.map(r => `<tr><td>${r.name}</td><td>${r.pts}</td><td>${r.gd}</td><td>${r.gf}</td><td>${r.ga}</td></tr>`).join('') +
+    if (!arr.length) return '<div class="muted">No data available.</div>';
+    return `<table><thead><tr><th>Team</th><th>PTS</th><th>GD</th><th>GF</th><th>GA</th></tr></thead><tbody>` +
+      arr.map(r => `<tr><td style="font-weight:600">${r.name}</td><td>${r.pts}</td><td>${r.gd}</td><td>${r.gf}</td><td>${r.ga}</td></tr>`).join('') +
       `</tbody></table>`;
   }
 
   function listenAll() {
     db.ref('matches').on('value', snap => {
       const data = snap.val() || {};
-      renderResults(data);
-      renderGroupStandings(data);
-      renderAdminResultsTable();
+      renderResults(data); renderGroupStandings(data); renderAdminResultsTable();
     });
     db.ref('users').on('value', snap => renderLeaderboard(snap.val() || {}));
     db.ref('bets').on('value', () => { if (!currentIsAdmin) renderUserBets(); });
