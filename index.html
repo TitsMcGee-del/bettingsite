@@ -82,6 +82,9 @@
     button.ghost-btn {
       background: #555; color: #fff; border: none; padding: 8px; width: 100%; cursor: pointer; margin-top: 5px;
     }
+    button.small-btn {
+      padding: 4px 8px; font-size: 0.8rem; cursor: pointer; border-radius: 3px; border:none; margin-left:5px;
+    }
 
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     th { text-align: left; background: #333; color: var(--b365-text-gray); padding: 10px; font-size: 0.75rem; text-transform: uppercase; }
@@ -107,7 +110,10 @@
 
   <header>
     <div style="font-weight: 900; font-size: 1.6rem; color: var(--b365-bright-green); letter-spacing: -1px;">bet365</div>
-    <button class="refresh-btn" onclick="location.reload()">REFRESH</button>
+    <div>
+      <span id="headerUser" style="margin-right:15px; color:#aaa; font-size:0.9rem;"></span>
+      <button class="refresh-btn" onclick="logout()">LOGOUT</button>
+    </div>
   </header>
 
   <div id="login-screen">
@@ -241,24 +247,57 @@
   let currentUser = null;
   let isAdmin = false;
 
+  // --- AUTH / SESSION HANDLING ---
+  // Check localStorage on load
+  window.onload = function() {
+    const savedUser = localStorage.getItem('bet365_user');
+    const savedAdmin = localStorage.getItem('bet365_isAdmin');
+    
+    if (savedUser) {
+      currentUser = savedUser;
+      isAdmin = (savedAdmin === 'true');
+      launch();
+    }
+  };
+
   function handleLogin() {
     const user = document.getElementById('userIn').value.trim();
     const pass = document.getElementById('passIn').value;
+
     if (user === 'Admin' && pass === 'IBM99ibm') {
-      currentUser = 'Admin'; isAdmin = true; launch();
+      setUserSession('Admin', true);
     } else {
       db.ref('users/'+user).once('value', s => {
         const d = s.val();
-        if (d && d.pass === pass) { currentUser = user; isAdmin = false; launch(); }
-        else alert('Invalid Login');
+        if (d && d.pass === pass) { 
+          setUserSession(user, false);
+        } else {
+          alert('Invalid Login');
+        }
       });
     }
+  }
+
+  function setUserSession(user, adminStatus) {
+    currentUser = user;
+    isAdmin = adminStatus;
+    localStorage.setItem('bet365_user', user);
+    localStorage.setItem('bet365_isAdmin', adminStatus);
+    launch();
+  }
+
+  function logout() {
+    localStorage.removeItem('bet365_user');
+    localStorage.removeItem('bet365_isAdmin');
+    location.reload();
   }
 
   function launch() {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     document.getElementById('display-name').textContent = currentUser;
+    document.getElementById('headerUser').textContent = currentUser; // show in header too
+
     if (isAdmin) {
       document.getElementById('admin-tabs').style.display = 'flex';
       document.getElementById('admin-content').style.display = 'block';
@@ -285,7 +324,6 @@
     if (!name) return;
     const id = 't_' + Date.now();
     try {
-      // Init with empty history
       await db.ref('teams/' + id).set({ 
         id, name, group, history: ['-','-','-','-','-'] 
       });
@@ -294,7 +332,6 @@
   }
 
   async function updateTeamData(id, field, value) {
-    // Generic updater
     await db.ref(`teams/${id}/${field}`).set(value);
   }
 
@@ -303,11 +340,26 @@
     await db.ref(`teams/${id}/history/${index}`).set(clean);
   }
 
+  // Feature: Shift History
+  async function shiftHistory(id) {
+    // get current history
+    const snap = await db.ref(`teams/${id}/history`).get();
+    let arr = snap.val() || ['-','-','-','-','-'];
+    
+    // Shift: [0]<-[1], [1]<-[2], etc. Last becomes '-'
+    for(let i=0; i < arr.length - 1; i++) {
+      arr[i] = arr[i+1];
+    }
+    arr[arr.length - 1] = '-'; // clear last col
+
+    await db.ref(`teams/${id}/history`).set(arr);
+  }
+
   async function deleteTeam(id) {
     if(confirm('Remove team?')) await db.ref(`teams/${id}`).remove();
   }
 
-  // --- ODDS & STRENGTH ---
+  // --- ODDS & STRENGTH (FIXED for 0 strength) ---
   async function suggestOdds() {
     const hId = document.getElementById('gmHome').value;
     const aId = document.getElementById('gmAway').value;
@@ -318,32 +370,40 @@
       db.ref('teams/'+aId).get()
     ]);
     
-    const sH = calcStrength(t1.val().history);
-    const sA = calcStrength(t2.val().history);
+    let sH = calcStrength(t1.val().history);
+    let sA = calcStrength(t2.val().history);
 
-    // Basic algo: Weighted probability + House Edge
-    const total = sH + sA;
-    if (total === 0) return alert("Both teams have 0 strength. Update history first.");
+    // FIX: If both are 0, treat them as equal strength (e.g. 1.0 each) to avoid divide by zero
+    if (sH === 0 && sA === 0) { sH = 1; sA = 1; }
     
-    // Probabilities (Approximate)
-    const pH = (sH / total) * 0.85; // Home advantage/strength
-    const pA = (sA / total) * 0.85; 
-    const pX = 0.15; // Flat draw chance base
+    // FIX: If only one is 0, give it a tiny value so odds aren't infinite
+    if (sH === 0) sH = 0.1;
+    if (sA === 0) sA = 0.1;
+
+    const total = sH + sA;
+
+    // Probabilities
+    const pH = (sH / total) * 0.88; // 88% return (house edge)
+    const pA = (sA / total) * 0.88; 
+    const pX = 0.12; // Fixed draw probability component
 
     // Convert to Decimals
     const o1 = (1 / pH).toFixed(2);
-    const oX = (1 / pX).toFixed(2);
+    const oX = (1 / pX).toFixed(2); // usually around 8.0 with this logic, can tweak manually
     const o2 = (1 / pA).toFixed(2);
 
-    document.getElementById('o1').value = isFinite(o1) ? o1 : 2.00;
-    document.getElementById('oX').value = isFinite(oX) ? oX : 3.50;
-    document.getElementById('o2').value = isFinite(o2) ? o2 : 2.00;
+    // Reasonable cap for Draw if it gets too wild
+    const finalOX = Math.min(Math.max(oX, 2.50), 6.50).toFixed(2); 
+
+    document.getElementById('o1').value = o1;
+    document.getElementById('oX').value = finalOX; 
+    document.getElementById('o2').value = o2;
   }
 
   function calcStrength(hist) {
-    if (!hist) return 0.5; // default
+    if (!hist) return 0; 
     const nums = hist.filter(x => x !== '-' && !isNaN(parseFloat(x))).map(Number);
-    if (nums.length === 0) return 0.1; 
+    if (nums.length === 0) return 0; 
     return nums.reduce((a,b) => a+b, 0) / nums.length;
   }
 
@@ -407,9 +467,14 @@
       return `<tr>
         <td><strong>${t.name}</strong></td>
         <td>${grpSelect}</td>
-        <td style="white-space:nowrap">${histInputs}</td>
+        <td style="white-space:nowrap">
+          <button class="small-btn" style="background:#444; color:#fff" onclick="shiftHistory('${t.id}')">⬅ Shift</button>
+          ${histInputs}
+        </td>
         <td style="color:var(--b365-accent-yellow); font-weight:bold;">${str}</td>
-        <td><button onclick="deleteTeam('${t.id}')" style="background:transparent; color:#ff4444; border:none; cursor:pointer;">X</button></td>
+        <td>
+          <button onclick="deleteTeam('${t.id}')" style="background:transparent; color:#ff4444; border:none; cursor:pointer;">X</button>
+        </td>
       </tr>`;
     }).join('');
     document.getElementById('admin-teams-body').innerHTML = html;
