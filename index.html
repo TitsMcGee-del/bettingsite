@@ -4,106 +4,43 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Elite Betting Dashboard</title>
-  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
   <style>
     :root {
-      --primary: #6366f1;
-      --primary-hover: #4f46e5;
+      --primary: #6366f1; --primary-hover: #4f46e5;
       --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
       --card-bg: rgba(255, 255, 255, 0.85);
-      --text-main: #1e293b;
-      --text-muted: #64748b;
+      --text-main: #1e293b; --text-muted: #64748b;
       --border: rgba(226, 232, 240, 0.8);
-      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-      --success: #10b981;
-      --danger: #ef4444;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+      --success: #10b981; --danger: #ef4444;
     }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg-gradient);
-      background-attachment: fixed;
-      color: var(--text-main);
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 24px;
-      line-height: 1.5;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 32px;
-      background: var(--card-bg);
-      backdrop-filter: blur(12px);
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-      margin-bottom: 32px;
-    }
-
-    h1 { margin: 0; font-size: 1.5rem; font-weight: 700; color: var(--primary); letter-spacing: -0.025em; }
-    h3, h4 { margin-top: 0; font-weight: 600; color: var(--text-main); }
-
-    .card {
-      background: var(--card-bg);
-      backdrop-filter: blur(16px);
-      border-radius: 16px;
-      padding: 24px;
-      margin: 16px 0;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-    }
-
-    input, select {
-      padding: 10px 14px;
-      border-radius: 10px;
-      border: 1px solid #cbd5e1;
-      margin: 8px 0;
-      width: 100%;
-      box-sizing: border-box;
-      font-family: inherit;
-    }
-
-    button {
-      padding: 10px 20px;
-      border-radius: 10px;
-      border: 0;
-      background: var(--primary);
-      color: #fff;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.2s;
-    }
-
+    body { font-family: 'Inter', sans-serif; background: var(--bg-gradient); background-attachment: fixed; color: var(--text-main); max-width: 1400px; margin: 0 auto; padding: 24px; }
+    header { display: flex; justify-content: space-between; align-items: center; padding: 20px 32px; background: var(--card-bg); backdrop-filter: blur(12px); border-radius: 16px; border: 1px solid var(--border); box-shadow: var(--shadow); margin-bottom: 32px; }
+    h1 { margin: 0; font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+    .card { background: var(--card-bg); backdrop-filter: blur(16px); border-radius: 16px; padding: 24px; margin: 16px 0; border: 1px solid var(--border); box-shadow: var(--shadow); }
+    input, select { padding: 10px 14px; border-radius: 10px; border: 1px solid #cbd5e1; margin: 8px 0; width: 100%; box-sizing: border-box; }
+    button { padding: 10px 20px; border-radius: 10px; border: 0; background: var(--primary); color: #fff; cursor: pointer; font-weight: 600; transition: 0.2s; }
     button:hover { background: var(--primary-hover); transform: translateY(-1px); }
     button.ghost { background: #f1f5f9; color: #475569; }
-    button.small { padding: 6px 12px; font-size: 0.85rem; }
-
+    button.danger { background: var(--danger); }
+    button.small { padding: 6px 12px; font-size: 0.8rem; }
     .row { display: flex; gap: 20px; flex-wrap: wrap; }
     .col { flex: 1; min-width: 280px; }
-
     table { width: 100%; border-collapse: separate; border-spacing: 0; }
     th { text-align: left; padding: 12px; font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border); }
-    td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-
-    /* Admin Table Specifics */
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
     .admin-table input { padding: 6px; margin: 0; font-size: 0.85rem; border-radius: 6px; text-align: center; }
-    .header-input { background: transparent; border: none; font-weight: bold; color: var(--text-muted); text-align: left !important; }
-
+    .header-input { background: transparent; border: none; font-weight: bold; color: var(--text-muted); }
     .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; background: #e0e7ff; color: #4338ca; display: inline-block; }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 24px; }
-    
-    .score-input { width: 50px !important; text-align: center; display: inline-block; margin: 0 !important; }
+    .score-input { width: 45px !important; text-align: center; display: inline-block; margin: 0 !important; padding: 4px !important; }
     .win { color: var(--success); font-weight: 700; }
     .loss { color: var(--danger); }
+    .notif-item { padding: 10px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 0.9rem; }
   </style>
-
   <script src="https://www.gstatic.com/firebasejs/12.5.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/12.5.0/firebase-database-compat.js"></script>
 </head>
@@ -114,111 +51,89 @@
     <div id="sessionArea" class="badge">Session: Guest</div>
   </header>
 
-  <div id="landing" class="card" style="max-width: 500px; margin: 80px auto; text-align: center;">
+  <div id="landing" class="card" style="max-width: 500px; margin: 60px auto; text-align: center;">
     <h3>Elite Betting Portal</h3>
-    <div class="row">
-      <div class="col"><button style="width:100%" onclick="showAdminLogin()">Admin Portal</button></div>
-      <div class="col"><button class="ghost" style="width:100%" onclick="showUserLogin()">User Access</button></div>
-    </div>
+    <div class="row"><button style="flex:1" onclick="showAdminLogin()">Admin</button><button class="ghost" style="flex:1" onclick="showUserLogin()">User</button></div>
   </div>
-
-  <div id="adminLogin" class="card" style="display:none; max-width: 400px; margin: 80px auto;">
-    <h3>Authorize Admin</h3>
-    <input id="adminPass" placeholder="Security Key" type="password" />
-    <div class="row" style="margin-top: 16px;">
-      <button style="flex:2" onclick="loginAdmin()">Sign In</button>
-      <button class="ghost" style="flex:1" onclick="backToLanding()">Cancel</button>
-    </div>
+  <div id="adminLogin" class="card" style="display:none; max-width: 400px; margin: 60px auto;">
+    <h3>Admin Login</h3><input id="adminPass" placeholder="Key" type="password" />
+    <button style="width:100%" onclick="loginAdmin()">Sign In</button>
   </div>
-
-  <div id="userLogin" class="card" style="display:none; max-width: 400px; margin: 80px auto;">
-    <h3>User Login</h3>
-    <input id="usernameIn" placeholder="Username" />
-    <input id="userPassIn" placeholder="Password" type="password" />
-    <div class="row" style="margin-top: 16px;">
-      <button style="flex:2" onclick="loginUser()">Login</button>
-      <button class="ghost" style="flex:1" onclick="backToLanding()">Cancel</button>
-    </div>
+  <div id="userLogin" class="card" style="display:none; max-width: 400px; margin: 60px auto;">
+    <h3>User Login</h3><input id="usernameIn" placeholder="Username" /><input id="userPassIn" placeholder="Password" type="password" />
+    <button style="width:100%" onclick="loginUser()">Login</button>
   </div>
 
   <div id="app" style="display:none">
-    
     <div class="card" style="display:flex; justify-content: space-between; align-items: center;">
-      <div>
-        <span class="badge" id="roleTag" style="margin-right: 12px;"></span>
-        <strong id="who" style="font-size: 1.1rem;"></strong>
-      </div>
-      <div style="display:flex; align-items: center; gap: 24px;">
-        <span id="creditsDisplay" style="font-weight: 800; color: var(--primary); font-size: 1.2rem;"></span>
+      <div><span class="badge" id="roleTag"></span> <strong id="who"></strong></div>
+      <div style="display:flex; align-items: center; gap: 20px;">
+        <span id="creditsDisplay" style="font-weight: 800; color: var(--primary);"></span>
         <button class="ghost small" onclick="logout()">Logout</button>
       </div>
     </div>
 
+    <div id="userNotifications" class="card" style="display:none">
+      <h4>Recent Activity</h4>
+      <div id="notifList"></div>
+    </div>
+
     <div id="adminPanel" style="display:none">
       <div class="card">
-        <h3>Team Performance Administration</h3>
-        <div style="margin-bottom: 20px; display: flex; gap: 10px; align-items: flex-end;">
-            <div style="flex:2"><label class="badge">Team Name</label><input id="teamName" placeholder="e.g. Manchester City" /></div>
-            <div style="flex:1"><label class="badge">Group</label><select id="teamGroup"><option value="A">Group A</option><option value="B">Group B</option></select></div>
-            <button onclick="addTeam()">Add New Team</button>
+        <h3>Team & Performance Data</h3>
+        <div class="row" style="margin-bottom:20px;">
+          <input id="teamName" placeholder="New Team Name" style="flex:3" />
+          <button onclick="addTeam()" style="flex:1">Add Team</button>
         </div>
-        
         <div style="overflow-x: auto;">
-            <table class="admin-table">
-                <thead>
-                    <tr id="tableHeaders">
-                        <th>Teams</th>
-                        <th><input class="header-input" id="h0" onchange="updateGlobalHeaders(0, this.value)" placeholder="Date 1"></th>
-                        <th><input class="header-input" id="h1" onchange="updateGlobalHeaders(1, this.value)" placeholder="Date 2"></th>
-                        <th><input class="header-input" id="h2" onchange="updateGlobalHeaders(2, this.value)" placeholder="Date 3"></th>
-                        <th><input class="header-input" id="h3" onchange="updateGlobalHeaders(3, this.value)" placeholder="Date 4"></th>
-                        <th><input class="header-input" id="h4" onchange="updateGlobalHeaders(4, this.value)" placeholder="Date 5"></th>
-                        <th>Strength (Avg)</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="teamsTableBody"></tbody>
-            </table>
+          <table class="admin-table">
+            <thead>
+              <tr><th>Teams</th>
+                <th><input class="header-input" id="h0" onchange="updateGlobalHeaders(0, this.value)"></th>
+                <th><input class="header-input" id="h1" onchange="updateGlobalHeaders(1, this.value)"></th>
+                <th><input class="header-input" id="h2" onchange="updateGlobalHeaders(2, this.value)"></th>
+                <th><input class="header-input" id="h3" onchange="updateGlobalHeaders(3, this.value)"></th>
+                <th><input class="header-input" id="h4" onchange="updateGlobalHeaders(4, this.value)"></th>
+                <th>Strength</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="teamsTableBody"></tbody>
+          </table>
         </div>
       </div>
 
       <div class="grid">
         <div class="card">
           <h3>Match Scheduler</h3>
+          <div class="row"><select id="gmHome" class="col"></select><span>VS</span><select id="gmAway" class="col"></select></div>
           <div class="row">
-            <select id="gmHome" class="col" onchange="resetOddsSuggestion()"></select>
-            <div style="display:flex; align-items:center; font-weight:700;">VS</div>
-            <select id="gmAway" class="col" onchange="resetOddsSuggestion()"></select>
+            <input id="gmOdd1" placeholder="Odd 1" class="col" /><input id="gmOddX" placeholder="Odd X" class="col" /><input id="gmOdd2" placeholder="Odd 2" class="col" />
           </div>
-          <div class="row" style="margin-top:10px;">
-            <div class="col"><label class="badge">1</label><input id="gmOdd1" placeholder="Odds" /></div>
-            <div class="col"><label class="badge">X</label><input id="gmOddX" placeholder="Odds" /></div>
-            <div class="col"><label class="badge">2</label><input id="gmOdd2" placeholder="Odds" /></div>
-          </div>
-          <div class="row" style="margin-top:12px;">
-            <button class="ghost col" onclick="suggestOdds()">💡 Suggest Odds</button>
-            <button class="col" onclick="createMatch()">Initialize Match</button>
-          </div>
+          <button class="ghost" onclick="suggestOdds()" style="width:100%; margin-bottom:10px">💡 Suggest Odds</button>
+          <button onclick="createMatch()" style="width:100%">Initialize Match</button>
         </div>
 
         <div class="card">
-          <h3>Live Resolution</h3>
-          <div id="adminResultsTable" style="max-height: 300px; overflow-y: auto;"></div>
+          <h3>Live Resolution & Cleanup</h3>
+          <div id="adminResultsTable" style="max-height: 400px; overflow-y: auto;"></div>
         </div>
+      </div>
+
+      <div class="card">
+        <h3>Group Assignment Management</h3>
+        <div id="groupAdminTable"></div>
       </div>
     </div>
 
     <div id="userPanel" style="display:none">
-      <div class="card">
-        <h3>Available Markets</h3>
-        <div id="betsArea" class="grid"></div>
-      </div>
+      <div class="card"><h3>Active Markets</h3><div id="betsArea" class="grid"></div></div>
     </div>
 
     <div class="grid">
-      <div class="card"><h4>League Leaderboard</h4><div id="leaderboard"></div></div>
+      <div class="card"><h4>League Standings</h4><div id="standingsDisplay"></div></div>
       <div class="card"><h4>Match History</h4><div id="resultsTable"></div></div>
     </div>
+    <div class="card"><h4>User Rankings</h4><div id="leaderboard"></div></div>
   </div>
 
 <script>
@@ -233,21 +148,17 @@
   };
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
-
   const ADMIN_PASSWORD = 'IBM99ibm';
   let currentUser = null, currentIsAdmin = false;
 
-  // Navigation
   function hideAll() { ['landing','adminLogin','userLogin','app'].forEach(id => document.getElementById(id).style.display = 'none'); }
   function showAdminLogin() { hideAll(); document.getElementById('adminLogin').style.display = 'block'; }
   function showUserLogin() { hideAll(); document.getElementById('userLogin').style.display = 'block'; }
-  function backToLanding() { hideAll(); document.getElementById('landing').style.display = 'block'; }
   function logout() { location.reload(); }
 
   function loginAdmin() {
-    if (document.getElementById('adminPass').value === ADMIN_PASSWORD) {
-      currentUser = 'Admin'; currentIsAdmin = true; startApp();
-    } else alert('Access Denied');
+    if (document.getElementById('adminPass').value === ADMIN_PASSWORD) { currentUser = 'Admin'; currentIsAdmin = true; startApp(); }
+    else alert('Invalid Key');
   }
 
   function loginUser() {
@@ -256,37 +167,48 @@
     db.ref('users/'+name).once('value', snap => {
       const d = snap.val();
       if (d && d.pass === pass) { currentUser = name; currentIsAdmin = false; startApp(); }
-      else alert('Invalid Credentials');
+      else alert('Invalid Login');
     });
   }
 
   function startApp() {
-    hideAll();
-    document.getElementById('app').style.display = 'block';
+    hideAll(); document.getElementById('app').style.display = 'block';
     document.getElementById('who').textContent = currentUser;
     document.getElementById('roleTag').textContent = currentIsAdmin ? 'ADMIN' : 'USER';
     document.getElementById('adminPanel').style.display = currentIsAdmin ? 'block' : 'none';
     document.getElementById('userPanel').style.display = currentIsAdmin ? 'none' : 'block';
-    if (!currentIsAdmin) updateCredits();
-    listenAll();
-    loadTeams();
+    document.getElementById('userNotifications').style.display = currentIsAdmin ? 'none' : 'block';
+    if (!currentIsAdmin) { updateCredits(); listenToUserActivity(); }
+    listenAll(); loadTeams();
   }
 
   function updateCredits() {
-    db.ref('users/'+currentUser+'/credits').on('value', s => {
-      document.getElementById('creditsDisplay').textContent = (s.val() || 0) + ' Credits';
+    db.ref('users/'+currentUser+'/credits').on('value', s => document.getElementById('creditsDisplay').textContent = (s.val() || 0) + ' Credits');
+  }
+
+  // Real-time User Activity
+  function listenToUserActivity() {
+    db.ref('bets/'+currentUser).on('value', bSnap => {
+      const bets = bSnap.val() || {};
+      db.ref('matches').once('value', mSnap => {
+        const matches = mSnap.val() || {};
+        const items = Object.keys(bets).map(k => ({...bets[k], match: matches[k]}))
+          .filter(b => b.resolved).sort((a,b) => (b.resolvedAt || 0) - (a.resolvedAt || 0)).slice(0, 5);
+        document.getElementById('notifList').innerHTML = items.map(i => `
+          <div class="notif-item">
+            <span>${i.match ? i.match.home+' v '+i.match.away : 'Match'} (${i.match?.result || '-'})</span>
+            <span class="${i.win?'win':'loss'}">${i.win?'+'+i.payout:'Loss'}</span>
+          </div>`).join('') || '<p class="muted">No recent activity.</p>';
+      });
     });
   }
 
-  // --- TEAM PERFORMANCE LOGIC ---
-
+  // Team Admin
   async function addTeam() {
     const name = document.getElementById('teamName').value.trim();
-    const group = document.getElementById('teamGroup').value;
     if (!name) return;
     const id = 't_' + Date.now();
-    // Default 5 history points as '-'
-    await db.ref('teams/'+id).set({ id, name, group, history: ['-','-','-','-','-'] });
+    await db.ref('teams/'+id).set({ id, name, group: 'Unassigned', history: ['-','-','-','-','-'] });
     document.getElementById('teamName').value = '';
     loadTeams();
   }
@@ -295,167 +217,147 @@
     const [tSnap, hSnap] = await Promise.all([db.ref('teams').get(), db.ref('settings/headers').get()]);
     const teams = Object.values(tSnap.val() || {});
     const headers = hSnap.val() || ['D1','D2','D3','D4','D5'];
-    
-    // Set Header Inputs
     headers.forEach((h, i) => document.getElementById('h'+i).value = h);
 
-    // Render Table Body
     document.getElementById('teamsTableBody').innerHTML = teams.map(t => {
       const hist = t.history || ['-','-','-','-','-'];
-      const strength = calculateStrength(hist);
-      return `<tr>
-        <td><strong>${t.name}</strong> <span class="badge" style="font-size:0.6rem">${t.group}</span></td>
-        ${hist.map((val, i) => `<td><input type="text" value="${val}" onchange="updateTeamPoint('${t.id}', ${i}, this.value)"></td>`).join('')}
-        <td style="font-weight:700; color:var(--primary)">${strength}</td>
-        <td><button class="small ghost" style="color:var(--danger)" onclick="deleteTeam('${t.id}')">Delete</button></td>
-      </tr>`;
+      const str = calculateStrength(hist);
+      return `<tr><td><strong>${t.name}</strong></td>
+        ${hist.map((v, i) => `<td><input type="text" value="${v}" onchange="updateTeamPoint('${t.id}',${i},this.value)"></td>`).join('')}
+        <td style="font-weight:700">${str}</td>
+        <td><button class="small ghost" style="color:var(--danger)" onclick="deleteTeam('${t.id}')">Del</button></td></tr>`;
     }).join('');
 
-    // Update Dropdowns for matches
-    const opts = '<option value="">-- Select Team --</option>' + teams.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
-    document.getElementById('gmHome').innerHTML = opts;
-    document.getElementById('gmAway').innerHTML = opts;
+    document.getElementById('groupAdminTable').innerHTML = `<table><thead><tr><th>Team</th><th>Group Assignment</th></tr></thead><tbody>` + 
+      teams.map(t => `<tr><td>${t.name}</td><td><select onchange="updateGroup('${t.id}', this.value)">
+        <option value="Unassigned" ${t.group==='Unassigned'?'selected':''}>Unassigned</option>
+        <option value="A" ${t.group==='A'?'selected':''}>Group A</option>
+        <option value="B" ${t.group==='B'?'selected':''}>Group B</option>
+      </select></td></tr>`).join('') + `</tbody></table>`;
+
+    const opts = '<option value="">-- Select --</option>' + teams.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+    document.getElementById('gmHome').innerHTML = opts; document.getElementById('gmAway').innerHTML = opts;
   }
 
-  function calculateStrength(history) {
-    const validPoints = history.filter(p => p !== '-' && !isNaN(parseFloat(p))).map(parseFloat);
-    if (validPoints.length === 0) return 0;
-    const sum = validPoints.reduce((a, b) => a + b, 0);
-    return (sum / validPoints.length).toFixed(2);
+  function calculateStrength(hist) {
+    const pts = hist.filter(p => p !== '-' && !isNaN(p)).map(parseFloat);
+    return pts.length ? (pts.reduce((a,b)=>a+b,0)/pts.length).toFixed(2) : 0;
   }
+  async function updateTeamPoint(id, i, v) { await db.ref(`teams/${id}/history/${i}`).set(v.trim()==='-'?'-':parseFloat(v).toFixed(2)); loadTeams(); }
+  async function updateGlobalHeaders(i, v) { await db.ref(`settings/headers/${i}`).set(v); }
+  async function updateGroup(id, v) { await db.ref(`teams/${id}/group`).set(v); listenAll(); }
+  async function deleteTeam(id) { if(confirm('Delete Team?')) { await db.ref('teams/'+id).set(null); loadTeams(); } }
 
-  async function updateTeamPoint(id, index, val) {
-    // Sanitize: allow '-', otherwise parse to 2 decimals
-    let finalVal = val.trim() === '-' ? '-' : (parseFloat(val) || 0).toFixed(2);
-    await db.ref(`teams/${id}/history/${index}`).set(finalVal);
-    loadTeams();
-  }
-
-  async function updateGlobalHeaders(index, val) {
-    await db.ref(`settings/headers/${index}`).set(val);
-  }
-
-  async function deleteTeam(id) {
-    if (confirm('Remove team and history?')) { await db.ref('teams/'+id).set(null); loadTeams(); }
-  }
-
-  // --- ODDS & MATCH LOGIC ---
-
+  // Match Logic
   async function suggestOdds() {
-    const hId = document.getElementById('gmHome').value;
-    const aId = document.getElementById('gmAway').value;
-    if (!hId || !aId || hId === aId) return alert('Select two unique teams');
-    
-    const snap = await db.ref('teams').get();
-    const teams = snap.val();
-    const sH = parseFloat(calculateStrength(teams[hId].history || [])) || 0.1;
-    const sA = parseFloat(calculateStrength(teams[aId].history || [])) || 0.1;
-
-    const total = sH + sA;
-    const probH = (sH / total) * 0.8;
-    const probA = (sA / total) * 0.8;
-    const probX = 0.2;
-
-    document.getElementById('gmOdd1').value = (1 / probH).toFixed(2);
-    document.getElementById('gmOddX').value = (1 / probX).toFixed(2);
-    document.getElementById('gmOdd2').value = (1 / probA).toFixed(2);
+    const hId = document.getElementById('gmHome').value, aId = document.getElementById('gmAway').value;
+    if(!hId || !aId) return;
+    const snap = await db.ref('teams').get(); const t = snap.val();
+    const sH = parseFloat(calculateStrength(t[hId].history))||0.1, sA = parseFloat(calculateStrength(t[aId].history))||0.1;
+    const total = sH + sA, pH = (sH/total)*0.8, pA = (sA/total)*0.8, pX = 0.2;
+    document.getElementById('gmOdd1').value = (1/pH).toFixed(2); document.getElementById('gmOddX').value = (1/pX).toFixed(2); document.getElementById('gmOdd2').value = (1/pA).toFixed(2);
   }
-
-  function resetOddsSuggestion() { ['gmOdd1','gmOddX','gmOdd2'].forEach(id => document.getElementById(id).value = ''); }
 
   function createMatch() {
     const hId = document.getElementById('gmHome').value, aId = document.getElementById('gmAway').value;
-    const o1 = parseFloat(document.getElementById('gmOdd1').value), oX = parseFloat(document.getElementById('gmOddX').value), o2 = parseFloat(document.getElementById('gmOdd2').value);
-    if (!hId || !aId || isNaN(o1)) return alert('Missing data');
+    const odds = {'1': parseFloat(document.getElementById('gmOdd1').value), 'X': parseFloat(document.getElementById('gmOddX').value), '2': parseFloat(document.getElementById('gmOdd2').value)};
+    if(!hId || isNaN(odds['1'])) return alert('Data missing');
     const hName = document.querySelector('#gmHome option:checked').textContent, aName = document.querySelector('#gmAway option:checked').textContent;
-    const id = 'm_' + Date.now();
-    db.ref('matches/'+id).set({ id, home: hName, homeId: hId, away: aName, awayId: aId, odds: {'1':o1, 'X':oX, '2':o2}, result: null, created: Date.now() });
-    alert('Match Scheduled!');
+    db.ref('matches/m_'+Date.now()).set({ home: hName, homeId: hId, away: aName, awayId: aId, odds, result: null });
   }
 
-  // --- RESULT RESOLUTION ---
+  async function deleteMatch(id) { if(confirm('Delete this match?')) await db.ref('matches/'+id).set(null); }
 
-  async function resolveBets(matchId, scoreStr) {
-    const [mSnap, bSnap] = await Promise.all([db.ref('matches/'+matchId).get(), db.ref('bets').get()]);
-    const m = mSnap.val(), [g1, g2] = scoreStr.split('-').map(Number);
-    const outcome = g1 > g2 ? '1' : g1 < g2 ? '2' : 'X';
-    const allBets = bSnap.val() || {};
-
+  async function resolveBets(mid, res) {
+    const [mS, bS] = await Promise.all([db.ref('matches/'+mid).get(), db.ref('bets').get()]);
+    const m = mS.val(), [gH, gA] = res.split('-').map(Number), outcome = gH > gA ? '1' : gH < gA ? '2' : 'X';
+    const allBets = bS.val() || {}, resolvedAt = Date.now();
     for (const u in allBets) {
-      const b = allBets[u][matchId];
+      const b = allBets[u][mid];
       if (!b || b.resolved) continue;
-      if (b.outcome === outcome) {
-        const payout = Math.round(b.stake * m.odds[outcome] * 100) / 100;
-        await db.ref('bets/'+u+'/'+matchId).update({ resolved: true, win: true, payout });
-        await db.ref('users/'+u+'/credits').transaction(c => (c||0) + payout);
-      } else {
-        await db.ref('bets/'+u+'/'+matchId).update({ resolved: true, win: false, payout: 0 });
-      }
+      const win = b.outcome === outcome, payout = win ? Math.round(b.stake * m.odds[outcome] * 100)/100 : 0;
+      await db.ref(`bets/${u}/${mid}`).update({ resolved: true, win, payout, resolvedAt });
+      if (win) await db.ref(`users/${u}/credits`).transaction(c => (c||0)+payout);
     }
   }
 
-  async function saveTwoFieldResult(id) {
+  async function saveScore(id) {
     const h = document.getElementById('resH_'+id).value, a = document.getElementById('resA_'+id).value;
-    if (h === '' || a === '') return;
-    const res = h + '-' + a;
-    await db.ref('matches/'+id+'/result').set(res);
-    await resolveBets(id, res);
-    alert('Match Resolved!');
+    if(h==='' || a==='') return;
+    const res = h+'-'+a; await db.ref(`matches/${id}/result`).set(res); await resolveBets(id, res);
   }
 
-  // --- UI RENDERERS ---
-
+  // UI Listeners
   function listenAll() {
     db.ref('matches').on('value', snap => {
       const m = snap.val() || {};
-      renderResultsList(m);
-      if (currentIsAdmin) renderAdminResults(m);
+      renderResults(m); renderStandings(m);
+      if (currentIsAdmin) renderAdminResolution(m);
       else db.ref('bets/'+currentUser).once('value', b => renderUserBets(m, b.val()||{}));
     });
-    db.ref('users').on('value', snap => renderLeaderboard(snap.val() || {}));
+    db.ref('users').on('value', s => renderLeaderboard(s.val()||{}));
   }
 
-  function renderAdminResults(matches) {
-    const html = Object.keys(matches).map(k => {
-      const m = matches[k], [sh, sa] = (m.result || '-').split('-');
+  function renderAdminResolution(m) {
+    document.getElementById('adminResultsTable').innerHTML = Object.keys(m).map(k => {
+      const [sh, sa] = (m[k].result || '-').split('-');
       return `<div style="padding:10px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
-        <span style="font-size:0.8rem"><strong>${m.home}</strong> v <strong>${m.away}</strong></span>
-        <div>
-            <input id="resH_${k}" value="${sh||''}" class="score-input" type="number"> : 
-            <input id="resA_${k}" value="${sa||''}" class="score-input" type="number">
-            <button class="small" onclick="saveTwoFieldResult('${k}')">Set</button>
-        </div>
-      </div>`;
-    }).join('');
-    document.getElementById('adminResultsTable').innerHTML = html || 'No matches.';
+        <span style="font-size:0.8rem"><strong>${m[k].home}</strong> v <strong>${m[k].away}</strong></span>
+        <div><input id="resH_${k}" value="${sh||''}" class="score-input"> : <input id="resA_${k}" value="${sa||''}" class="score-input">
+        <button class="small" onclick="saveScore('${k}')">Set</button>
+        <button class="small danger" onclick="deleteMatch('${k}')">X</button></div></div>`;
+    }).join('') || 'No matches.';
   }
 
-  function renderUserBets(matches, myBets) {
-    const html = Object.keys(matches).map(k => {
-      const m = matches[k], b = myBets[k];
-      return `<div class="card" style="margin:0">
-        <strong>${m.home} vs ${m.away}</strong><br>
-        <small class="muted">Odds: 1(${m.odds['1']}) X(${m.odds['X']}) 2(${m.odds['2']})</small><hr style="opacity:0.1">
-        ${m.result ? (b ? `Result: ${m.result} | Bet: ${b.outcome} → ${b.win?'<span class="win">WIN</span>':'<span class="loss">LOSS</span>'}` : 'Market Closed') : 
-        (b ? `<div class="badge" style="width:100%; text-align:center">Pending: ${b.outcome} (${b.stake})</div>` : `
-          <div style="display:flex; gap:5px">
-            <select id="p_${k}"><option value="1">1</option><option value="X">X</option><option value="2">2</option></select>
-            <input id="s_${k}" placeholder="Stake" style="width:80px"/>
-            <button class="small" onclick="placeBet('${k}', document.getElementById('p_${k}').value, 's_${k}')">Bet</button>
-          </div>
-        `)}
-      </div>`;
-    }).join('');
-    document.getElementById('betsArea').innerHTML = html || 'No active markets.';
+  async function renderStandings(matches) {
+    const stats = {};
+    Object.values(matches).forEach(m => {
+      if(!m.result) return;
+      const [gH, gA] = m.result.split('-').map(Number);
+      [m.homeId, m.awayId].forEach(id => stats[id] = stats[id] || {p:0, gd:0});
+      stats[m.homeId].gd += (gH - gA); stats[m.awayId].gd += (gA - gH);
+      if(gH > gA) stats[m.homeId].p += 3; else if(gA > gH) stats[m.awayId].p += 3; else { stats[m.homeId].p+=1; stats[m.awayId].p+=1; }
+    });
+    const tSnap = await db.ref('teams').get(); const teams = tSnap.val() || {};
+    const grpA = [], grpB = [];
+    Object.values(teams).forEach(t => {
+      const s = stats[t.id] || {p:0, gd:0};
+      if(t.group === 'A') grpA.push({n:t.name, ...s}); else if(t.group === 'B') grpB.push({n:t.name, ...s});
+    });
+    const sort = arr => arr.sort((a,b) => b.p - a.p || b.gd - a.gd);
+    document.getElementById('standingsDisplay').innerHTML = `<div class="row">
+      <div class="col"><h5>Group A</h5>${makeStandingTable(sort(grpA))}</div>
+      <div class="col"><h5>Group B</h5>${makeStandingTable(sort(grpB))}</div></div>`;
   }
 
-  async function placeBet(mid, out, sid) {
-    const stake = parseInt(document.getElementById(sid).value);
-    const creds = (await db.ref('users/'+currentUser+'/credits').get()).val() || 0;
+  function makeStandingTable(arr) {
+    return `<table><thead><tr><th>Team</th><th>PTS</th><th>GD</th></tr></thead><tbody>` + 
+      arr.map(r => `<tr><td>${r.n}</td><td>${r.p}</td><td>${r.gd}</td></tr>`).join('') + `</tbody></table>`;
+  }
+
+  function renderUserBets(m, myB) {
+    document.getElementById('betsArea').innerHTML = Object.keys(m).map(k => {
+      const match = m[k], b = myB[k];
+      return `<div class="card" style="margin:0"><strong>${match.home} vs ${match.away}</strong><br>
+        <small class="muted">1(${match.odds['1']}) X(${match.odds['X']}) 2(${match.odds['2']})</small><hr style="opacity:0.1">
+        ${match.result ? (b ? `Result: ${match.result} | Bet: ${b.outcome} → ${b.win?'<span class="win">WIN</span>':'<span class="loss">LOSS</span>'}` : 'Closed') : 
+        (b ? `<div class="badge" style="width:100%; text-align:center">Pending: ${b.outcome} (${b.stake})</div>` : 
+        `<div style="display:flex; gap:5px"><select id="p_${k}"><option value="1">1</option><option value="X">X</option><option value="2">2</option></select>
+        <input id="s_${k}" placeholder="Stake" style="width:70px"/><button class="small" onclick="placeBet('${k}','p_${k}','s_${k}')">Bet</button></div>`)}</div>`;
+    }).join('') || 'No markets.';
+  }
+
+  async function placeBet(mid, pid, sid) {
+    const out = document.getElementById(pid).value, stake = parseInt(document.getElementById(sid).value);
+    const creds = (await db.ref(`users/${currentUser}/credits`).get()).val();
     if (stake > 0 && stake <= creds) {
-      await db.ref('users/'+currentUser+'/credits').transaction(c => (c||0) - stake);
-      await db.ref('bets/'+currentUser+'/'+mid).set({ outcome: out, stake, resolved: false });
-    } else alert('Insufficient credits');
+      await db.ref(`users/${currentUser}/credits`).transaction(c => (c||0)-stake);
+      await db.ref(`bets/${currentUser}/${mid}`).set({ outcome: out, stake, resolved: false });
+    }
+  }
+
+  function renderResults(m) {
+    document.getElementById('resultsTable').innerHTML = `<table>` + Object.values(m).map(x => `<tr><td>${x.home} v ${x.away}</td><td>${x.result||'—'}</td></tr>`).join('') + `</table>`;
   }
 
   function renderLeaderboard(users) {
@@ -463,12 +365,7 @@
     document.getElementById('leaderboard').innerHTML = `<table>${arr.map(r=>`<tr><td>${r.n}</td><td style="text-align:right"><strong>${r.c}</strong></td></tr>`).join('')}</table>`;
   }
 
-  function renderResultsList(m) {
-    const rows = Object.values(m).map(x => `<tr><td>${x.home} v ${x.away}</td><td>${x.result||'—'}</td><td class="muted">${x.odds['1']}/${x.odds['X']}/${x.odds['2']}</td></tr>`).join('');
-    document.getElementById('resultsTable').innerHTML = `<table>${rows}</table>`;
-  }
-
-  backToLanding();
+  hideAll(); document.getElementById('landing').style.display = 'block';
 </script>
 </body>
 </html>
