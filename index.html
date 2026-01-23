@@ -3,10 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Bet365 Style Dashboard</title>
+  <title>Bet365 Elite Dashboard</title>
   
   <style>
-    /* Bet365 Color Palette */
     :root {
       --b365-dark-green: #007355;
       --b365-bright-green: #12ed80;
@@ -23,11 +22,9 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: var(--b365-body-bg);
       color: var(--b365-text-white);
-      margin: 0;
-      padding: 0;
+      margin: 0; padding: 0;
     }
 
-    /* Header & Refresh */
     header {
       background-color: var(--b365-header-bg);
       padding: 10px 20px;
@@ -35,110 +32,65 @@
       justify-content: space-between;
       align-items: center;
       border-bottom: 3px solid var(--b365-dark-green);
+      position: sticky; top: 0; z-index: 100;
     }
 
     .refresh-btn {
       background: var(--b365-dark-green);
-      color: white;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 0.8rem;
+      color: white; border: none; padding: 8px 16px;
+      border-radius: 4px; cursor: pointer; font-weight: bold;
     }
-
     .refresh-btn:hover { background: var(--b365-bright-green); color: #000; }
 
-    /* Tabs Navigation */
-    .tab-bar {
-      display: flex;
-      background: #404040;
-      overflow-x: auto;
-    }
-
+    /* Admin Tabs */
+    .tab-bar { display: flex; background: #404040; border-bottom: 1px solid var(--b365-border); }
     .tab-item {
-      padding: 12px 20px;
-      cursor: pointer;
-      border-right: 1px solid var(--b365-border);
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--b365-text-gray);
+      padding: 14px 24px; cursor: pointer; border-right: 1px solid var(--b365-border);
+      font-size: 0.9rem; font-weight: 600; color: var(--b365-text-gray);
     }
-
     .tab-item.active {
-      background: var(--b365-card-bg);
-      color: var(--b365-accent-yellow);
+      background: var(--b365-card-bg); color: var(--b365-accent-yellow);
       border-bottom: 2px solid var(--b365-accent-yellow);
     }
 
-    /* Layout Containers */
-    .container { padding: 15px; max-width: 1200px; margin: 0 auto; }
+    .container { padding: 20px; max-width: 1300px; margin: 0 auto; }
     
-    .card {
-      background: var(--b365-card-bg);
-      border-radius: 4px;
-      margin-bottom: 15px;
-      border: 1px solid var(--b365-border);
-    }
-
+    .card { background: var(--b365-card-bg); border-radius: 2px; margin-bottom: 20px; border: 1px solid var(--b365-border); }
     .card-header {
-      background: #484848;
-      padding: 10px 15px;
-      font-weight: bold;
-      color: var(--b365-bright-green);
-      border-bottom: 1px solid var(--b365-border);
+      background: #484848; padding: 12px 15px; font-weight: bold;
+      color: var(--b365-bright-green); border-bottom: 1px solid var(--b365-border);
+      text-transform: uppercase; font-size: 0.85rem;
     }
-
     .card-body { padding: 15px; }
 
-    /* Forms */
     input, select {
-      background: #444;
-      border: 1px solid #555;
-      color: white;
-      padding: 10px;
-      margin: 5px 0;
-      width: 100%;
-      box-sizing: border-box;
+      background: #444; border: 1px solid #555; color: white;
+      padding: 10px; margin: 5px 0; width: 100%; box-sizing: border-box;
     }
 
     button.action-btn {
-      background: var(--b365-accent-yellow);
-      color: #000;
-      border: none;
-      padding: 10px;
-      width: 100%;
-      font-weight: bold;
-      cursor: pointer;
-      text-transform: uppercase;
+      background: var(--b365-accent-yellow); color: #000; border: none;
+      padding: 12px; width: 100%; font-weight: bold; cursor: pointer;
+      text-transform: uppercase; margin-top: 10px;
     }
 
-    /* Tables */
-    table { width: 100%; border-collapse: collapse; }
-    th { text-align: left; background: #333; color: var(--b365-text-gray); padding: 10px; font-size: 0.8rem; }
-    td { padding: 10px; border-bottom: 1px solid var(--b365-border); }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th { text-align: left; background: #333; color: var(--b365-text-gray); padding: 12px; font-size: 0.75rem; text-transform: uppercase; }
+    td { padding: 12px; border-bottom: 1px solid var(--b365-border); font-size: 0.9rem; }
 
-    /* User Odds Grid */
-    .match-row {
-      display: grid;
-      grid-template-columns: 1fr 200px;
-      padding: 15px;
-      border-bottom: 1px solid var(--b365-border);
-    }
-
-    .odds-group { display: flex; gap: 5px; }
+    .match-row { display: grid; grid-template-columns: 1fr 240px; padding: 15px; border-bottom: 1px solid var(--b365-border); }
+    .odds-group { display: flex; gap: 8px; }
     .odd-box {
-      background: #444;
-      padding: 8px;
-      text-align: center;
-      flex: 1;
-      cursor: pointer;
-      border-radius: 4px;
+      background: #444; padding: 10px; text-align: center; flex: 1;
+      cursor: pointer; border-radius: 2px; transition: 0.2s;
     }
-    .odd-box:hover { background: #555; }
-    .odd-val { color: var(--b365-accent-yellow); font-weight: bold; display: block; }
+    .odd-box:hover { background: #505050; border: 1px solid var(--b365-bright-green); }
+    .odd-val { color: var(--b365-accent-yellow); font-weight: bold; display: block; font-size: 1.1rem; }
     .odd-lbl { font-size: 0.7rem; color: var(--b365-text-gray); }
+
+    .badge { padding: 4px 8px; border-radius: 3px; font-size: 0.7rem; font-weight: bold; }
+    .win { color: var(--b365-bright-green); }
+    .loss { color: #ff4444; }
 
     #login-screen { max-width: 400px; margin: 100px auto; }
   </style>
@@ -149,18 +101,17 @@
 <body>
 
   <header>
-    <div style="font-weight: 900; font-size: 1.5rem; color: var(--b365-bright-green);">bet365 <span style="color:white; font-weight:100; font-size:0.9rem">Clone</span></div>
+    <div style="font-weight: 900; font-size: 1.6rem; color: var(--b365-bright-green); letter-spacing: -1px;">bet365</div>
     <button class="refresh-btn" onclick="location.reload()">REFRESH</button>
   </header>
 
-  <div id="login-screen" class="container">
+  <div id="login-screen">
     <div class="card">
-      <div class="card-header">Secure Login</div>
+      <div class="card-header">Member Login</div>
       <div class="card-body">
         <input id="userIn" placeholder="Username" />
         <input id="passIn" placeholder="Password" type="password" />
-        <button class="action-btn" onclick="handleLogin()">Login</button>
-        <p style="text-align:center; font-size: 0.8rem; color: #888; margin-top: 15px;">Admin use 'Admin' as username</p>
+        <button class="action-btn" onclick="handleLogin()">Log In</button>
       </div>
     </div>
   </div>
@@ -169,8 +120,8 @@
     
     <div id="admin-tabs" class="tab-bar" style="display:none">
       <div class="tab-item active" onclick="switchTab('tab-matches', this)">Matches</div>
-      <div class="tab-item" onclick="switchTab('tab-teams', this)">Teams</div>
-      <div class="tab-item" onclick="switchTab('tab-users', this)">Users</div>
+      <div class="tab-item" onclick="switchTab('tab-teams', this)">Team Admin</div>
+      <div class="tab-item" onclick="switchTab('tab-users', this)">User Management</div>
     </div>
 
     <div class="container">
@@ -178,79 +129,82 @@
       <div id="admin-content" style="display:none">
         
         <div id="tab-matches" class="tab-pane">
-          <div class="card">
-            <div class="card-header">Schedule New Match</div>
-            <div class="card-body">
-              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="card">
+              <div class="card-header">Initialize Match</div>
+              <div class="card-body">
                 <select id="gmHome"></select>
+                <div style="text-align:center; padding: 5px; color: var(--b365-text-gray);">vs</div>
                 <select id="gmAway"></select>
+                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-top:10px">
+                  <input id="o1" placeholder="1 (Odd)" />
+                  <input id="oX" placeholder="X (Odd)" />
+                  <input id="o2" placeholder="2 (Odd)" />
+                </div>
+                <button class="action-btn" onclick="createMatch()">Post Match</button>
               </div>
-              <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-top:10px">
-                <input id="o1" placeholder="Odd 1" />
-                <input id="oX" placeholder="Odd X" />
-                <input id="o2" placeholder="Odd 2" />
-              </div>
-              <button class="action-btn" style="margin-top:10px" onclick="createMatch()">Create Match</button>
             </div>
-          </div>
-          <div class="card">
-            <div class="card-header">Live Settlements</div>
-            <div id="admin-match-list"></div>
+            <div class="card">
+              <div class="card-header">Open Settlements</div>
+              <div id="admin-match-list" style="max-height: 400px; overflow-y: auto;"></div>
+            </div>
           </div>
         </div>
 
         <div id="tab-teams" class="tab-pane" style="display:none">
           <div class="card">
-            <div class="card-header">Register New Team</div>
-            <div class="card-body">
-              <input id="tName" placeholder="Team Name" />
-              <select id="tGroup"><option value="A">Group A</option><option value="B">Group B</option></select>
-              <button class="action-btn" onclick="registerTeam()">Add Team</button>
+            <div class="card-header">Register New Entry</div>
+            <div class="card-body" style="display:flex; gap:10px; align-items: flex-end;">
+              <div style="flex:2">
+                <label style="font-size:0.7rem; color:#888">Team Name</label>
+                <input id="tName" placeholder="e.g. Liverpool" />
+              </div>
+              <div style="flex:1">
+                <label style="font-size:0.7rem; color:#888">Initial Group</label>
+                <select id="tGroup">
+                  <option value="A">Group A</option>
+                  <option value="B">Group B</option>
+                  <option value="C">Group C</option>
+                  <option value="D">Group D</option>
+                  <option value="E">Group E</option>
+                </select>
+              </div>
+              <button class="action-btn" style="flex:1; margin-top:0; height: 42px;" onclick="registerTeam()">Add Team</button>
             </div>
           </div>
-          <div id="admin-teams-list"></div>
+          <div class="card">
+            <div class="card-header">Group Assignments & Management</div>
+            <div id="admin-teams-table-area"></div>
+          </div>
         </div>
 
         <div id="tab-users" class="tab-pane" style="display:none">
           <div class="card">
-            <div class="card-header">User Management</div>
-            <div class="card-body">
-              <div id="user-list-admin"></div>
-            </div>
+            <div class="card-header">Active Users</div>
+            <div id="user-list-admin"></div>
           </div>
         </div>
       </div>
 
       <div id="user-content" style="display:none">
-        <div class="card" style="margin-bottom:20px; border-left: 4px solid var(--b365-bright-green);">
-          <div class="card-body" style="display:flex; justify-content:space-between">
-            <div>Logged in as: <strong id="display-name"></strong></div>
-            <div style="color:var(--b365-accent-yellow)">Balance: <strong id="display-balance">0</strong></div>
+        <div class="card" style="border-left: 5px solid var(--b365-bright-green);">
+          <div class="card-body" style="display:flex; justify-content:space-between; align-items:center">
+            <div><span style="color:#888">User:</span> <strong id="display-name"></strong></div>
+            <div style="font-size: 1.2rem;">Balance: <strong style="color:var(--b365-accent-yellow)" id="display-balance">0</strong></div>
           </div>
         </div>
-
         <div class="card">
-          <div class="card-header">Main Events</div>
+          <div class="card-header">Soccer - Live & Upcoming</div>
           <div id="user-betting-odds"></div>
         </div>
       </div>
 
-      <div class="grid">
-        <div class="card">
-          <div class="card-header">League Standings</div>
-          <div id="standings"></div>
-        </div>
-        <div class="card">
-          <div class="card-header">Leaderboard</div>
-          <div id="rankings"></div>
-        </div>
-      </div>
+      <div id="standings-area" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:15px; margin-top:20px;"></div>
 
     </div>
   </div>
 
 <script>
-  // Same Firebase Config
   const firebaseConfig = {
     apiKey: "AIzaSyDPgcnptW0O2OFlE-_TOsTXctjG6RPBZm8",
     authDomain: "fc26-full-bets.firebaseapp.com",
@@ -269,15 +223,13 @@
   function handleLogin() {
     const user = document.getElementById('userIn').value.trim();
     const pass = document.getElementById('passIn').value;
-
     if (user === 'Admin' && pass === 'IBM99ibm') {
       currentUser = 'Admin'; isAdmin = true; launch();
     } else {
       db.ref('users/'+user).once('value', s => {
         const d = s.val();
-        if (d && d.pass === pass) {
-          currentUser = user; isAdmin = false; launch();
-        } else alert('Invalid Login');
+        if (d && d.pass === pass) { currentUser = user; isAdmin = false; launch(); }
+        else alert('Invalid Login');
       });
     }
   }
@@ -286,13 +238,14 @@
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     document.getElementById('display-name').textContent = currentUser;
-    
     if (isAdmin) {
       document.getElementById('admin-tabs').style.display = 'flex';
       document.getElementById('admin-content').style.display = 'block';
     } else {
       document.getElementById('user-content').style.display = 'block';
-      syncUserBalance();
+      db.ref(`users/${currentUser}/credits`).on('value', s => {
+        document.getElementById('display-balance').textContent = s.val() || 0;
+      });
     }
     initListeners();
   }
@@ -304,21 +257,24 @@
     el.classList.add('active');
   }
 
-  function syncUserBalance() {
-    db.ref(`users/${currentUser}/credits`).on('value', s => {
-      document.getElementById('display-balance').textContent = s.val() || 0;
-    });
-  }
-
-  // --- ACTIONS ---
+  // --- ADMIN ACTIONS ---
   async function registerTeam() {
     const name = document.getElementById('tName').value.trim();
     const group = document.getElementById('tGroup').value;
     if (!name) return;
+    const id = 't_' + Date.now();
     try {
-      await db.ref('teams/t_' + Date.now()).set({ name, group });
+      await db.ref('teams/' + id).set({ id, name, group });
       document.getElementById('tName').value = '';
-    } catch(e) { alert("Permission Error: Check Firebase Rules"); }
+    } catch(e) { alert("Permission Denied. Update Firebase rules for groups A-E."); }
+  }
+
+  async function updateTeamGroup(id, newGroup) {
+    await db.ref(`teams/${id}/group`).set(newGroup);
+  }
+
+  async function deleteTeam(id) {
+    if(confirm('Remove team?')) await db.ref(`teams/${id}`).remove();
   }
 
   function createMatch() {
@@ -327,64 +283,66 @@
     const hName = document.querySelector('#gmHome option:checked').textContent;
     const aName = document.querySelector('#gmAway option:checked').textContent;
     const odds = { '1': document.getElementById('o1').value, 'X': document.getElementById('oX').value, '2': document.getElementById('o2').value };
-    
     db.ref('matches/m_'+Date.now()).set({ home: hName, homeId: hId, away: aName, awayId: aId, odds, result: null });
   }
 
   async function setScore(id) {
-    const res = prompt("Enter Score (e.g. 2-1)");
-    if (res) {
+    const res = prompt("Enter Final Score (e.g. 1-1)");
+    if (res && /^\d+-\d+$/.test(res)) {
       await db.ref(`matches/${id}/result`).set(res);
-      // Logic for resolving bets would go here (omitted for brevity)
-    }
+    } else if (res) alert("Format must be #-#");
   }
 
-  // --- REAL TIME SYNC ---
+  // --- LISTENERS ---
   function initListeners() {
-    // Sync Teams
     db.ref('teams').on('value', s => {
-      const teams = Object.entries(s.val() || {}).map(([id, d]) => ({id, ...d}));
-      const opts = teams.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
-      document.getElementById('gmHome').innerHTML = opts;
-      document.getElementById('gmAway').innerHTML = opts;
-      
-      if (isAdmin) {
-        document.getElementById('admin-teams-list').innerHTML = teams.map(t => `<div class="team-box" style="padding:10px; border-bottom:1px solid #444">${t.name} (${t.group})</div>`).join('');
-      }
+      const teams = Object.values(s.val() || {});
+      updateDropdowns(teams);
+      if (isAdmin) renderAdminTeamsTable(teams);
+      updateStandings(teams);
     });
 
-    // Sync Matches
     db.ref('matches').on('value', s => {
       const matches = s.val() || {};
       if (isAdmin) renderAdminMatches(matches);
       else renderUserOdds(matches);
-      renderHistory(matches);
     });
+  }
 
-    // Sync Rankings
-    db.ref('users').on('value', s => {
-      const users = Object.entries(s.val() || {}).map(([n, d]) => ({n, c: d.credits})).sort((a,b) => b.c - a.c);
-      document.getElementById('rankings').innerHTML = `<table>${users.map(u => `<tr><td>${u.n}</td><td style="color:var(--b365-accent-yellow)">${u.c}</td></tr>`).join('')}</table>`;
-    });
+  function updateDropdowns(teams) {
+    const opts = teams.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+    document.getElementById('gmHome').innerHTML = opts;
+    document.getElementById('gmAway').innerHTML = opts;
+  }
+
+  function renderAdminTeamsTable(teams) {
+    const html = `<table><thead><tr><th>Team Name</th><th>Current Group</th><th>Actions</th></tr></thead><tbody>` + 
+      teams.map(t => `<tr>
+        <td><strong>${t.name}</strong></td>
+        <td>
+          <select style="margin:0; padding:4px;" onchange="updateTeamGroup('${t.id}', this.value)">
+            ${['A','B','C','D','E'].map(g => `<option value="${g}" ${t.group===g?'selected':''}>Group ${g}</option>`).join('')}
+          </select>
+        </td>
+        <td><button onclick="deleteTeam('${t.id}')" style="background:transparent; color:#ff4444; border:none; cursor:pointer;">Delete</button></td>
+      </tr>`).join('') + `</tbody></table>`;
+    document.getElementById('admin-teams-table-area').innerHTML = html || '<p style="padding:15px">No teams registered.</p>';
   }
 
   function renderAdminMatches(matches) {
     const html = Object.entries(matches).map(([id, m]) => `
-      <div style="padding:10px; border-bottom:1px solid #444; display:flex; justify-content:space-between">
-        <span>${m.home} vs ${m.away}</span>
-        <button class="refresh-btn" onclick="setScore('${id}')">${m.result || 'Set Score'}</button>
+      <div style="padding:12px; border-bottom:1px solid #444; display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:0.85rem">${m.home} vs ${m.away}</span>
+        <button class="refresh-btn" style="font-size:0.7rem; padding:4px 8px;" onclick="setScore('${id}')">${m.result || 'Settlement'}</button>
       </div>
     `).join('');
-    document.getElementById('admin-match-list').innerHTML = html;
+    document.getElementById('admin-match-list').innerHTML = html || 'No matches scheduled.';
   }
 
   function renderUserOdds(matches) {
     const html = Object.entries(matches).filter(([id, m]) => !m.result).map(([id, m]) => `
       <div class="match-row">
-        <div>
-          <div style="font-size:0.9rem">${m.home}</div>
-          <div style="font-size:0.9rem">${m.away}</div>
-        </div>
+        <div><div style="font-weight:bold">${m.home}</div><div style="font-weight:bold">${m.away}</div></div>
         <div class="odds-group">
           <div class="odd-box"><span class="odd-lbl">1</span><span class="odd-val">${m.odds['1']}</span></div>
           <div class="odd-box"><span class="odd-lbl">X</span><span class="odd-val">${m.odds['X']}</span></div>
@@ -392,16 +350,30 @@
         </div>
       </div>
     `).join('');
-    document.getElementById('user-betting-odds').innerHTML = html || '<p style="padding:20px; color:#888">No active matches</p>';
+    document.getElementById('user-betting-odds').innerHTML = html || '<div style="padding:20px; color:#888;">No active markets at the moment.</div>';
   }
 
-  function renderHistory(matches) {
-    const html = Object.values(matches).filter(m => m.result).map(m => `
-      <tr><td>${m.home} v ${m.away}</td><td style="color:var(--b365-bright-green)">${m.result}</td></tr>
-    `).join('');
-    document.getElementById('resultsTable').innerHTML = `<table>${html}</table>`;
+  async function updateStandings(teams) {
+    const mSnap = await db.ref('matches').get();
+    const matches = mSnap.val() || {};
+    const stats = {};
+    Object.values(matches).forEach(m => {
+      if(!m.result) return;
+      const [hG, aG] = m.result.split('-').map(Number);
+      [m.homeId, m.awayId].forEach(id => stats[id] = stats[id] || {p:0, gd:0});
+      stats[m.homeId].gd += (hG-aG); stats[m.awayId].gd += (aG-hG);
+      if(hG>aG) stats[m.homeId].p+=3; else if(aG>hG) stats[m.awayId].p+=3; else { stats[m.homeId].p+=1; stats[m.awayId].p+=1; }
+    });
+
+    const groups = ['A','B','C','D','E'];
+    document.getElementById('standings-area').innerHTML = groups.map(g => {
+      const gTeams = teams.filter(t => t.group === g).map(t => ({n: t.name, ...stats[t.id]||{p:0, gd:0}})).sort((a,b) => b.p - a.p || b.gd - a.gd);
+      if(gTeams.length === 0) return '';
+      return `<div class="card"><div class="card-header">Group ${g}</div><div class="card-body">
+        <table>${gTeams.map(t => `<tr><td>${t.n}</td><td style="text-align:right"><strong>${t.p}</strong></td><td style="text-align:right; color:#888; font-size:0.7rem">${t.gd}GD</td></tr>`).join('')}</table>
+      </div></div>`;
+    }).join('');
   }
 </script>
-
 </body>
 </html>
