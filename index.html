@@ -17,6 +17,7 @@
       --b365-text-gray: #bbbbbb;
       --b365-accent-yellow: #ffdf1b;
       --b365-border: #444444;
+      --b365-red: #d32f2f;
     }
 
     body {
@@ -85,6 +86,9 @@
     button.small-btn {
       padding: 4px 8px; font-size: 0.8rem; cursor: pointer; border-radius: 3px; border:none; margin-left:5px;
     }
+    button.delete-btn {
+      background: #d32f2f; color: white; border: none; padding: 5px 10px; cursor: pointer; font-weight: bold; border-radius: 3px;
+    }
 
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     th { text-align: left; background: #333; color: var(--b365-text-gray); padding: 10px; font-size: 0.75rem; text-transform: uppercase; }
@@ -99,6 +103,14 @@
     .odd-box:hover { background: #505050; border: 1px solid var(--b365-bright-green); }
     .odd-val { color: var(--b365-accent-yellow); font-weight: bold; display: block; font-size: 1.1rem; }
     .odd-lbl { font-size: 0.7rem; color: var(--b365-text-gray); }
+
+    /* Bracket Styles */
+    .bracket-container {
+        display: flex; justify-content: space-around; align-items: center; padding: 20px; background: #333; overflow-x: auto;
+    }
+    .bracket-col { display: flex; flex-direction: column; gap: 40px; }
+    .bracket-match { border: 1px solid #555; background: #444; padding: 10px; width: 180px; text-align: center; }
+    .bracket-line { height: 1px; background: #666; width: 30px; }
 
     #login-screen { max-width: 400px; margin: 100px auto; }
   </style>
@@ -140,15 +152,49 @@
       <div id="admin-content" style="display:none">
         
         <div id="tab-matches" class="tab-pane">
+          
+          <div class="card" style="border-left: 5px solid var(--b365-bright-green);">
+            <div class="card-header">Auto-Generators</div>
+            <div class="card-body">
+                <div style="display:flex; gap:10px;">
+                    <button class="action-btn" style="margin-top:0; font-size:0.8rem" onclick="generateGroupMatches(1)">Generate Group Matches (1 Leg)</button>
+                    <button class="action-btn" style="margin-top:0; font-size:0.8rem; background:#fff; color:#000" onclick="generateGroupMatches(2)">Generate Group Matches (2 Legs)</button>
+                </div>
+            </div>
+           </div>
+
+           <div class="card">
+             <div class="card-header">Tournament Drawer</div>
+             <div class="card-body">
+               <div style="display:flex; gap:10px; margin-bottom:10px; align-items:center;">
+                 <label>SF1:</label> <select id="brSF1H" style="width:120px"></select> vs <select id="brSF1A" style="width:120px"></select>
+                 <span style="margin:0 10px">|</span>
+                 <label>SF2:</label> <select id="brSF2H" style="width:120px"></select> vs <select id="brSF2A" style="width:120px"></select>
+                 <button class="refresh-btn" onclick="createBracket()">Create Bracket</button>
+               </div>
+               <div class="bracket-container">
+                    <div class="bracket-col">
+                        <div class="bracket-match"><strong>SF 1</strong><br><span style="font-size:0.8rem; color:#888">Winner to Final</span></div>
+                        <div class="bracket-match"><strong>SF 2</strong><br><span style="font-size:0.8rem; color:#888">Winner to Final</span></div>
+                    </div>
+                    <div class="bracket-line"></div>
+                    <div class="bracket-col">
+                        <div class="bracket-match" style="border-color:var(--b365-accent-yellow)"><strong>FINAL</strong><br><span style="font-size:0.8rem; color:var(--b365-accent-yellow)">Championship</span></div>
+                        <div class="bracket-match"><strong>3rd Place</strong><br><span style="font-size:0.8rem; color:#888">Bronze</span></div>
+                    </div>
+               </div>
+             </div>
+           </div>
+
           <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
             <div class="card">
-              <div class="card-header">Initialize Match</div>
+              <div class="card-header">Manual Match Init</div>
               <div class="card-body">
                 <select id="gmHome"></select>
                 <div style="text-align:center; padding: 5px; color: var(--b365-text-gray);">vs</div>
                 <select id="gmAway"></select>
                 
-                <button class="ghost-btn" onclick="suggestOdds()">💡 Suggest Odds from Strength</button>
+                <button class="ghost-btn" onclick="suggestOddsDOM()">💡 Suggest Odds from Strength</button>
 
                 <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-top:10px">
                   <input id="o1" placeholder="1 (Odd)" />
@@ -187,7 +233,10 @@
             </div>
           </div>
           <div class="card">
-            <div class="card-header">Team Strength & Group Management</div>
+            <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                <span>Team Strength & Group Management</span>
+                <button class="small-btn" style="background:var(--b365-accent-yellow); color:#000; font-weight:bold" onclick="shiftAllTeams()">SHIFT ALL TEAMS ⬅</button>
+            </div>
             <div style="overflow-x:auto;">
               <table id="admin-teams-table">
                 <thead>
@@ -207,7 +256,7 @@
 
         <div id="tab-users" class="tab-pane" style="display:none">
           <div class="card">
-            <div class="card-header">Active Users</div>
+            <div class="card-header">Active Users & Team Stats</div>
             <div id="user-list-admin"></div>
           </div>
         </div>
@@ -246,9 +295,10 @@
 
   let currentUser = null;
   let isAdmin = false;
+  let globalTeams = []; // Local cache for calculations
+  let globalTeamStats = {}; // { teamName: { gf: 0, ga: 0 } }
 
   // --- AUTH / SESSION HANDLING ---
-  // Check localStorage on load
   window.onload = function() {
     const savedUser = localStorage.getItem('bet365_user');
     const savedAdmin = localStorage.getItem('bet365_isAdmin');
@@ -296,7 +346,7 @@
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     document.getElementById('display-name').textContent = currentUser;
-    document.getElementById('headerUser').textContent = currentUser; // show in header too
+    document.getElementById('headerUser').textContent = currentUser; 
 
     if (isAdmin) {
       document.getElementById('admin-tabs').style.display = 'flex';
@@ -340,64 +390,83 @@
     await db.ref(`teams/${id}/history/${index}`).set(clean);
   }
 
-  // Feature: Shift History
+  // Feature: Shift Single Team
   async function shiftHistory(id) {
-    // get current history
     const snap = await db.ref(`teams/${id}/history`).get();
     let arr = snap.val() || ['-','-','-','-','-'];
-    
-    // Shift: [0]<-[1], [1]<-[2], etc. Last becomes '-'
     for(let i=0; i < arr.length - 1; i++) {
       arr[i] = arr[i+1];
     }
-    arr[arr.length - 1] = '-'; // clear last col
-
+    arr[arr.length - 1] = '-'; 
     await db.ref(`teams/${id}/history`).set(arr);
+  }
+
+  // Feature: Shift ALL Teams
+  async function shiftAllTeams() {
+    if(!confirm("Are you sure you want to shift history for ALL teams?")) return;
+    
+    // We use the globalTeams cache for IDs
+    const updates = {};
+    globalTeams.forEach(t => {
+       let arr = t.history ? [...t.history] : ['-','-','-','-','-'];
+       for(let i=0; i < arr.length - 1; i++) {
+         arr[i] = arr[i+1];
+       }
+       arr[arr.length - 1] = '-';
+       updates[`teams/${t.id}/history`] = arr;
+    });
+
+    try {
+        await db.ref().update(updates);
+        alert("All teams shifted successfully.");
+    } catch(e) {
+        alert("Error shifting teams: " + e.message);
+    }
   }
 
   async function deleteTeam(id) {
     if(confirm('Remove team?')) await db.ref(`teams/${id}`).remove();
   }
 
-  // --- ODDS & STRENGTH (FIXED for 0 strength) ---
-  async function suggestOdds() {
-    const hId = document.getElementById('gmHome').value;
-    const aId = document.getElementById('gmAway').value;
-    if(!hId || !aId || hId === aId) return alert("Select two different teams");
+  // --- ODDS & STRENGTH LOGIC ---
+  
+  // Refactored to be pure calculation
+  function calculateOddsForTeams(t1, t2) {
+    let sH = calcStrength(t1.history);
+    let sA = calcStrength(t2.history);
 
-    const [t1, t2] = await Promise.all([
-      db.ref('teams/'+hId).get(),
-      db.ref('teams/'+aId).get()
-    ]);
-    
-    let sH = calcStrength(t1.val().history);
-    let sA = calcStrength(t2.val().history);
-
-    // FIX: If both are 0, treat them as equal strength (e.g. 1.0 each) to avoid divide by zero
     if (sH === 0 && sA === 0) { sH = 1; sA = 1; }
-    
-    // FIX: If only one is 0, give it a tiny value so odds aren't infinite
     if (sH === 0) sH = 0.1;
     if (sA === 0) sA = 0.1;
 
     const total = sH + sA;
-
-    // Probabilities
-    const pH = (sH / total) * 0.88; // 88% return (house edge)
+    const pH = (sH / total) * 0.88; 
     const pA = (sA / total) * 0.88; 
-    const pX = 0.12; // Fixed draw probability component
+    const pX = 0.12; 
 
-    // Convert to Decimals
     const o1 = (1 / pH).toFixed(2);
-    const oX = (1 / pX).toFixed(2); // usually around 8.0 with this logic, can tweak manually
+    const oX = (1 / pX).toFixed(2); 
     const o2 = (1 / pA).toFixed(2);
 
-    // Reasonable cap for Draw if it gets too wild
-    const finalOX = Math.min(Math.max(oX, 2.50), 6.50).toFixed(2); 
+    const finalOX = Math.min(Math.max(oX, 2.50), 6.50).toFixed(2);
+    return { '1': o1, 'X': finalOX, '2': o2 };
+  }
 
-    document.getElementById('o1').value = o1;
-    document.getElementById('oX').value = finalOX; 
-    document.getElementById('o2').value = o2;
+  // For the manual UI
+  async function suggestOddsDOM() {
+    const hId = document.getElementById('gmHome').value;
+    const aId = document.getElementById('gmAway').value;
+    if(!hId || !aId || hId === aId) return alert("Select two different teams");
+
+    const t1 = globalTeams.find(t => t.id === hId);
+    const t2 = globalTeams.find(t => t.id === aId);
+    
+    if (t1 && t2) {
+        const odds = calculateOddsForTeams(t1, t2);
+        document.getElementById('o1').value = odds['1'];
+        document.getElementById('oX').value = odds['X']; 
+        document.getElementById('o2').value = odds['2'];
+    }
   }
 
   function calcStrength(hist) {
@@ -406,6 +475,93 @@
     if (nums.length === 0) return 0; 
     return nums.reduce((a,b) => a+b, 0) / nums.length;
   }
+
+  // --- MATCH GENERATORS ---
+  async function generateGroupMatches(legs) {
+    if (!confirm(`Generate ${legs}-leg matches for all groups?`)) return;
+
+    // Group teams
+    const grouped = {};
+    globalTeams.forEach(t => {
+        if(!grouped[t.group]) grouped[t.group] = [];
+        grouped[t.group].push(t);
+    });
+
+    const updates = {};
+    
+    Object.keys(grouped).forEach(grp => {
+        const teams = grouped[grp];
+        const n = teams.length;
+        
+        // Round Robin Logic
+        for (let i = 0; i < n; i++) {
+            for (let j = i + 1; j < n; j++) {
+                const tA = teams[i];
+                const tB = teams[j];
+
+                // Leg 1: A vs B
+                const odds1 = calculateOddsForTeams(tA, tB);
+                const id1 = 'm_' + Date.now() + '_' + Math.floor(Math.random()*1000);
+                updates[`matches/${id1}`] = {
+                    home: tA.name, homeId: tA.id,
+                    away: tB.name, awayId: tB.id,
+                    odds: odds1,
+                    result: null,
+                    group: grp
+                };
+
+                // Leg 2: B vs A (if requested)
+                if (legs === 2) {
+                    const odds2 = calculateOddsForTeams(tB, tA);
+                    const id2 = 'm_' + (Date.now() + 1) + '_' + Math.floor(Math.random()*1000);
+                    updates[`matches/${id2}`] = {
+                        home: tB.name, homeId: tB.id,
+                        away: tA.name, awayId: tA.id,
+                        odds: odds2,
+                        result: null,
+                        group: grp
+                    };
+                }
+            }
+        }
+    });
+
+    await db.ref().update(updates);
+    alert('Matches Generated!');
+  }
+
+  // --- BRACKET DRAWER ---
+  function createBracket() {
+      const sf1HId = document.getElementById('brSF1H').value;
+      const sf1AId = document.getElementById('brSF1A').value;
+      const sf2HId = document.getElementById('brSF2H').value;
+      const sf2AId = document.getElementById('brSF2A').value;
+
+      if (!sf1HId || !sf1AId || !sf2HId || !sf2AId) return alert("Select all 4 Semi-Finalists");
+
+      const sf1H = globalTeams.find(t=>t.id===sf1HId);
+      const sf1A = globalTeams.find(t=>t.id===sf1AId);
+      const sf2H = globalTeams.find(t=>t.id===sf2HId);
+      const sf2A = globalTeams.find(t=>t.id===sf2AId);
+
+      const odds1 = calculateOddsForTeams(sf1H, sf1A);
+      const odds2 = calculateOddsForTeams(sf2H, sf2A);
+
+      const updates = {};
+      const now = Date.now();
+
+      // SF1
+      updates[`matches/m_${now}_SF1`] = { home: sf1H.name, homeId: sf1HId, away: sf1A.name, awayId: sf1AId, odds: odds1, result: null, stage: 'SF1' };
+      // SF2
+      updates[`matches/m_${now}_SF2`] = { home: sf2H.name, homeId: sf2HId, away: sf2A.name, awayId: sf2AId, odds: odds2, result: null, stage: 'SF2' };
+      // Placeholders for Final/3rd
+      updates[`matches/m_${now}_FINAL`] = { home: 'Winner SF1', homeId: 'TBD', away: 'Winner SF2', awayId: 'TBD', odds: {1:'-',X:'-',2:'-'}, result: null, stage: 'FINAL' };
+      updates[`matches/m_${now}_3RD`] = { home: 'Loser SF1', homeId: 'TBD', away: 'Loser SF2', awayId: 'TBD', odds: {1:'-',X:'-',2:'-'}, result: null, stage: '3RD' };
+
+      db.ref().update(updates);
+      alert("Bracket Matches Created!");
+  }
+
 
   // --- MATCHES ---
   function createMatch() {
@@ -428,26 +584,80 @@
     }
   }
 
+  // Feature: Delete & Rollback
+  async function deleteMatch(matchId) {
+    if(!confirm("DELETE Match & ROLLBACK all bets? This cannot be undone.")) return;
+
+    // 1. Get all bets
+    const betsSnap = await db.ref('bets').once('value');
+    const allBets = betsSnap.val() || {};
+    const usersSnap = await db.ref('users').once('value');
+    const allUsers = usersSnap.val() || {};
+
+    const updates = {};
+
+    // 2. Iterate and refund
+    for(const [username, userBets] of Object.entries(allBets)) {
+        if(userBets[matchId]) {
+            const bet = userBets[matchId];
+            const currentCredits = allUsers[username] ? allUsers[username].credits : 0;
+            // Refund logic
+            updates[`users/${username}/credits`] = currentCredits + bet.stake;
+            // Remove bet
+            updates[`bets/${username}/${matchId}`] = null;
+        }
+    }
+
+    // 3. Delete Match
+    updates[`matches/${matchId}`] = null;
+
+    try {
+        await db.ref().update(updates);
+        alert("Match deleted and bets refunded.");
+    } catch(e) {
+        alert("Error during rollback: " + e.message);
+    }
+  }
+
   // --- RENDERERS ---
   function initListeners() {
     db.ref('teams').on('value', s => {
       const teams = Object.values(s.val() || {});
+      globalTeams = teams; // Cache for generators
       updateDropdowns(teams);
       if (isAdmin) renderAdminTeamsTable(teams);
-      updateStandings(teams);
+      updateStandings(teams); // This also updates globalTeamStats
+      
+      // If we are in user view, refresh user list to show updated stats
+      if (isAdmin) db.ref('users').once('value', u => renderAdminUserList(u.val()));
     });
 
     db.ref('matches').on('value', s => {
       const matches = s.val() || {};
       if (isAdmin) renderAdminMatches(matches);
       else renderUserOdds(matches);
+      // Re-run standings if matches change
+      if(globalTeams.length) updateStandings(globalTeams);
     });
+    
+    if(isAdmin) {
+        db.ref('users').on('value', s => {
+            renderAdminUserList(s.val());
+        });
+    }
   }
 
   function updateDropdowns(teams) {
     const opts = teams.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+    // Normal dropdowns
     document.getElementById('gmHome').innerHTML = opts;
     document.getElementById('gmAway').innerHTML = opts;
+    // Bracket Dropdowns
+    const brOpts = '<option value="">-- Select --</option>' + opts;
+    document.getElementById('brSF1H').innerHTML = brOpts;
+    document.getElementById('brSF1A').innerHTML = brOpts;
+    document.getElementById('brSF2H').innerHTML = brOpts;
+    document.getElementById('brSF2A').innerHTML = brOpts;
   }
 
   function renderAdminTeamsTable(teams) {
@@ -468,7 +678,7 @@
         <td><strong>${t.name}</strong></td>
         <td>${grpSelect}</td>
         <td style="white-space:nowrap">
-          <button class="small-btn" style="background:#444; color:#fff" onclick="shiftHistory('${t.id}')">⬅ Shift</button>
+          <button class="small-btn" style="background:#444; color:#fff" onclick="shiftHistory('${t.id}')">⬅</button>
           ${histInputs}
         </td>
         <td style="color:var(--b365-accent-yellow); font-weight:bold;">${str}</td>
@@ -483,17 +693,42 @@
   function renderAdminMatches(matches) {
     const html = Object.entries(matches).map(([id, m]) => `
       <div style="padding:12px; border-bottom:1px solid #444; display:flex; justify-content:space-between; align-items:center;">
-        <span style="font-size:0.85rem">${m.home} vs ${m.away}</span>
-        <button class="refresh-btn" style="font-size:0.7rem; padding:4px 8px;" onclick="setScore('${id}')">${m.result || 'Settlement'}</button>
+        <div>
+            <span style="font-size:0.85rem">${m.home} vs ${m.away}</span>
+            <div style="font-size:0.7rem; color:#888">${m.group ? 'Grp '+m.group : (m.stage || 'Friend')}</div>
+        </div>
+        <div>
+            <button class="refresh-btn" style="font-size:0.7rem; padding:4px 8px;" onclick="setScore('${id}')">${m.result || 'Settlement'}</button>
+            <button class="delete-btn" style="margin-left:5px" onclick="deleteMatch('${id}')" title="Delete & Refund">X</button>
+        </div>
       </div>
     `).join('');
     document.getElementById('admin-match-list').innerHTML = html || 'No matches.';
   }
 
+  function renderAdminUserList(users) {
+      if(!users) return;
+      // Map user to team stats if name matches
+      const html = `<table>
+        <tr><th>User / Team</th><th>Credits</th><th>GF</th><th>GA</th></tr>
+        ${Object.entries(users).map(([key, u]) => {
+            // Find stats for team with same name as user
+            const stats = globalTeamStats[key] || { gf: 0, ga: 0 };
+            return `<tr>
+                <td>${key}</td>
+                <td style="color:var(--b365-bright-green)">${u.credits}</td>
+                <td>${stats.gf}</td>
+                <td>${stats.ga}</td>
+            </tr>`;
+        }).join('')}
+      </table>`;
+      document.getElementById('user-list-admin').innerHTML = html;
+  }
+
   function renderUserOdds(matches) {
     const html = Object.entries(matches).filter(([id, m]) => !m.result).map(([id, m]) => `
       <div class="match-row">
-        <div><div style="font-weight:bold">${m.home}</div><div style="font-weight:bold">${m.away}</div></div>
+        <div><div style="font-weight:bold">${m.home}</div><div style="font-weight:bold">${m.away}</div><div style="font-size:0.7rem; color:#888">${m.stage || 'Match'}</div></div>
         <div class="odds-group">
           <div class="odd-box"><span class="odd-lbl">1</span><span class="odd-val">${m.odds['1']}</span></div>
           <div class="odd-box"><span class="odd-lbl">X</span><span class="odd-val">${m.odds['X']}</span></div>
@@ -508,20 +743,42 @@
     const mSnap = await db.ref('matches').get();
     const matches = mSnap.val() || {};
     const stats = {};
+    
+    // Reset global stats
+    globalTeamStats = {};
+    teams.forEach(t => { 
+        stats[t.id] = {p:0, gd:0, gf:0, ga:0};
+        globalTeamStats[t.name] = { gf: 0, ga: 0 }; // Initialize for User display
+    });
+
     Object.values(matches).forEach(m => {
       if(!m.result) return;
       const [hG, aG] = m.result.split('-').map(Number);
-      [m.homeId, m.awayId].forEach(id => stats[id] = stats[id] || {p:0, gd:0});
+      
+      if(!stats[m.homeId]) stats[m.homeId] = {p:0, gd:0, gf:0, ga:0};
+      if(!stats[m.awayId]) stats[m.awayId] = {p:0, gd:0, gf:0, ga:0};
+
+      // Update basic stats
+      stats[m.homeId].gf += hG; stats[m.homeId].ga += aG;
+      stats[m.awayId].gf += aG; stats[m.awayId].ga += hG;
       stats[m.homeId].gd += (hG-aG); stats[m.awayId].gd += (aG-hG);
+      
       if(hG>aG) stats[m.homeId].p+=3; else if(aG>hG) stats[m.awayId].p+=3; else { stats[m.homeId].p+=1; stats[m.awayId].p+=1; }
+
+      // Update Global Stats for User View (Mapped by Name)
+      if (m.home) globalTeamStats[m.home] = { gf: stats[m.homeId].gf, ga: stats[m.homeId].ga };
+      if (m.away) globalTeamStats[m.away] = { gf: stats[m.awayId].gf, ga: stats[m.awayId].ga };
     });
 
     const groups = ['A','B','C','D','E'];
     document.getElementById('standings-area').innerHTML = groups.map(g => {
-      const gTeams = teams.filter(t => t.group === g).map(t => ({n: t.name, ...stats[t.id]||{p:0, gd:0}})).sort((a,b) => b.p - a.p || b.gd - a.gd);
+      const gTeams = teams.filter(t => t.group === g).map(t => ({n: t.name, ...stats[t.id]||{p:0, gd:0, gf:0, ga:0}})).sort((a,b) => b.p - a.p || b.gd - a.gd);
       if(gTeams.length === 0) return '';
       return `<div class="card"><div class="card-header">Group ${g}</div><div class="card-body">
-        <table>${gTeams.map(t => `<tr><td>${t.n}</td><td style="text-align:right"><strong>${t.p}</strong></td><td style="text-align:right; color:#888; font-size:0.7rem">${t.gd}GD</td></tr>`).join('')}</table>
+        <table>
+            <tr><th>Team</th><th>P</th><th>GD</th></tr>
+            ${gTeams.map(t => `<tr><td>${t.n}</td><td style="text-align:right"><strong>${t.p}</strong></td><td style="text-align:right; color:#888; font-size:0.7rem">${t.gd}</td></tr>`).join('')}
+        </table>
       </div></div>`;
     }).join('');
   }
