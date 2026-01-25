@@ -24,7 +24,7 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: var(--b365-body-bg);
       color: var(--b365-text-white);
-      margin: 0; padding: 0; padding-bottom: 250px; 
+      margin: 0; padding: 0; padding-bottom: 250px; /* Space for Slip */
     }
 
     header {
@@ -44,6 +44,7 @@
     }
     .refresh-btn:hover { background: var(--b365-bright-green); color: #000; }
 
+    /* Navigation Tabs */
     .tab-bar { display: flex; background: #404040; border-bottom: 1px solid var(--b365-border); overflow-x: auto; }
     .tab-item {
       padding: 14px 24px; cursor: pointer; border-right: 1px solid var(--b365-border);
@@ -90,6 +91,7 @@
     th { text-align: left; background: #333; color: var(--b365-text-gray); padding: 10px; font-size: 0.75rem; text-transform: uppercase; }
     td { padding: 10px; border-bottom: 1px solid var(--b365-border); font-size: 0.9rem; vertical-align: middle; }
 
+    /* Betting UI */
     .match-row { display: grid; grid-template-columns: 1fr 240px; padding: 15px; border-bottom: 1px solid var(--b365-border); }
     .odds-group { display: flex; gap: 8px; }
     .odd-box {
@@ -100,6 +102,7 @@
     .odd-val { color: var(--b365-accent-yellow); font-weight: bold; display: block; font-size: 1.1rem; }
     .odd-lbl { font-size: 0.7rem; color: var(--b365-text-gray); }
 
+    /* Extended Markets */
     .market-expand {
         background: #303030; padding: 10px; border-top: 1px dashed #555; display:none; grid-column: 1 / -1;
     }
@@ -110,6 +113,7 @@
     .prop-row { display: flex; justify-content: space-between; font-size: 0.8rem; padding: 4px 0; cursor:pointer; }
     .prop-row:hover { background: #444; }
 
+    /* Bracket Styles */
     .bracket-container {
         display: flex; justify-content: space-around; align-items: center; padding: 20px; background: #333; overflow-x: auto;
     }
@@ -118,6 +122,7 @@
     .bracket-line { height: 1px; background: #666; width: 30px; }
     .bracket-status { font-size:0.7rem; color:var(--b365-accent-yellow); position:absolute; top:2px; right:5px; }
 
+    /* Bet Slip / Shopping Cart */
     #bet-slip {
         position: fixed; bottom: 0; right: 0; width: 320px; 
         background: #eee; color: #333; 
@@ -173,7 +178,7 @@
       <div class="tab-item" onclick="switchTab('tab-bets', this)">Active Bets</div>
       <div class="tab-item" onclick="switchTab('tab-teams', this)">Team Admin</div>
       <div class="tab-item" onclick="switchTab('tab-users', this)">User Management</div>
-      <div class="tab-item" onclick="switchTab('tab-archives', this)">Archives</div>
+      <div class="tab-item" onclick="switchTab('tab-archives', this)">Archived Tournaments</div>
     </div>
 
     <div id="user-tabs" class="tab-bar" style="display:none">
@@ -187,7 +192,7 @@
         
         <div id="tab-matches" class="tab-pane">
            <div class="card" style="border-left: 5px solid var(--b365-bright-green);">
-            <div class="card-header">Auto-Generators (A-D Only)</div>
+            <div class="card-header">Auto-Generators (Skipping Group E)</div>
             <div class="card-body">
                 <div style="display:flex; gap:10px;">
                     <button class="action-btn" style="margin-top:0; font-size:0.8rem" onclick="generateGroupMatches(1)">Generate Group Matches (1 Leg)</button>
@@ -208,12 +213,12 @@
                      </select>
                  </div>
                  <div style="border-left:1px solid #555; padding-left:10px;">
-                     <label style="font-size:0.7rem; color:#aaa">Semi-Finalists</label><br>
+                     <label style="font-size:0.7rem; color:#aaa">Select Semi-Finalists</label><br>
                      SF1: <select id="brSF1H" style="width:100px; padding:2px"></select> vs <select id="brSF1A" style="width:100px; padding:2px"></select>
                      <span style="margin:0 5px; color:#666">|</span>
                      SF2: <select id="brSF2H" style="width:100px; padding:2px"></select> vs <select id="brSF2A" style="width:100px; padding:2px"></select>
                  </div>
-                 <button class="refresh-btn" style="margin-left:auto" onclick="initBracket()">Start Bracket</button>
+                 <button class="refresh-btn" style="margin-left:auto" onclick="initBracket()">Start Finals</button>
                </div>
                <div class="bracket-container" id="bracket-display">
                     <div style="color:#666; font-style:italic;">Bracket not initialized</div>
@@ -230,15 +235,15 @@
                 <select id="gmAway"></select>
                 <button class="ghost-btn" onclick="suggestOddsDOM()">💡 Suggest Odds</button>
                 <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-top:10px">
-                  <input id="o1" placeholder="1" />
-                  <input id="oX" placeholder="X" />
-                  <input id="o2" placeholder="2" />
+                  <input id="o1" placeholder="1 (Odd)" />
+                  <input id="oX" placeholder="X (Odd)" />
+                  <input id="o2" placeholder="2 (Odd)" />
                 </div>
                 <button class="action-btn" onclick="createMatch()">Post Match</button>
               </div>
             </div>
             <div class="card">
-              <div class="card-header">Live/Open Matches</div>
+              <div class="card-header">Open Settlements</div>
               <div id="admin-match-list" style="max-height: 400px; overflow-y: auto;"></div>
             </div>
           </div>
@@ -253,11 +258,11 @@
 
         <div id="tab-teams" class="tab-pane" style="display:none">
           <div class="card">
-            <div class="card-header">Register New Team</div>
+            <div class="card-header">Register New Entry</div>
             <div class="card-body" style="display:flex; gap:10px; align-items: flex-end;">
               <div style="flex:2">
                 <label style="font-size:0.7rem; color:#888">Team Name</label>
-                <input id="tName" placeholder="e.g. Manchester City" />
+                <input id="tName" placeholder="e.g. Liverpool" />
               </div>
               <div style="flex:1">
                 <label style="font-size:0.7rem; color:#888">Initial Group</label>
@@ -274,8 +279,10 @@
           </div>
           <div class="card">
             <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
-                <span>Team Database</span>
-                <button class="small-btn" style="background:#d32f2f; color:#fff;" onclick="archiveTournament()">📦 ARCHIVE SEASON</button>
+                <span>Team Strength & Group Management</span>
+                <div>
+                     <button class="small-btn" style="background:#d32f2f; color:#fff; font-weight:bold" onclick="archiveTournament()">📦 ARCHIVE TOURNAMENT</button>
+                </div>
             </div>
             <div style="overflow-x:auto;">
               <table id="admin-teams-table">
@@ -283,9 +290,9 @@
                   <tr>
                     <th>Team</th>
                     <th>Group</th>
-                    <th>Form History</th>
-                    <th>STR</th>
-                    <th>Del</th>
+                    <th>Form History (Recent -> Old)</th>
+                    <th>Strength</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody id="admin-teams-body"></tbody>
@@ -296,30 +303,35 @@
 
         <div id="tab-users" class="tab-pane" style="display:none">
           <div class="card">
-            <div class="card-header">User Management</div>
+            <div class="card-header">Active Users & Roles</div>
             <div id="user-list-admin"></div>
           </div>
         </div>
 
       </div>
-
       <div id="user-content" style="display:none">
+        
         <div id="user-home" class="tab-pane">
             <div class="card" style="border-left: 5px solid var(--b365-bright-green);">
-                <div class="card-body" style="display:flex; justify-content:space-between; align-items:center">
-                    <div><span style="color:#888">User:</span> <strong id="display-name"></strong></div>
-                    <div style="font-size: 1.2rem;">Balance: <strong style="color:var(--b365-accent-yellow)" id="display-balance">0</strong></div>
-                </div>
+            <div class="card-body" style="display:flex; justify-content:space-between; align-items:center">
+                <div><span style="color:#888">User:</span> <strong id="display-name"></strong></div>
+                <div style="font-size: 1.2rem;">Balance: <strong style="color:var(--b365-accent-yellow)" id="display-balance">0</strong></div>
             </div>
+            </div>
+            <div class="card">
+            <div class="card-header">Soccer - Live & Upcoming</div>
             <div id="user-betting-odds"></div>
+            </div>
+            
             <div id="standings-area" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:15px; margin-top:20px;"></div>
         </div>
+
       </div>
 
       <div id="tab-archives" class="tab-pane" style="display:none">
          <div class="card">
-             <div class="card-header">Historical Archives</div>
-             <div id="archives-list" class="card-body" style="display:flex; gap:10px; flex-wrap:wrap;">Loading...</div>
+             <div class="card-header">Past Tournaments</div>
+             <div id="archives-list" class="card-body">Loading archives...</div>
          </div>
          <div id="archive-detail-view"></div>
       </div>
@@ -331,21 +343,26 @@
             <span>Bet Slip <span id="slip-count" style="background:white; color:#000; padding:0 4px; border-radius:50%; font-size:0.7rem">0</span></span>
             <span>^</span>
         </div>
-        <div id="slip-body"></div>
+        <div id="slip-body">
+            <div style="text-align:center; padding:10px; color:#666">Empty</div>
+        </div>
         <div id="slip-footer">
             <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
                 <span>Total Odds:</span>
                 <strong id="slip-total-odds">1.00</strong>
             </div>
-            <input id="slip-stake" type="number" placeholder="Stake" style="background:#fff; color:#000; border:1px solid #aaa" oninput="updatePotentialReturn()">
-            <div style="display:flex; justify-content:space-between; margin:10px 0; font-size:0.85rem">
-                <span>Est. Returns:</span>
+            <div style="margin-bottom:5px;">
+                <input id="slip-stake" type="number" placeholder="Stake" style="background:#fff; color:#000; border:1px solid #aaa" oninput="updatePotentialReturn()">
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:0.85rem">
+                <span>Returns:</span>
                 <strong id="slip-return" style="color:var(--b365-dark-green)">0</strong>
             </div>
             <button class="action-btn" onclick="placeBetFromSlip()">Place Bet</button>
             <div id="slip-msg" style="font-size:0.75rem; color:red; margin-top:5px; text-align:center;"></div>
         </div>
     </div>
+
   </div>
 
 <script>
@@ -366,9 +383,11 @@
   let userRole = 'Observer'; 
   let globalTeams = []; 
   let globalMatches = {};
+  
+  // Shopping Cart
   let betSlip = []; 
 
-  // --- AUTH ---
+  // --- AUTH / SESSION ---
   window.onload = function() {
     const savedUser = localStorage.getItem('bet365_user');
     const savedAdmin = localStorage.getItem('bet365_isAdmin');
@@ -388,7 +407,7 @@
       db.ref('users/'+user).once('value', s => {
         const d = s.val();
         if (d && d.pass === pass) setUserSession(user, false);
-        else alert('Invalid Credentials');
+        else alert('Invalid Login');
       });
     }
   }
@@ -431,10 +450,11 @@
     document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
     document.getElementById(id).style.display = 'block';
     el.classList.add('active');
+    
     if(id === 'tab-archives') loadArchives();
   }
 
-  // --- SYNC ---
+  // --- DATA SYNC & LOGIC ---
   function initListeners() {
     db.ref('teams').on('value', s => {
       globalTeams = Object.values(s.val() || {});
@@ -442,6 +462,7 @@
       updateDropdowns(globalTeams);
       if (isAdmin) renderAdminTeamsTable(globalTeams);
       updateStandings(globalTeams, globalMatches);
+      if (isAdmin) refreshAdminUserView();
     });
 
     db.ref('matches').on('value', s => {
@@ -461,20 +482,25 @@
     }
   }
 
+  function refreshAdminUserView() {
+      db.ref('users').once('value', s => renderAdminUserList(s.val()));
+  }
+
   function determineUserRole() {
       const teamMatch = globalTeams.find(t => t.name === currentUser);
       userRole = teamMatch ? 'Player' : 'Observer';
+      
       const badge = document.getElementById('headerRole');
       badge.textContent = userRole;
       badge.className = 'role-badge ' + (userRole==='Player' ? 'role-player' : 'role-observer');
   }
 
-  // --- PRICING ENGINE ---
+  // --- ODDS & MARKETS ---
   function getProbabilities(t1, t2) {
     let sH = calcStrength(t1.history);
     let sA = calcStrength(t2.history);
-    if (sH <= 0 && sA <= 0) { sH = 1; sA = 1; }
-    if (sH <= 0) sH = 0.1; if (sA <= 0) sA = 0.1;
+    if (sH === 0 && sA === 0) { sH = 1; sA = 1; }
+    if (sH === 0) sH = 0.1; if (sA === 0) sA = 0.1;
 
     const total = sH + sA;
     const pH = (sH / total) * 0.88; 
@@ -486,12 +512,14 @@
   function calcStrength(hist) {
     if (!hist) return 0; 
     const nums = hist.filter(x => x !== '-' && !isNaN(parseFloat(x))).map(Number);
-    return nums.length === 0 ? 0 : nums.reduce((a,b) => a+b, 0) / nums.length;
+    if (nums.length === 0) return 0; 
+    return nums.reduce((a,b) => a+b, 0) / nums.length;
   }
 
   function generateFullMarkets(t1, t2) {
-      if(!t1 || !t2) return null;
+      if(!t1 || !t2) return null; // Safety check
       const p = getProbabilities(t1, t2);
+      
       const odds1X2 = {
           '1': (1/p.pH).toFixed(2),
           'X': Math.min(Math.max((1/p.pX), 2.50), 6.50).toFixed(2),
@@ -502,7 +530,7 @@
       const o1 = parseFloat(odds1X2['1']);
       const o2 = parseFloat(odds1X2['2']);
       
-      return {
+      const markets = {
           '1X2': odds1X2,
           'HTFT': {
               '1/1': randOdd(o1 * 1.5), '1/X': randOdd(15.0), '1/2': randOdd(25.0),
@@ -510,25 +538,55 @@
               '2/1': randOdd(30.0),     '2/X': randOdd(15.0), '2/2': randOdd(o2 * 1.5)
           },
           'Corners': { 'Over 9.5': '1.85', 'Under 9.5': '1.85' },
-          'Cards': { 'Over 3.5': '1.72', 'Under 3.5': '2.00' }
+          'Cards': { 'Over 3.5': '1.72', 'Under 3.5': '2.00' },
+          'Offsides': { 'Over 3.5': '1.90', 'Under 3.5': '1.80' }
       };
+      return markets;
   }
 
-  // --- ADMIN ACTIONS ---
-  async function registerTeam() {
-      const name = document.getElementById('tName').value.trim();
-      const grp = document.getElementById('tGroup').value;
-      if(!name) return;
-      const id = 't_' + Date.now();
-      await db.ref(`teams/${id}`).set({ id, name, group: grp, history: ['-','-','-','-','-'] });
-      document.getElementById('tName').value = '';
+  // --- MATCH CREATION ---
+  async function createMatch() {
+    const hId = document.getElementById('gmHome').value;
+    const aId = document.getElementById('gmAway').value;
+    const hName = document.querySelector('#gmHome option:checked').textContent;
+    const aName = document.querySelector('#gmAway option:checked').textContent;
+    
+    const t1 = globalTeams.find(t=>t.id===hId);
+    const t2 = globalTeams.find(t=>t.id===aId);
+    const generated = generateFullMarkets(t1, t2);
+
+    const m1 = document.getElementById('o1').value;
+    const mX = document.getElementById('oX').value;
+    const m2 = document.getElementById('o2').value;
+    if(m1) generated['1X2']['1'] = m1;
+    if(mX) generated['1X2']['X'] = mX;
+    if(m2) generated['1X2']['2'] = m2;
+
+    db.ref('matches/m_'+Date.now()).set({ 
+        home: hName, homeId: hId, away: aName, awayId: aId, 
+        odds: generated['1X2'], markets: generated, result: null 
+    });
   }
 
+  async function suggestOddsDOM() {
+    const hId = document.getElementById('gmHome').value;
+    const aId = document.getElementById('gmAway').value;
+    const t1 = globalTeams.find(t => t.id === hId);
+    const t2 = globalTeams.find(t => t.id === aId);
+    if (t1 && t2) {
+        const m = generateFullMarkets(t1, t2);
+        document.getElementById('o1').value = m['1X2']['1'];
+        document.getElementById('oX').value = m['1X2']['X']; 
+        document.getElementById('o2').value = m['1X2']['2'];
+    }
+  }
+
+  // FIXED: Scheduler Logic
   async function generateGroupMatches(legs) {
-    if (!confirm(`Generate matches for Groups A-D?`)) return;
+    if (!confirm(`Generate ${legs}-leg matches for A-D (Excl E)?`)) return;
     const grouped = {};
     globalTeams.forEach(t => {
-        if(t.group === 'E') return; // Skip Group E
+        if(t.group === 'E') return;
         if(!grouped[t.group]) grouped[t.group] = [];
         grouped[t.group].push(t);
     });
@@ -539,78 +597,264 @@
             for (let j = i + 1; j < teams.length; j++) {
                 const tA = teams[i]; const tB = teams[j];
                 const mkts1 = generateFullMarkets(tA, tB);
-                const id1 = 'm_' + Date.now() + i + j;
-                updates[`matches/${id1}`] = { home: tA.name, homeId: tA.id, away: tB.name, awayId: tB.id, odds: mkts1['1X2'], markets: mkts1, result: null, group: grp };
+                if(mkts1) {
+                    const id1 = 'm_' + Date.now() + '_' + Math.floor(Math.random()*10000);
+                    updates[`matches/${id1}`] = { home: tA.name, homeId: tA.id, away: tB.name, awayId: tB.id, odds: mkts1['1X2'], markets: mkts1, result: null, group: grp };
+                }
                 if (legs === 2) {
                     const mkts2 = generateFullMarkets(tB, tA);
-                    const id2 = 'm_' + Date.now() + j + i + 'r';
-                    updates[`matches/${id2}`] = { home: tB.name, homeId: tB.id, away: tA.name, awayId: tA.id, odds: mkts2['1X2'], markets: mkts2, result: null, group: grp };
+                    if(mkts2) {
+                        const id2 = 'm_' + (Date.now()+1) + '_' + Math.floor(Math.random()*10000);
+                        updates[`matches/${id2}`] = { home: tB.name, homeId: tB.id, away: tA.name, awayId: tA.id, odds: mkts2['1X2'], markets: mkts2, result: null, group: grp };
+                    }
                 }
             }
         }
     });
     await db.ref().update(updates);
-    alert("Matches generated for Groups A-D!");
+    alert("Matches generated!");
   }
 
+  // --- BET SLIP ---
+  function toggleSlip() {
+      const body = document.getElementById('slip-body');
+      const footer = document.getElementById('slip-footer');
+      body.classList.toggle('open');
+      footer.classList.toggle('open');
+  }
+
+  function addToSlip(matchId, marketName, selection, odds, label) {
+      if(isAdmin) return;
+      const match = globalMatches[matchId];
+      if(!match) return;
+
+      if(userRole === 'Player') {
+          const myTeamName = currentUser;
+          const isHome = match.home === myTeamName;
+          const isAway = match.away === myTeamName;
+          if (isHome || isAway) {
+              if (marketName !== '1X2') return alert("Integrity: You can only bet Match Winner on your own games.");
+              const allowedSel = isHome ? '1' : '2';
+              if (selection !== allowedSel) return alert("Integrity: You can only bet on YOURSELF to win.");
+          }
+      }
+
+      if(betSlip.find(b => b.matchId === matchId && b.market === marketName)) {
+          alert("Selection already in slip."); return;
+      }
+
+      betSlip.push({ matchId, market: marketName, selection, odds: parseFloat(odds), name: `${match.home} v ${match.away}`, label });
+      renderSlip();
+      document.getElementById('slip-body').classList.add('open');
+      document.getElementById('slip-footer').classList.add('open');
+  }
+
+  function removeFromSlip(index) {
+      betSlip.splice(index, 1);
+      renderSlip();
+  }
+
+  function renderSlip() {
+      const c = document.getElementById('slip-body');
+      document.getElementById('slip-count').textContent = betSlip.length;
+      if(betSlip.length === 0) {
+          c.innerHTML = '<div style="text-align:center; padding:10px; color:#666">Empty</div>';
+          document.getElementById('slip-total-odds').textContent = '1.00';
+          return;
+      }
+      c.innerHTML = betSlip.map((b, i) => `
+        <div class="slip-item">
+            <div class="slip-remove" onclick="removeFromSlip(${i})">x</div>
+            <div class="slip-item-title">${b.selection} @ ${b.odds}</div>
+            <div class="slip-item-market">${b.market} | ${b.label}</div>
+            <div style="font-size:0.7rem; color:#888">${b.name}</div>
+        </div>`).join('');
+      updatePotentialReturn();
+  }
+
+  function updatePotentialReturn() {
+      const stake = parseFloat(document.getElementById('slip-stake').value) || 0;
+      const byMatch = {};
+      betSlip.forEach(b => {
+          if(!byMatch[b.matchId]) byMatch[b.matchId] = 1.0;
+          byMatch[b.matchId] *= b.odds;
+      });
+      let pureMult = 1.0;
+      betSlip.forEach(b => pureMult *= b.odds);
+      document.getElementById('slip-total-odds').textContent = pureMult.toFixed(2);
+      document.getElementById('slip-return').textContent = (pureMult * stake).toFixed(2);
+      const msg = document.getElementById('slip-msg');
+      msg.textContent = "";
+      for(let mid in byMatch) if(byMatch[mid] > 250) msg.textContent = "Warning: One match exceeds odds of 250.";
+      if(pureMult > 500) msg.textContent = "Warning: Total odds exceed 500.";
+  }
+
+  async function placeBetFromSlip() {
+      const stake = parseFloat(document.getElementById('slip-stake').value);
+      if(!stake || stake <= 0) return alert("Enter valid stake");
+      const uSnap = await db.ref(`users/${currentUser}`).once('value');
+      const credits = uSnap.val().credits || 0;
+      if(stake > credits) return alert("Insufficient funds");
+
+      const byMatch = {};
+      betSlip.forEach(b => {
+          if(!byMatch[b.matchId]) byMatch[b.matchId] = 1.0;
+          byMatch[b.matchId] *= b.odds;
+      });
+      for(let mid in byMatch) if(byMatch[mid] > 250) return alert(`Bet Rejected: Selections in a single match > 250.`);
+
+      let totalOdds = 1.0;
+      betSlip.forEach(b => totalOdds *= b.odds);
+      if(totalOdds > 500) return alert("Bet Rejected: Total odds > 500.");
+
+      const betId = 'b_' + Date.now();
+      const betData = {
+          type: betSlip.length > 1 ? 'accumulator' : 'single',
+          selections: betSlip,
+          totalOdds: totalOdds.toFixed(2),
+          stake: stake,
+          potentialPayout: (stake * totalOdds).toFixed(2),
+          user: currentUser,
+          timestamp: Date.now(),
+          resolved: false
+      };
+      const updates = {};
+      updates[`users/${currentUser}/credits`] = credits - stake;
+      updates[`bets/${currentUser}/${betId}`] = betData;
+      await db.ref().update(updates);
+      betSlip = [];
+      document.getElementById('slip-stake').value = '';
+      renderSlip();
+      alert("Bet Placed!");
+  }
+
+  // --- ARCHIVING ---
   async function archiveTournament() {
-      const name = prompt("Enter Season Name (e.g. S24):");
+      const name = prompt("Enter Name for this Tournament Archive (e.g. 'Season 1'):");
       if(!name) return;
-      if(!confirm("This will clear current matches and bets. Continue?")) return;
+      if(!confirm("Archive Season? This resets Matches & Bets.")) return;
 
-      const mSnap = await db.ref('matches').get();
-      const tSnap = await db.ref('teams').get();
-      const matches = mSnap.val() || {};
-      const teams = Object.values(tSnap.val() || {});
+      const matchesSnap = await db.ref('matches').once('value');
+      const teamsSnap = await db.ref('teams').once('value');
+      const teams = Object.values(teamsSnap.val() || {});
+      const matches = matchesSnap.val() || {};
 
-      const archiveData = { name, date: Date.now(), teams, matches };
-      
+      // FIXED: Save full teams data to reconstruct groups later
+      const archiveData = {
+          name: name,
+          date: Date.now(),
+          teams: teams, 
+          matches: matches
+      };
+
       const updates = {};
       updates[`archives/${name}`] = archiveData;
       updates['matches'] = null;
       updates['bets'] = null;
       
-      // Update form coefficients
+      // Coeff Logic
+      const teamPoints = {}; // { teamId: points }
+
+      // Init points
+      teams.forEach(t => teamPoints[t.id] = 0);
+
+      // 1. Calculate Points from Matches
+      Object.values(matches).forEach(m => {
+          if(!m.result) return;
+          const [h, a] = m.result.split('-').map(Number);
+          
+          // Win/Draw Points (Applicable to ALL matches including playoffs? 
+          // "3rd placement match does not earn extra points but the winner does get the usual 2 for win")
+          // Logic: Apply 2 for win, 1 for draw to EVERY match played.
+          if (h > a) { teamPoints[m.homeId] += 2; }
+          else if (a > h) { teamPoints[m.awayId] += 2; }
+          else { teamPoints[m.homeId] += 1; teamPoints[m.awayId] += 1; }
+
+          // Bonus Points for Stages
+          if (m.stage === 'SF1' || m.stage === 'SF2') {
+              // "Reaching the Semi final earns 1 point" -> If they played in SF, they reached it.
+              // Note: This adds 1 pt per leg if 2 legs. Assuming "Reaching" is a one-off bonus.
+              // Safer way: Assign bonus based on unique participants later.
+          }
+      });
+
+      // 2. Bonus Points based on "Reaching" Stages (Robust method)
+      // Identify participants
+      const sfs = new Set();
+      const finalists = new Set();
+      let championId = null;
+
+      Object.values(matches).forEach(m => {
+          if (m.stage && (m.stage.startsWith('SF'))) {
+              sfs.add(m.homeId); sfs.add(m.awayId);
+          }
+          if (m.stage === 'FINAL') {
+              finalists.add(m.homeId); finalists.add(m.awayId);
+              if (m.result) {
+                   const [h, a] = m.result.split('-').map(Number);
+                   if (h>a) championId = m.homeId;
+                   else if (a>h) championId = m.awayId;
+              }
+          }
+      });
+
+      // Apply Bonuses
+      sfs.forEach(tid => { if(teamPoints[tid] !== undefined) teamPoints[tid] += 1; }); // Reach SF
+      finalists.forEach(tid => { if(teamPoints[tid] !== undefined) teamPoints[tid] += 1; }); // Reach Final
+      if(championId && teamPoints[championId] !== undefined) teamPoints[championId] += 1; // Winner
+
+      // 3. Shift History & Set New Coeff
       teams.forEach(t => {
-          let h = t.history ? [...t.history] : ['-','-','-','-','-'];
-          h.shift(); h.push('0.00'); // Shift window
-          updates[`teams/${t.id}/history`] = h;
+          let arr = t.history ? [...t.history] : ['-','-','-','-','-'];
+          for(let i=0; i < arr.length - 1; i++) arr[i] = arr[i+1]; // Shift Left
+          
+          // Set New Score
+          arr[arr.length - 1] = teamPoints[t.id] || 0;
+          updates[`teams/${t.id}/history`] = arr;
       });
 
       await db.ref().update(updates);
-      alert("Season Archived.");
+      alert("Tournament Archived!");
+      switchTab('tab-archives', document.querySelectorAll('.tab-item')[4]);
   }
 
   async function loadArchives() {
-      const snap = await db.ref('archives').get();
+      const snap = await db.ref('archives').once('value');
       const list = document.getElementById('archives-list');
       const data = snap.val();
       if(!data) { list.innerHTML = "No archives found."; return; }
       list.innerHTML = Object.keys(data).map(key => 
-          `<button class="refresh-btn" style="background:#555" onclick="renderArchiveDetail('${key}')">${key}</button>`
+          `<button class="ghost-btn" onclick="renderArchiveDetail('${key}')">${key}</button>`
       ).join('');
   }
 
+  // FIXED: Detailed Archive View
   async function renderArchiveDetail(key) {
-      const snap = await db.ref(`archives/${key}`).get();
+      const snap = await db.ref(`archives/${key}`).once('value');
       const d = snap.val();
       const div = document.getElementById('archive-detail-view');
       
+      // 1. Reconstruct Standings by Group
       const stats = {};
       d.teams.forEach(t => stats[t.id] = {name:t.name, group:t.group, p:0, gd:0});
       
       Object.values(d.matches).forEach(m => {
           if(!m.result || (m.stage && ['SF1','SF2','FINAL','3RD'].includes(m.stage))) return;
           const [h,a] = m.result.split('-').map(Number);
-          if(!stats[m.homeId] || !stats[m.awayId]) return;
-          if(h>a) stats[m.homeId].p+=3; else if(a>h) stats[m.awayId].p+=3; else { stats[m.homeId].p++; stats[m.awayId].p++; }
+          if(!stats[m.homeId] || !stats[m.awayId]) return; // safe check
+          if(h>a) stats[m.homeId].p+=3;
+          else if(a>h) stats[m.awayId].p+=3;
+          else { stats[m.homeId].p++; stats[m.awayId].p++; }
           stats[m.homeId].gd += (h-a); stats[m.awayId].gd += (a-h);
       });
 
-      let html = `<h2 style="color:var(--b365-accent-yellow); margin-top:30px;">Archive: ${d.name}</h2>`;
-      html += `<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:15px;">`;
-      ['A','B','C','D','E'].forEach(g => {
-          const gTeams = d.teams.filter(t => t.group === g).map(t => stats[t.id]).sort((a,b)=>b.p-a.p || b.gd-a.gd);
+      const groups = ['A','B','C','D','E'];
+      let html = `<h2 style="color:var(--b365-accent-yellow)">${d.name} Results</h2>`;
+      
+      // Render Groups
+      html += `<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px;">`;
+      groups.forEach(g => {
+          const gTeams = d.teams.filter(t => t.group === g).map(t => stats[t.id]).sort((a,b)=>b.p-a.p);
           if(gTeams.length) {
               html += `<div class="card"><div class="card-header">Group ${g}</div><div class="card-body"><table>
                 <tr><th>Team</th><th>Pts</th><th>GD</th></tr>
@@ -620,246 +864,240 @@
       });
       html += `</div>`;
 
-      // Playoff Detail
+      // Render Bracket Visual
+      html += `<div class="card"><div class="card-header">Playoff Results</div><div class="card-body">`;
+      // Reuse bracket renderer logic but with archived matches
+      const getM = (st) => Object.values(d.matches).find(m => m.stage === st && !m.bracketId) || {home:'?', away:'?', result:'-'};
       const sf1 = Object.values(d.matches).filter(m => m.stage === 'SF1');
       const sf2 = Object.values(d.matches).filter(m => m.stage === 'SF2');
       const fin = Object.values(d.matches).find(m => m.stage === 'FINAL') || {home:'?', away:'?', result:'-'};
+      const third = Object.values(d.matches).find(m => m.stage === '3RD') || {home:'?', away:'?', result:'-'};
       
-      const renderNode = (arr) => arr.map(m=>`<div class="bracket-match"><strong>${m.home} vs ${m.away}</strong><br><span style="color:var(--b365-accent-yellow)">${m.result}</span></div>`).join('');
+      const renderNode = (arr, lbl) => arr.map(m=>`<div class="bracket-match"><strong>${m.home} vs ${m.away}</strong><br><span style="color:var(--b365-accent-yellow)">${m.result}</span></div>`).join('');
 
-      html += `<div class="card"><div class="card-header">Final Bracket</div><div class="card-body">
-          <div class="bracket-container">
-              <div class="bracket-col">${renderNode(sf1)}${renderNode(sf2)}</div>
-              <div class="bracket-line"></div>
-              <div class="bracket-col"><div class="bracket-match" style="border-color:gold"><strong>${fin.home} vs ${fin.away}</strong><br><span style="color:gold">${fin.result}</span><div class="bracket-status">FINAL</div></div></div>
+      html += `<div class="bracket-container">
+          <div class="bracket-col">${renderNode(sf1, 'SF1')}${renderNode(sf2, 'SF2')}</div>
+          <div class="bracket-line"></div>
+          <div class="bracket-col">
+              <div class="bracket-match" style="border-color:gold"><strong>${fin.home} vs ${fin.away}</strong><br><span style="color:gold">${fin.result}</span><div class="bracket-status">FINAL</div></div>
+              <div class="bracket-match"><strong>${third.home} vs ${third.away}</strong><br><span>${third.result}</span><div class="bracket-status">3rd</div></div>
           </div>
-      </div></div>`;
+      </div>`;
+      html += `</div></div>`;
 
       div.innerHTML = html;
   }
 
-  // --- RENDERERS ---
+  // --- STANDARD RENDERERS ---
+  // FIXED: Restored Group Select in Team Admin
   function renderAdminTeamsTable(teams) {
     const groups = ['A','B','C','D','E'];
-    document.getElementById('admin-teams-body').innerHTML = teams.map(t => {
+    const html = teams.map(t => {
       const hist = t.history || ['-','-','-','-','-'];
       const str = calcStrength(hist).toFixed(2);
-      const grpOpts = groups.map(g => `<option value="${g}" ${t.group===g?'selected':''}>${g}</option>`).join('');
+      const histInputs = hist.map((val, i) => `<input class="hist-input" value="${val}" onchange="updateHistory('${t.id}', ${i}, this.value)">`).join('');
+      
+      // The SELECT is back:
+      const grpSelect = `<select style="margin:0; padding:4px; width:auto;" onchange="updateTeamData('${t.id}', 'group', this.value)">
+          ${groups.map(g => `<option value="${g}" ${t.group===g?'selected':''}>${g}</option>`).join('')}
+        </select>`;
 
       return `<tr>
         <td><strong>${t.name}</strong></td>
-        <td><select style="width:60px; padding:2px;" onchange="db.ref('teams/${t.id}/group').set(this.value)">${grpOpts}</select></td>
-        <td style="white-space:nowrap">${hist.map((v, i) => `<input class="hist-input" value="${v}" onchange="db.ref('teams/${t.id}/history/${i}').set(this.value)">`).join('')}</td>
-        <td style="color:var(--b365-accent-yellow)">${str}</td>
-        <td><button class="delete-btn" onclick="db.ref('teams/${t.id}').remove()">X</button></td>
+        <td>${grpSelect}</td>
+        <td style="white-space:nowrap">${histInputs}</td>
+        <td style="color:var(--b365-accent-yellow); font-weight:bold;">${str}</td>
+        <td><button onclick="deleteTeam('${t.id}')" style="background:transparent; color:#ff4444; border:none; cursor:pointer;">X</button></td>
       </tr>`;
     }).join('');
+    document.getElementById('admin-teams-body').innerHTML = html;
   }
 
+  async function updateTeamData(id, field, value) {
+    await db.ref(`teams/${id}/${field}`).set(value);
+  }
+  async function updateHistory(id, index, val) {
+    const clean = val.trim() === '-' ? '-' : (parseFloat(val) || 0);
+    await db.ref(`teams/${id}/history/${index}`).set(clean);
+  }
+  async function deleteTeam(id) { if(confirm('Remove team?')) await db.ref(`teams/${id}`).remove(); }
+
+  // Rest of renderers (User Odds, Admin Matches, Active Bets)
   function renderUserOdds(matches) {
     const active = Object.entries(matches).filter(([id, m]) => !m.result && !m.pending);
-    document.getElementById('user-betting-odds').innerHTML = active.map(([id, m]) => {
+    const html = active.map(([id, m]) => {
       const mkts = m.markets || { '1X2': m.odds }; 
       return `
-      <div class="card">
-        <div class="match-row">
+      <div class="card" style="margin-bottom:10px">
+        <div class="match-row" style="border:none">
           <div>
             <div style="font-weight:bold">${m.home}</div>
             <div style="font-weight:bold">${m.away}</div>
-            <div style="font-size:0.7rem; color:#888">${m.stage || 'Group '+ (m.group||'')}</div>
-            <div style="font-size:0.7rem; color:var(--b365-bright-green); cursor:pointer; margin-top:5px;" onclick="toggleMarkets('${id}')">+ Full Markets</div>
+            <div style="font-size:0.7rem; color:#888">${m.stage || 'Group ' + (m.group||'Match')}</div>
+            <div style="font-size:0.7rem; color:var(--b365-bright-green); cursor:pointer; margin-top:5px;" onclick="toggleMarkets('${id}')">+ More Markets</div>
           </div>
           <div class="odds-group">
-            <div class="odd-box" onclick="addToSlip('${id}', '1X2', '1', ${mkts['1X2']['1']}, 'Result')"><span class="odd-lbl">1</span><span class="odd-val">${mkts['1X2']['1']}</span></div>
-            <div class="odd-box" onclick="addToSlip('${id}', '1X2', 'X', ${mkts['1X2']['X']}, 'Result')"><span class="odd-lbl">X</span><span class="odd-val">${mkts['1X2']['X']}</span></div>
-            <div class="odd-box" onclick="addToSlip('${id}', '1X2', '2', ${mkts['1X2']['2']}, 'Result')"><span class="odd-lbl">2</span><span class="odd-val">${mkts['1X2']['2']}</span></div>
+            <div class="odd-box" onclick="addToSlip('${id}', '1X2', '1', ${mkts['1X2']['1']}, 'Match Winner')"><span class="odd-lbl">1</span><span class="odd-val">${mkts['1X2']['1']}</span></div>
+            <div class="odd-box" onclick="addToSlip('${id}', '1X2', 'X', ${mkts['1X2']['X']}, 'Match Winner')"><span class="odd-lbl">X</span><span class="odd-val">${mkts['1X2']['X']}</span></div>
+            <div class="odd-box" onclick="addToSlip('${id}', '1X2', '2', ${mkts['1X2']['2']}, 'Match Winner')"><span class="odd-lbl">2</span><span class="odd-val">${mkts['1X2']['2']}</span></div>
           </div>
         </div>
         <div id="mkt-${id}" class="market-expand">${renderExtendedMarkets(id, mkts)}</div>
-      </div>`;
-    }).join('') || '<div style="color:#666; text-align:center; padding:50px;">No Matches Available</div>';
+      </div>
+    `}).join('');
+    document.getElementById('user-betting-odds').innerHTML = html || '<div style="padding:20px; color:#888;">No active markets.</div>';
   }
 
-  function renderExtendedMarkets(mid, mkts) {
-      if(!mkts.HTFT) return '';
-      let h = `<div class="market-col"><div class="market-title">HT/FT</div>`;
-      Object.entries(mkts.HTFT).forEach(([k,v]) => h += `<div class="prop-row" onclick="addToSlip('${mid}', 'HT/FT', '${k}', ${v}, 'HT/FT')"><span>${k}</span><span>${v}</span></div>`);
-      h += `</div><div class="market-col"><div class="market-title">Props</div>`;
-      if(mkts.Corners) Object.entries(mkts.Corners).forEach(([k,v]) => h += `<div class="prop-row" onclick="addToSlip('${mid}', 'Corners', '${k}', ${v}, 'Corners')"><span>${k}</span><span>${v}</span></div>`);
-      return h + `</div>`;
+  function renderExtendedMarkets(mid, markets) {
+      if(!markets.HTFT) return '<div style="color:#888; text-align:center">No extras</div>';
+      let html = `<div class="market-col"><div class="market-title">HT / FT</div>`;
+      Object.entries(markets.HTFT).forEach(([k, v]) => html += `<div class="prop-row" onclick="addToSlip('${mid}', 'HT/FT', '${k}', ${v}, 'HT/FT')"><span>${k}</span><span style="color:var(--b365-accent-yellow)">${v}</span></div>`);
+      html += `</div>`;
+      if(markets.Corners) {
+          html += `<div class="market-col"><div class="market-title">Corners</div>`;
+          Object.entries(markets.Corners).forEach(([k, v]) => html += `<div class="prop-row" onclick="addToSlip('${mid}', 'Corners', '${k}', ${v}, 'Corners')"><span>${k}</span><span style="color:var(--b365-accent-yellow)">${v}</span></div>`);
+          html += `</div>`;
+      }
+      if(markets.Cards) {
+          html += `<div class="market-col"><div class="market-title">Cards</div>`;
+          Object.entries(markets.Cards).forEach(([k, v]) => html += `<div class="prop-row" onclick="addToSlip('${mid}', 'Cards', '${k}', ${v}, 'Cards')"><span>${k}</span><span style="color:var(--b365-accent-yellow)">${v}</span></div>`);
+          html += `</div>`;
+      }
+      return html;
   }
-
   function toggleMarkets(id) { document.getElementById('mkt-'+id).classList.toggle('show'); }
-
-  // --- SLIP LOGIC ---
-  function toggleSlip() { document.getElementById('slip-body').classList.toggle('open'); document.getElementById('slip-footer').classList.toggle('open'); }
-
-  function addToSlip(matchId, market, selection, odds, label) {
-      if(isAdmin) return;
-      const m = globalMatches[matchId];
-      if(userRole === 'Player' && (m.home === currentUser || m.away === currentUser)) {
-          if(market !== '1X2' || (m.home === currentUser && selection !== '1') || (m.away === currentUser && selection !== '2')) {
-              return alert("Integrity: You can only bet on yourself to win.");
-          }
-      }
-      if(betSlip.find(s => s.matchId === matchId && s.market === market)) return alert("Already added.");
-      betSlip.push({ matchId, market, selection, odds, label, name: `${m.home} v ${m.away}` });
-      renderSlip();
-      document.getElementById('slip-body').classList.add('open');
-      document.getElementById('slip-footer').classList.add('open');
-  }
-
-  function renderSlip() {
-      const b = document.getElementById('slip-body');
-      document.getElementById('slip-count').textContent = betSlip.length;
-      if(!betSlip.length) { b.innerHTML = '<div style="text-align:center; padding:20px; color:#999">Empty</div>'; return; }
-      b.innerHTML = betSlip.map((s, i) => `
-        <div class="slip-item">
-            <span class="slip-remove" onclick="betSlip.splice(${i},1); renderSlip();">×</span>
-            <div class="slip-item-title">${s.selection} @ ${s.odds}</div>
-            <div class="slip-item-market">${s.label} | ${s.name}</div>
-        </div>`).join('');
-      updatePotentialReturn();
-  }
-
-  function updatePotentialReturn() {
-      const stake = parseFloat(document.getElementById('slip-stake').value) || 0;
-      let odds = 1; betSlip.forEach(s => odds *= s.odds);
-      document.getElementById('slip-total-odds').textContent = odds.toFixed(2);
-      document.getElementById('slip-return').textContent = (odds * stake).toFixed(2);
-  }
-
-  async function placeBetFromSlip() {
-      const stake = parseFloat(document.getElementById('slip-stake').value);
-      if(!stake || stake <= 0) return alert("Invalid stake.");
-      const snap = await db.ref(`users/${currentUser}`).get();
-      const bal = snap.val().credits || 0;
-      if(stake > bal) return alert("Insufficient balance.");
-      
-      let totalOdds = 1; betSlip.forEach(s => totalOdds *= s.odds);
-      if(totalOdds > 500) return alert("Odds limit 500 exceeded.");
-
-      const betId = 'b_' + Date.now();
-      const updates = {};
-      updates[`users/${currentUser}/credits`] = bal - stake;
-      updates[`bets/${currentUser}/${betId}`] = { selections: betSlip, totalOdds: totalOdds.toFixed(2), stake, user: currentUser, timestamp: Date.now(), resolved: false };
-      await db.ref().update(updates);
-      betSlip = []; renderSlip(); alert("Bet Placed!");
-  }
-
-  // --- BRACKET ENGINE ---
-  async function initBracket() {
-      const h1 = document.getElementById('brSF1H').value;
-      const a1 = document.getElementById('brSF1A').value;
-      const h2 = document.getElementById('brSF2H').value;
-      const a2 = document.getElementById('brSF2A').value;
-      if(!h1 || !a1 || !h2 || !a2) return alert("Select all SF teams.");
-      
-      const t1 = globalTeams.find(t=>t.id===h1); const t2 = globalTeams.find(t=>t.id===a1);
-      const t3 = globalTeams.find(t=>t.id===h2); const t4 = globalTeams.find(t=>t.id===a2);
-      const type = document.getElementById('sfType').value;
-      
-      const updates = {};
-      const m1 = generateFullMarkets(t1, t2);
-      const m2 = generateFullMarkets(t3, t4);
-      
-      updates[`matches/sf1_l1`] = { home:t1.name, homeId:t1.id, away:t2.name, awayId:t2.id, odds:m1['1X2'], markets:m1, stage:'SF1', bracketId:'sf1' };
-      updates[`matches/sf2_l1`] = { home:t3.name, homeId:t3.id, away:t4.name, awayId:t4.id, odds:m2['1X2'], markets:m2, stage:'SF2', bracketId:'sf2' };
-      
-      if(type === '2') {
-          const m1r = generateFullMarkets(t2, t1); const m2r = generateFullMarkets(t4, t3);
-          updates[`matches/sf1_l2`] = { home:t2.name, homeId:t2.id, away:t1.name, awayId:t1.id, odds:m1r['1X2'], markets:m1r, stage:'SF1', bracketId:'sf1' };
-          updates[`matches/sf2_l2`] = { home:t4.name, homeId:t4.id, away:t3.name, awayId:t3.id, odds:m2r['1X2'], markets:m2r, stage:'SF2', bracketId:'sf2' };
-      }
-      
-      updates['matches/final'] = { home:'TBD', away:'TBD', result:null, stage:'FINAL', pending:true };
-      await db.ref().update(updates);
-  }
-
-  async function checkBracketProgression(matches) {
-      const sfs = Object.values(matches).filter(m => m.stage && m.stage.startsWith('SF'));
-      if(sfs.length > 0 && sfs.every(m => m.result)) {
-          const fin = Object.entries(matches).find(([k,v]) => v.stage === 'FINAL' && v.pending);
-          if(fin) {
-              const getW = (bId) => {
-                  const ms = sfs.filter(m => m.bracketId === bId);
-                  let h=0, a=0, hid=ms[0].homeId, aid=ms[0].awayId;
-                  ms.forEach(m => {
-                      const [x,y] = m.result.split('-').map(Number);
-                      if(m.homeId === hid) { h+=x; a+=y; } else { h+=y; a+=x; }
-                  });
-                  return h >= a ? {id:hid, n:ms[0].home} : {id:aid, n:ms[0].away};
-              };
-              const w1 = getW('sf1'); const w2 = getW('sf2');
-              const t1 = globalTeams.find(t=>t.id===w1.id); const t2 = globalTeams.find(t=>t.id===w2.id);
-              const mkts = generateFullMarkets(t1, t2);
-              await db.ref(`matches/${fin[0]}`).set({ home:w1.n, homeId:w1.id, away:w2.n, awayId:w2.id, odds:mkts['1X2'], markets:mkts, stage:'FINAL' });
-          }
-      }
-  }
-
-  // --- HELPERS ---
-  function updateDropdowns(teams) {
-    const o = teams.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
-    ['gmHome','gmAway','brSF1H','brSF1A','brSF2H','brSF2A'].forEach(i => document.getElementById(i).innerHTML = o);
-  }
-
-  async function setScore(id) {
-    const s = prompt("Score (2-1):");
-    if(s) { 
-        await db.ref(`matches/${id}/result`).set(s); 
-        const snap = await db.ref('matches').get(); 
-        checkBracketProgression(snap.val()); 
-    }
-  }
 
   function renderAdminMatches(matches) {
     document.getElementById('admin-match-list').innerHTML = Object.entries(matches).map(([id, m]) => `
-      <div style="padding:10px; border-bottom:1px solid #444; display:flex; justify-content:space-between;">
-        <div style="font-size:0.8rem;">${m.home} v ${m.away}<br><small style="color:#888">${m.stage||'Group'}</small></div>
-        <div><button class="small-btn" onclick="setScore('${id}')">${m.result||'Set'}</button><button class="delete-btn" onclick="db.ref('matches/${id}').remove()">X</button></div>
+      <div style="padding:12px; border-bottom:1px solid #444; display:flex; justify-content:space-between; align-items:center;">
+        <div><span style="font-size:0.85rem">${m.home} vs ${m.away}</span><div style="font-size:0.7rem; color:#888">${m.stage || 'Grp '+m.group}</div></div>
+        <div><button class="refresh-btn" style="font-size:0.7rem; padding:4px" onclick="setScore('${id}')">${m.result || 'Set'}</button>
+        <button class="delete-btn" onclick="db.ref('matches/${id}').remove()">X</button></div>
       </div>`).join('');
   }
-
-  function updateStandings(teams, matches) {
-      const stats = {}; teams.forEach(t => stats[t.id] = {p:0, gd:0});
-      Object.values(matches).forEach(m => {
-        if(!m.result || (m.stage && m.stage !== 'Group')) return;
-        const [h, a] = m.result.split('-').map(Number);
-        if(!stats[m.homeId] || !stats[m.awayId]) return;
-        stats[m.homeId].gd += (h-a); stats[m.awayId].gd += (a-h);
-        if(h>a) stats[m.homeId].p+=3; else if(a>h) stats[m.awayId].p+=3; else { stats[m.homeId].p++; stats[m.awayId].p++; }
+  function renderActiveBets(bets) {
+      if(!bets) { document.getElementById('admin-active-bets').innerHTML = 'No bets.'; return; }
+      let html = '<table style="font-size:0.85rem"><tr><th>User</th><th>Type</th><th>Sel</th><th>Stake</th><th>Return</th></tr>';
+      Object.entries(bets).forEach(([user, userBets]) => {
+          Object.values(userBets).forEach(b => {
+             const type = b.type === 'accumulator' ? `Acca (${b.selections.length})` : 'Single';
+             const sels = b.selections.map(s => `${s.name}: ${s.selection}`).join('<br>');
+             html += `<tr><td>${user}</td><td>${type}</td><td>${sels}</td><td>${b.stake}</td><td>${b.potentialPayout}</td></tr>`;
+          });
       });
-      document.getElementById('standings-area').innerHTML = ['A','B','C','D','E'].map(g => {
-        const gt = teams.filter(t => t.group === g).map(t => ({n:t.name, ...stats[t.id]})).sort((a,b)=>b.p-a.p || b.gd-a.gd);
-        if(!gt.length) return '';
-        return `<div class="card"><div class="card-header">Group ${g}</div><div class="card-body"><table><tr><th>Team</th><th>Pts</th><th>GD</th></tr>${gt.map(t=>`<tr><td>${t.n}</td><td>${t.p}</td><td>${t.gd}</td></tr>`).join('')}</table></div></div>`;
-      }).join('');
+      html += '</table>';
+      document.getElementById('admin-active-bets').innerHTML = html;
   }
-
-  function renderBracketView(matches) {
-      const sf = Object.values(matches).filter(m => m.stage && m.stage.startsWith('SF'));
-      const fin = Object.values(matches).find(m => m.stage === 'FINAL') || {home:'TBD', away:'TBD', result:''};
-      if(!sf.length) return;
-      document.getElementById('bracket-display').innerHTML = `
-        <div class="bracket-col">${sf.map(m=>`<div class="bracket-match">${m.home} v ${m.away}<br><span style="color:var(--b365-accent-yellow)">${m.result||'v'}</span></div>`).join('')}</div>
-        <div class="bracket-line"></div>
-        <div class="bracket-col"><div class="bracket-match" style="border-color:gold">${fin.home} v ${fin.away}<br><span style="color:gold">${fin.result||'FINAL'}</span></div></div>`;
-  }
-
   function renderAdminUserList(users) {
       if(!users) return;
-      document.getElementById('user-list-admin').innerHTML = `<table><tr><th>User</th><th>Credits</th><th>+/-</th></tr>${Object.entries(users).map(([k,u])=>`<tr><td>${k}</td><td style="color:var(--b365-bright-green)">${u.credits}</td><td><button class="small-btn" onclick="adjustCredits('${k}')">Adjust</button></td></tr>`).join('')}</table>`;
+      const html = `<table><tr><th>User</th><th>Role</th><th>Credits</th><th>Action</th></tr>${Object.entries(users).map(([key, u]) => {
+            const isPlayer = globalTeams.some(t => t.name === key);
+            const role = isPlayer ? 'Player' : 'Observer';
+            return `<tr><td>${key}</td><td><span class="role-badge ${isPlayer?'role-player':'role-observer'}">${role}</span></td><td style="color:var(--b365-bright-green)">${u.credits}</td><td><button class="small-btn" onclick="adjustCredits('${key}')">+/-</button></td></tr>`;
+        }).join('')}</table>`;
+      document.getElementById('user-list-admin').innerHTML = html;
+  }
+  async function updateStandings(teams, matches) {
+      const stats = {};
+      teams.forEach(t => stats[t.id] = {p:0, gd:0});
+      Object.values(matches).forEach(m => {
+        if(!m.result || (m.stage && ['SF1','SF2','FINAL','3RD'].includes(m.stage))) return;
+        const [hG, aG] = m.result.split('-').map(Number);
+        if(!stats[m.homeId]) stats[m.homeId] = {p:0,gd:0};
+        if(!stats[m.awayId]) stats[m.awayId] = {p:0,gd:0};
+        stats[m.homeId].gd += (hG-aG); stats[m.awayId].gd += (aG-hG);
+        if(hG>aG) stats[m.homeId].p+=3; else if(aG>hG) stats[m.awayId].p+=3; else { stats[m.homeId].p+=1; stats[m.awayId].p+=1; }
+      });
+      const groups = ['A','B','C','D','E'];
+      document.getElementById('standings-area').innerHTML = groups.map(g => {
+        const gTeams = teams.filter(t => t.group === g).map(t => ({n: t.name, ...stats[t.id]})).sort((a,b) => b.p - a.p || b.gd - a.gd);
+        if(!gTeams.length) return '';
+        return `<div class="card"><div class="card-header">Group ${g}</div><div class="card-body"><table><tr><th>Team</th><th>P</th><th>GD</th></tr>${gTeams.map(t => `<tr><td>${t.n}</td><td>${t.p}</td><td>${t.gd}</td></tr>`).join('')}</table></div></div>`;
+      }).join('');
+  }
+  function renderBracketView(matches) {
+      // Bracket renderer for active tournament
+      // (Implementation same as previous version)
+      const getM = (st) => Object.values(matches).find(m => m.stage === st && !m.bracketId) || {home:'TBD', away:'TBD', result:''};
+      const sf1 = Object.values(matches).filter(m => m.stage === 'SF1');
+      const sf2 = Object.values(matches).filter(m => m.stage === 'SF2');
+      const fin = Object.values(matches).find(m => m.stage === 'FINAL') || {home:'TBD', away:'TBD', result:''};
+      const third = Object.values(matches).find(m => m.stage === '3RD') || {home:'TBD', away:'TBD', result:''};
+      const renderNode = (arr, label) => arr.length ? arr.map(m => `<div class="bracket-match"><strong>${m.home} vs ${m.away}</strong><br><span style="color:var(--b365-accent-yellow)">${m.result || 'v'}</span><div class="bracket-status">${label}</div></div>`).join('') : `<div class="bracket-match"><strong>${label}</strong></div>`;
+      const html = `<div class="bracket-col">${renderNode(sf1, 'SF 1')}${renderNode(sf2, 'SF 2')}</div><div class="bracket-line"></div><div class="bracket-col"><div class="bracket-match" style="border-color:var(--b365-accent-yellow)"><strong>${fin.home} vs ${fin.away}</strong><br><span style="color:var(--b365-accent-yellow)">${fin.result || 'FINAL'}</span></div><div class="bracket-match"><strong>${third.home} vs ${third.away}</strong><br><span>${third.result || '3rd Place'}</span></div></div>`;
+      if(sf1.length > 0) document.getElementById('bracket-display').innerHTML = html;
+  }
+  function updateDropdowns(teams) {
+    const opts = teams.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+    document.getElementById('gmHome').innerHTML = opts; document.getElementById('gmAway').innerHTML = opts;
+    ['brSF1H','brSF1A','brSF2H','brSF2A'].forEach(i => document.getElementById(i).innerHTML = '<option value="">--</option>'+opts);
+  }
+  
+  // Bracket Utils for Init/Progression (Same as before)
+  async function initBracket() {
+      const sf1H = globalTeams.find(t=>t.id===document.getElementById('brSF1H').value);
+      const sf1A = globalTeams.find(t=>t.id===document.getElementById('brSF1A').value);
+      const sf2H = globalTeams.find(t=>t.id===document.getElementById('brSF2H').value);
+      const sf2A = globalTeams.find(t=>t.id===document.getElementById('brSF2A').value);
+      const type = document.getElementById('sfType').value;
+      if (!sf1H || !sf1A || !sf2H || !sf2A) return alert("Select all 4 Semi-Finalists");
+      const updates = {};
+      const now = Date.now();
+      const o1 = getProbabilities(sf1H, sf1A); const o2 = getProbabilities(sf2H, sf2A);
+      
+      const m1 = generateFullMarkets(sf1H, sf1A);
+      const m2 = generateFullMarkets(sf2H, sf2A);
+      
+      updates[`matches/br_sf1_L1`] = { home: sf1H.name, homeId: sf1H.id, away: sf1A.name, awayId: sf1A.id, odds: m1['1X2'], markets:m1, result: null, stage: 'SF1', bracketId: 'sf1' };
+      updates[`matches/br_sf2_L1`] = { home: sf2H.name, homeId: sf2H.id, away: sf2A.name, awayId: sf2A.id, odds: m2['1X2'], markets:m2, result: null, stage: 'SF2', bracketId: 'sf2' };
+
+      if(type === '2') {
+         const m1r = generateFullMarkets(sf1A, sf1H); const m2r = generateFullMarkets(sf2A, sf2H);
+         updates[`matches/br_sf1_L2`] = { home: sf1A.name, homeId: sf1A.id, away: sf1H.name, awayId: sf1H.id, odds: m1r['1X2'], markets:m1r, result: null, stage: 'SF1', bracketId: 'sf1' };
+         updates[`matches/br_sf2_L2`] = { home: sf2A.name, homeId: sf2A.id, away: sf2H.name, awayId: sf2H.id, odds: m2r['1X2'], markets:m2r, result: null, stage: 'SF2', bracketId: 'sf2' };
+      }
+      updates[`matches/br_final`] = { home: 'TBD', homeId: 'TBD', away: 'TBD', awayId: 'TBD', odds: {1:0,X:0,2:0}, result: null, stage: 'FINAL', pending: true };
+      updates[`matches/br_3rd`] = { home: 'TBD', homeId: 'TBD', away: 'TBD', awayId: 'TBD', odds: {1:0,X:0,2:0}, result: null, stage: '3RD', pending: true };
+      await db.ref().update(updates);
+  }
+  async function checkBracketProgression(matches) {
+      // (Simplified Progression Logic same as before)
+      const sf1 = Object.values(matches).filter(m => m.stage === 'SF1');
+      const sf2 = Object.values(matches).filter(m => m.stage === 'SF2');
+      if(sf1.length > 0 && sf1.every(m=>m.result) && sf2.length > 0 && sf2.every(m=>m.result)) {
+          const finKey = Object.keys(matches).find(k => matches[k].stage === 'FINAL' && matches[k].pending);
+          const trdKey = Object.keys(matches).find(k => matches[k].stage === '3RD' && matches[k].pending);
+          if(finKey) {
+             // Mock Winner Logic (Just takes first leg winner for simplicity in this snippet)
+             const getW = (ms) => { let h=0,a=0, hid=ms[0].homeId, aid=ms[0].awayId; ms.forEach(m=>{ const [x,y]=m.result.split('-').map(Number); if(m.homeId===hid){h+=x;a+=y}else{h+=y;a+=x}}); return h>a ? {wId:hid,wName:ms[0].home,lId:aid,lName:ms[0].away} : {wId:aid,wName:ms[0].away,lId:hid,lName:ms[0].home}; };
+             const r1 = getW(sf1); const r2 = getW(sf2);
+             const tW1 = globalTeams.find(t=>t.id===r1.wId); const tW2 = globalTeams.find(t=>t.id===r2.wId);
+             const tL1 = globalTeams.find(t=>t.id===r1.lId); const tL2 = globalTeams.find(t=>t.id===r2.lId);
+             
+             const mFin = generateFullMarkets(tW1,tW2);
+             const m3rd = generateFullMarkets(tL1,tL2);
+             const updates = {};
+             updates[`matches/${finKey}`] = { home:r1.wName, homeId:r1.wId, away:r2.wName, awayId:r2.wId, odds:mFin['1X2'], markets:mFin, result:null, stage:'FINAL', pending:null };
+             updates[`matches/${trdKey}`] = { home:r1.lName, homeId:r1.lId, away:r2.lName, awayId:r2.lId, odds:m3rd['1X2'], markets:m3rd, result:null, stage:'3RD', pending:null };
+             await db.ref().update(updates);
+             alert("Finals Set!");
+          }
+      }
+  }
+  async function setScore(id) {
+    const res = prompt("Score (e.g. 2-1)");
+    if(res) {
+        await db.ref(`matches/${id}/result`).set(res);
+        const s = await db.ref('matches').once('value');
+        checkBracketProgression(s.val());
+    }
   }
   async function adjustCredits(u) {
-      const amt = prompt("Amount to add/remove:");
-      if(amt) { const s = await db.ref(`users/${u}/credits`).get(); db.ref(`users/${u}/credits`).set((s.val()||0)+parseInt(amt)); }
-  }
-  function renderActiveBets(bets) {
-      if(!bets) return;
-      let h = '<table><tr><th>User</th><th>Odds</th><th>Stake</th></tr>';
-      Object.entries(bets).forEach(([u,ubs]) => Object.values(ubs).forEach(b => h += `<tr><td>${u}</td><td>${b.totalOdds}</td><td>${b.stake}</td></tr>`));
-      document.getElementById('admin-active-bets').innerHTML = h + '</table>';
+      const v = prompt("Amount (+/-)");
+      if(v) {
+          const s = await db.ref(`users/${u}/credits`).once('value');
+          db.ref(`users/${u}/credits`).set((s.val()||0) + parseInt(v));
+      }
   }
 </script>
 </body>
