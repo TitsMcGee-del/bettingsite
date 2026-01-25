@@ -25,6 +25,7 @@
       background-color: var(--b365-body-bg);
       color: var(--b365-text-white);
       margin: 0; padding: 0;
+      padding-bottom: 70px; /* Space for mobile slip */
     }
 
     header {
@@ -37,6 +38,39 @@
       position: sticky; top: 0; z-index: 100;
     }
 
+    .logo { font-weight: bold; font-size: 1.4rem; color: var(--b365-bright-green); letter-spacing: -1px; }
+    .logo span { color: white; }
+
+    nav {
+      background: #333;
+      display: flex;
+      overflow-x: auto;
+      border-bottom: 1px solid #444;
+      position: sticky; top: 53px; z-index: 99;
+    }
+    nav button {
+      background: none; border: none; color: var(--b365-text-gray);
+      padding: 12px 20px; cursor: pointer; font-size: 0.85rem;
+      white-space: nowrap; font-weight: 600; text-transform: uppercase;
+    }
+    nav button.active { color: var(--b365-bright-green); border-bottom: 2px solid var(--b365-bright-green); }
+
+    .container { padding: 15px; max-width: 1200px; margin: auto; }
+
+    .card {
+      background: var(--b365-card-bg);
+      border-radius: 4px; margin-bottom: 15px;
+      border: 1px solid var(--b365-border);
+      overflow: hidden;
+    }
+    .card-header {
+      background: #404040; padding: 10px 15px;
+      font-size: 0.8rem; font-weight: bold; color: var(--b365-text-gray);
+      text-transform: uppercase; border-bottom: 1px solid var(--b365-border);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .card-body { padding: 15px; }
+
     .refresh-btn {
       background: var(--b365-dark-green);
       color: white; border: none; padding: 8px 16px;
@@ -44,66 +78,21 @@
     }
     .refresh-btn:hover { background: var(--b365-bright-green); color: #000; }
 
-    /* Navigation Tabs */
-    .tab-bar { display: flex; background: #404040; border-bottom: 1px solid var(--b365-border); overflow-x: auto; }
-    .tab-item {
-      padding: 14px 24px; cursor: pointer; border-right: 1px solid var(--b365-border);
-      font-size: 0.9rem; font-weight: 600; color: var(--b365-text-gray); white-space: nowrap;
-    }
-    .tab-item.active {
-      background: var(--b365-card-bg); color: var(--b365-accent-yellow);
-      border-bottom: 2px solid var(--b365-accent-yellow);
-    }
-
-    .container { padding: 20px; max-width: 1400px; margin: 0 auto; }
-    
-    .card { background: var(--b365-card-bg); border-radius: 2px; margin-bottom: 20px; border: 1px solid var(--b365-border); }
-    .card-header {
-      background: #484848; padding: 12px 15px; font-weight: bold;
-      color: var(--b365-bright-green); border-bottom: 1px solid var(--b365-border);
-      text-transform: uppercase; font-size: 0.85rem;
-    }
-    .card-body { padding: 15px; }
-
     input, select {
-      background: #444; border: 1px solid #555; color: white;
-      padding: 10px; margin: 5px 0; width: 100%; box-sizing: border-box;
-    }
-    
-    /* Compact inputs */
-    input.hist-input {
-      width: 40px; text-align: center; padding: 4px; display: inline-block; margin: 0 2px;
-    }
-    input.small-input {
-        width: 60px; padding: 4px; display: inline-block;
+      background: #444; border: 1px solid #555; color: #fff; padding: 8px; border-radius: 4px; margin: 5px 0;
     }
 
-    button.action-btn {
-      background: var(--b365-accent-yellow); color: #000; border: none;
-      padding: 12px; width: 100%; font-weight: bold; cursor: pointer;
-      text-transform: uppercase; margin-top: 10px;
-    }
-    button.ghost-btn {
-      background: #555; color: #fff; border: none; padding: 8px; width: 100%; cursor: pointer; margin-top: 5px;
-    }
-    button.small-btn {
-      padding: 4px 8px; font-size: 0.8rem; cursor: pointer; border-radius: 3px; border:none; margin-left:5px;
-    }
-    button.delete-btn {
-      background: #d32f2f; color: white; border: none; padding: 5px 10px; cursor: pointer; font-weight: bold; border-radius: 3px;
-    }
-
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th { text-align: left; background: #333; color: var(--b365-text-gray); padding: 10px; font-size: 0.75rem; text-transform: uppercase; }
-    td { padding: 10px; border-bottom: 1px solid var(--b365-border); font-size: 0.9rem; vertical-align: middle; }
-
+    /* Match Rows */
     .match-row { display: grid; grid-template-columns: 1fr 240px; padding: 15px; border-bottom: 1px solid var(--b365-border); }
+    @media (max-width: 600px) { .match-row { grid-template-columns: 1fr; gap: 10px; } }
+    
     .odds-group { display: flex; gap: 8px; }
     .odd-box {
       background: #444; padding: 10px; text-align: center; flex: 1;
       cursor: pointer; border-radius: 2px; transition: 0.2s;
     }
     .odd-box:hover { background: #505050; border: 1px solid var(--b365-bright-green); }
+    .odd-box.selected { background: var(--b365-dark-green); border-color: var(--b365-bright-green); }
     .odd-val { color: var(--b365-accent-yellow); font-weight: bold; display: block; font-size: 1.1rem; }
     .odd-lbl { font-size: 0.7rem; color: var(--b365-text-gray); }
 
@@ -116,6 +105,42 @@
     .bracket-line { height: 1px; background: #666; width: 30px; }
     .bracket-status { font-size:0.7rem; color:var(--b365-accent-yellow); position:absolute; top:2px; right:5px; }
 
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th { text-align: left; background: #333; color: var(--b365-text-gray); padding: 10px; font-size: 0.75rem; text-transform: uppercase; }
+    td { padding: 10px; border-bottom: 1px solid var(--b365-border); font-size: 0.9rem; }
+
+    .action-btn {
+      background: var(--b365-accent-yellow); color: #000; border: none;
+      padding: 12px; width: 100%; font-weight: bold; cursor: pointer;
+      text-transform: uppercase; margin-top: 10px;
+    }
+    .delete-btn { background: var(--b365-red); color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 3px; font-weight: bold; }
+
+    /* Chat & Leaderboard */
+    .chat-container { height: 300px; overflow-y: auto; padding: 10px; background: #222; display: flex; flex-direction: column; gap: 8px; border-radius: 4px; }
+    .chat-msg { font-size: 0.85rem; padding: 6px 12px; border-radius: 4px; background: #333; align-self: flex-start; max-width: 85%; }
+    .chat-msg b { color: var(--b365-bright-green); margin-right: 5px; }
+
+    /* New Drawer Slip */
+    #bet-slip {
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 500px; background: #383838;
+      border-top: 3px solid var(--b365-bright-green);
+      z-index: 1000; transition: 0.3s ease-in-out;
+      box-shadow: 0 -5px 25px rgba(0,0,0,0.6);
+    }
+    #bet-slip.collapsed { height: 50px; overflow: hidden; cursor: pointer; }
+    #bet-slip.expanded { height: auto; max-height: 85vh; overflow-y: auto; }
+    
+    .slip-header {
+      padding: 15px; display: flex; justify-content: space-between; align-items: center;
+      background: #2a2a2a; font-weight: bold; border-bottom: 1px solid #444;
+    }
+    .slip-badge { background: var(--b365-bright-green); color: #000; border-radius: 50%; padding: 2px 8px; font-size: 0.8rem; }
+    .slip-item { padding: 12px 15px; border-bottom: 1px solid #444; position: relative; background: #444; margin-bottom: 2px; }
+    .slip-remove { position: absolute; right: 10px; top: 10px; color: #888; cursor: pointer; font-size: 1.2rem; }
+
     #login-screen { max-width: 400px; margin: 100px auto; }
   </style>
 
@@ -124,199 +149,132 @@
 </head>
 <body>
 
-  <header>
-    <div style="font-weight: 900; font-size: 1.6rem; color: var(--b365-bright-green); letter-spacing: -1px;">bet365</div>
-    <div>
-      <span id="headerUser" style="margin-right:15px; color:#aaa; font-size:0.9rem;"></span>
-      <button class="refresh-btn" onclick="logout()">LOGOUT</button>
-    </div>
-  </header>
-
-  <div id="login-screen">
-    <div class="card">
-      <div class="card-header">Member Login</div>
-      <div class="card-body">
-        <input id="userIn" placeholder="Username" />
-        <input id="passIn" placeholder="Password" type="password" />
-        <button class="action-btn" onclick="handleLogin()">Log In</button>
-      </div>
+  <!-- LOGIN -->
+  <div id="login-screen" class="card">
+    <div class="card-header">Login to Bet365 Elite</div>
+    <div class="card-body">
+      <input type="text" id="userIn" placeholder="Username" style="width:100%" />
+      <input type="password" id="passIn" placeholder="Password" style="width:100%" />
+      <button class="action-btn" onclick="handleLogin()">Login / Register</button>
+      <div style="font-size:0.7rem; color:#888; text-align:center; margin-top:10px;">Admin: Admin / IBM99ibm</div>
     </div>
   </div>
 
+  <!-- APP CONTENT -->
   <div id="app" style="display:none">
-    
-    <div id="admin-tabs" class="tab-bar" style="display:none">
-      <div class="tab-item active" onclick="switchTab('tab-matches', this)">Matches</div>
-      <div class="tab-item" onclick="switchTab('tab-bets', this)">Active Bets</div>
-      <div class="tab-item" onclick="switchTab('tab-teams', this)">Team Admin</div>
-      <div class="tab-item" onclick="switchTab('tab-users', this)">User Management</div>
-      <div class="tab-item" onclick="switchTab('tab-analytics', this)">Analytics</div>
-    </div>
+    <header>
+      <div class="logo">bet365 <span>Elite</span></div>
+      <div style="text-align:right">
+        <span id="headerUser" style="font-weight:bold">User</span><br>
+        <span id="display-balance" style="color:var(--b365-bright-green); font-weight:bold">$0.00</span>
+      </div>
+    </header>
+
+    <nav>
+      <button class="nav-btn active" onclick="switchTab('matches', this)">Sports</button>
+      <button class="nav-btn" onclick="switchTab('standings', this)">Standings</button>
+      <button class="nav-btn" onclick="switchTab('my-bets', this)">My Bets</button>
+      <button class="nav-btn" onclick="switchTab('leaderboard', this)">Leaderboard</button>
+      <button class="nav-btn" onclick="switchTab('chat', this)">Chat</button>
+      <button id="admin-nav" class="nav-btn" onclick="switchTab('admin', this)" style="display:none; color:var(--b365-accent-yellow)">Admin</button>
+    </nav>
 
     <div class="container">
       
-      <div id="admin-content" style="display:none">
-        
-        <div id="tab-matches" class="tab-pane">
-          
-          <div class="card" style="border-left: 5px solid var(--b365-bright-green);">
-            <div class="card-header">Auto-Generators (Skipping Group E)</div>
+      <!-- TAB: MATCHES -->
+      <div id="tab-matches" class="tab-pane">
+        <div id="bracket-display" class="bracket-container" style="display:none; margin-bottom:20px;"></div>
+        <div id="match-list"></div>
+      </div>
+
+      <!-- TAB: STANDINGS -->
+      <div id="tab-standings" class="tab-pane" style="display:none">
+        <div id="standings-area" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:15px;"></div>
+      </div>
+
+      <!-- TAB: MY BETS -->
+      <div id="tab-my-bets" class="tab-pane" style="display:none">
+        <div class="card">
+            <div class="card-header">Your Active Tickets</div>
+            <div id="user-tickets"></div>
+        </div>
+      </div>
+
+      <!-- TAB: LEADERBOARD -->
+      <div id="tab-leaderboard" class="tab-pane" style="display:none">
+        <div class="card">
+            <div class="card-header">Rankings</div>
+            <div id="leaderboard-content"></div>
+        </div>
+      </div>
+
+      <!-- TAB: CHAT -->
+      <div id="tab-chat" class="tab-pane" style="display:none">
+        <div class="card">
+            <div class="card-header">Trash Talk</div>
+            <div class="chat-container" id="chat-box"></div>
+            <div style="padding:10px; display:flex; gap:5px;">
+                <input type="text" id="chatInput" placeholder="Message..." style="flex:1; margin:0">
+                <button class="refresh-btn" onclick="sendChat()">Send</button>
+            </div>
+        </div>
+      </div>
+
+      <!-- TAB: ADMIN -->
+      <div id="tab-admin" class="tab-pane" style="display:none">
+        <!-- New Entry -->
+        <div class="card">
+            <div class="card-header">Register Team</div>
+            <div class="card-body" style="display:flex; gap:10px; align-items:flex-end;">
+                <div style="flex:2"><label style="font-size:0.7rem">Name</label><input id="tName" style="width:100%"/></div>
+                <div style="flex:1"><label style="font-size:0.7rem">Grp</label><select id="tGroup" style="width:100%"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option></select></div>
+                <button class="refresh-btn" onclick="registerTeam()">Add</button>
+            </div>
+        </div>
+        <!-- Season Controls -->
+        <div class="card">
+            <div class="card-header">Tournament Management</div>
             <div class="card-body">
-                <div style="display:flex; gap:10px;">
-                    <button class="action-btn" style="margin-top:0; font-size:0.8rem" onclick="generateGroupMatches(1)">Generate Group Matches (1 Leg)</button>
-                    <button class="action-btn" style="margin-top:0; font-size:0.8rem; background:#fff; color:#000" onclick="generateGroupMatches(2)">Generate Group Matches (2 Legs)</button>
+                <div style="display:flex; gap:5px; margin-bottom:10px;">
+                    <button class="refresh-btn" onclick="generateGroupMatches(1)">Generate Groups (1 Leg)</button>
+                    <button class="refresh-btn" style="background:#fff; color:#000" onclick="generateGroupMatches(2)">Generate Groups (2 Legs)</button>
                 </div>
-            </div>
-           </div>
-
-           <div class="card">
-             <div class="card-header">Tournament Bracket</div>
-             <div class="card-body">
-               <div style="display:flex; gap:10px; margin-bottom:15px; align-items:center; background:#404040; padding:10px; border-radius:4px;">
-                 <div style="display:flex; flex-direction:column;">
-                     <label style="font-size:0.7rem; color:#aaa">SF Structure</label>
-                     <select id="sfType" style="margin:0; padding:5px; width:100px;">
-                         <option value="1">1 Leg</option>
-                         <option value="2">2 Legs</option>
-                     </select>
-                 </div>
-                 <div style="border-left:1px solid #555; padding-left:10px;">
-                     <label style="font-size:0.7rem; color:#aaa">Select Semi-Finalists</label><br>
-                     SF1: <select id="brSF1H" style="width:100px; padding:2px"></select> vs <select id="brSF1A" style="width:100px; padding:2px"></select>
-                     <span style="margin:0 5px; color:#666">|</span>
-                     SF2: <select id="brSF2H" style="width:100px; padding:2px"></select> vs <select id="brSF2A" style="width:100px; padding:2px"></select>
-                 </div>
-                 <button class="refresh-btn" style="margin-left:auto" onclick="initBracket()">Start Finals</button>
-               </div>
-
-               <div class="bracket-container" id="bracket-display">
-                    <div style="color:#666; font-style:italic;">Bracket not initialized</div>
-               </div>
-             </div>
-           </div>
-
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div class="card">
-              <div class="card-header">Manual Match Init</div>
-              <div class="card-body">
-                <select id="gmHome"></select>
-                <div style="text-align:center; padding: 5px; color: var(--b365-text-gray);">vs</div>
-                <select id="gmAway"></select>
-                
-                <button class="ghost-btn" onclick="suggestOddsDOM()">💡 Suggest Odds from Strength</button>
-
-                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-top:10px">
-                  <input id="o1" placeholder="1 (Odd)" />
-                  <input id="oX" placeholder="X (Odd)" />
-                  <input id="o2" placeholder="2 (Odd)" />
+                <div style="background:#444; padding:10px; border-radius:4px;">
+                    <label style="font-size:0.7rem">Bracket Structure</label>
+                    <div style="display:flex; gap:5px;">
+                        SF1: <select id="brSF1H"></select> v <select id="brSF1A"></select>
+                        SF2: <select id="brSF2H"></select> v <select id="brSF2A"></select>
+                        <button class="refresh-btn" onclick="initBracket()">Start Finals</button>
+                    </div>
                 </div>
-                <button class="action-btn" onclick="createMatch()">Post Match</button>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-header">Open Settlements</div>
-              <div id="admin-match-list" style="max-height: 400px; overflow-y: auto;"></div>
-            </div>
-          </div>
-        </div>
-
-        <div id="tab-bets" class="tab-pane" style="display:none">
-            <div class="card">
-                <div class="card-header">All Active Bets</div>
-                <div id="admin-active-bets"></div>
-            </div>
-            <div class="card">
-                <div class="card-header">Bet History</div>
-                <div id="admin-bet-history"></div>
+                <button class="delete-btn" style="width:100%; margin-top:10px;" onclick="archiveTournament()">📦 ARCHIVE SEASON & CALCULATE BONUSES</button>
             </div>
         </div>
-
-        <div id="tab-teams" class="tab-pane" style="display:none">
-          <div class="card">
-            <div class="card-header">Register New Entry</div>
-            <div class="card-body" style="display:flex; gap:10px; align-items: flex-end;">
-              <div style="flex:2">
-                <label style="font-size:0.7rem; color:#888">Team Name</label>
-                <input id="tName" placeholder="e.g. Liverpool" />
-              </div>
-              <div style="flex:1">
-                <label style="font-size:0.7rem; color:#888">Initial Group</label>
-                <select id="tGroup">
-                  <option value="A">Group A</option>
-                  <option value="B">Group B</option>
-                  <option value="C">Group C</option>
-                  <option value="D">Group D</option>
-                  <option value="E">Group E</option>
-                </select>
-              </div>
-              <button class="action-btn" style="flex:1; margin-top:0; height: 42px;" onclick="registerTeam()">Add Team</button>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
-                <span>Team Strength & Group Management</span>
-                <div>
-                     <button class="small-btn" style="background:#d32f2f; color:#fff; font-weight:bold" onclick="archiveTournament()">📦 ARCHIVE TOURNAMENT</button>
-                </div>
-            </div>
-            <div style="overflow-x:auto;">
-              <table id="admin-teams-table">
-                <thead>
-                  <tr>
-                    <th>Team</th>
-                    <th>Group</th>
-                    <th>Form History (Recent -> Old)</th>
-                    <th>Strength</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="admin-teams-body"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <div id="tab-users" class="tab-pane" style="display:none">
-          <div class="card">
-            <div class="card-header">Active Users & Team Stats</div>
-            <div id="user-list-admin"></div>
-          </div>
-        </div>
-
-        <div id="tab-analytics" class="tab-pane" style="display:none">
-          <div class="card">
-            <div class="card-header">Bet Analytics Dashboard</div>
-            <div id="analytics-dashboard"></div>
-          </div>
-        </div>
+        <div id="admin-match-list"></div>
+        <div id="admin-user-list"></div>
       </div>
-
-      <div id="user-content" style="display:none">
-        <div class="card" style="border-left: 5px solid var(--b365-bright-green);">
-          <div class="card-body" style="display:flex; justify-content:space-between; align-items:center">
-            <div><span style="color:#888">User:</span> <strong id="display-name"></strong></div>
-            <div style="font-size: 1.2rem;">Balance: <strong style="color:var(--b365-accent-yellow)" id="display-balance">0</strong></div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header">Soccer - Live & Upcoming</div>
-          <div id="user-betting-odds"></div>
-        </div>
-        <div class="card">
-          <div class="card-header">Bet History</div>
-          <div id="user-bet-history"></div>
-        </div>
-        <div id="notifications" style="position:fixed; top:10px; right:10px; z-index:99;"></div>
-      </div>
-
-      <div id="standings-area" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:15px; margin-top:20px;"></div>
 
     </div>
-    <div id="bet-slip" style="position:fixed; bottom:0; right:0; width:300px; background:var(--b365-card-bg); border:1px solid var(--b365-border); padding:15px; display:none; z-index:99;">
-      <h3>Bet Slip</h3>
-      <div id="slip-items"></div>
-      <input id="slip-stake" type="number" placeholder="Stake" style="margin-top:10px;" />
-      <button class="action-btn" style="margin-top:10px;" onclick="placeBetsFromSlip()">Place Bet</button>
+
+    <!-- BET SLIP DRAWER -->
+    <div id="bet-slip" class="collapsed">
+        <div class="slip-header" onclick="toggleSlip()">
+            <span>BET SLIP <span class="slip-badge" id="slip-count">0</span></span>
+            <span id="slip-arrow">▲</span>
+        </div>
+        <div id="slip-items"></div>
+        <div style="padding:15px; background:#2a2a2a; border-top:1px solid #555;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                <span style="font-size:0.8rem">Accumulated Odds:</span>
+                <span id="slip-total-odds" style="color:var(--b365-accent-yellow); font-weight:bold">1.00</span>
+            </div>
+            <input type="number" id="slip-stake" placeholder="Stake ($)" style="width:100%; margin-bottom:10px;" />
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <span style="font-size:0.8rem">Potential Payout:</span>
+                <span id="slip-payout" style="color:var(--b365-bright-green); font-weight:bold">$0.00</span>
+            </div>
+            <button class="action-btn" onclick="placeTicket()">Place Ticket</button>
+        </div>
     </div>
   </div>
 
@@ -336,177 +294,72 @@
   let currentUser = null;
   let isAdmin = false;
   let globalTeams = []; 
-  let globalTeamStats = {}; 
   let globalMatches = {};
   let betSlip = [];
 
-  // --- AUTH / SESSION ---
-  window.onload = function() {
-    const savedUser = localStorage.getItem('bet365_user');
-    const savedAdmin = localStorage.getItem('bet365_isAdmin');
-    if (savedUser) {
-      currentUser = savedUser;
-      isAdmin = (savedAdmin === 'true');
-      launch();
-    }
-  };
-
+  // --- AUTH ---
   function handleLogin() {
-    const user = document.getElementById('userIn').value.trim();
-    const pass = document.getElementById('passIn').value;
-    if (user === 'Admin' && pass === 'IBM99ibm') {
-      setUserSession('Admin', true);
+    const u = document.getElementById('userIn').value.trim();
+    const p = document.getElementById('passIn').value;
+    if(!u || !p) return;
+
+    if(u === 'Admin' && p === 'IBM99ibm') {
+        currentUser = 'Admin'; isAdmin = true; launch();
     } else {
-      db.ref('users/'+user).once('value', s => {
-        const d = s.val();
-        if (d && d.pass === pass) setUserSession(user, false);
-        else alert('Invalid Login');
-      });
+        db.ref('users/'+u).once('value', s => {
+            const d = s.val();
+            if(d) {
+                if(d.pass === p) { currentUser = u; isAdmin = false; launch(); }
+                else alert("Wrong password");
+            } else {
+                db.ref('users/'+u).set({ pass: p, credits: 100, initialCredits: 100 }).then(() => {
+                    currentUser = u; isAdmin = false; launch();
+                });
+            }
+        });
     }
-  }
-
-  function setUserSession(user, adminStatus) {
-    currentUser = user;
-    isAdmin = adminStatus;
-    localStorage.setItem('bet365_user', user);
-    localStorage.setItem('bet365_isAdmin', adminStatus);
-    launch();
-  }
-
-  function logout() {
-    localStorage.removeItem('bet365_user');
-    localStorage.removeItem('bet365_isAdmin');
-    location.reload();
   }
 
   function launch() {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
-    document.getElementById('display-name').textContent = currentUser;
-    document.getElementById('headerUser').textContent = currentUser; 
-    if (isAdmin) {
-      document.getElementById('admin-tabs').style.display = 'flex';
-      document.getElementById('admin-content').style.display = 'block';
-    } else {
-      document.getElementById('user-content').style.display = 'block';
-      db.ref(`users/${currentUser}/credits`).on('value', s => {
-        document.getElementById('display-balance').textContent = s.val() || 0;
-      });
-    }
+    document.getElementById('headerUser').textContent = currentUser;
+    if(isAdmin) document.getElementById('admin-nav').style.display = 'block';
+
     initListeners();
   }
 
-  function switchTab(id, el) {
+  function switchTab(id, btn) {
     document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
-    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-    document.getElementById(id).style.display = 'block';
-    el.classList.add('active');
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-'+id).style.display = 'block';
+    btn.classList.add('active');
   }
 
   // --- DATA SYNC ---
   function initListeners() {
     db.ref('teams').on('value', s => {
-      globalTeams = Object.values(s.val() || {});
-      updateDropdowns(globalTeams);
-      if (isAdmin) renderAdminTeamsTable(globalTeams);
-      updateStandings(globalTeams, globalMatches);
-      if (isAdmin) refreshAdminUserView();
+        globalTeams = Object.values(s.val() || {});
+        updateDropdowns();
+        renderAdminTeams();
+        updateStandings();
     });
-
     db.ref('matches').on('value', s => {
-      globalMatches = s.val() || {};
-      if (isAdmin) {
-          renderAdminMatches(globalMatches);
-          renderBracketView(globalMatches);
-      } else {
-          renderUserOdds(globalMatches);
-      }
-      if(globalTeams.length) updateStandings(globalTeams, globalMatches);
+        globalMatches = s.val() || {};
+        renderMatches();
+        if(isAdmin) renderAdminMatches();
+        updateStandings();
+        renderBracket();
     });
-    
-    // Bets listener for Admin Active Bets tab
-    if(isAdmin) {
-        db.ref('bets').on('value', s => {
-            renderActiveBets(s.val(), globalMatches);
-        });
-        db.ref('users').on('value', s => {
-            renderAdminUserList(s.val());
-        });
-        db.ref('history').on('value', s => {
-            renderAdminBetHistory(s.val(), globalMatches);
-            renderAnalytics(s.val());
-        });
-    } else {
-        db.ref(`history/${currentUser}`).on('value', s => {
-            renderUserBetHistory(s.val(), globalMatches);
-        });
-        db.ref(`notifications/${currentUser}`).on('child_added', s => {
-            showNotification(s.val());
-            db.ref(`notifications/${currentUser}/${s.key}`).remove();
-        });
-    }
+    db.ref('users/' + currentUser + '/credits').on('value', s => {
+        document.getElementById('display-balance').textContent = `$${(s.val() || 0).toFixed(2)}`;
+    });
+    db.ref('chat').limitToLast(15).on('value', s => renderChat(s.val()));
+    db.ref('users').on('value', s => renderLeaderboard(s.val()));
+    db.ref('tickets/' + currentUser).on('value', s => renderUserTickets(s.val()));
   }
 
-  function refreshAdminUserView() {
-      db.ref('users').once('value', s => renderAdminUserList(s.val()));
-  }
-
-  // --- TEAM MGMT ---
-  async function registerTeam() {
-    const name = document.getElementById('tName').value.trim();
-    const group = document.getElementById('tGroup').value;
-    if (!name) return;
-    const id = 't_' + Date.now();
-    await db.ref('teams/' + id).set({ id, name, group, history: ['-','-','-','-','-'] });
-    document.getElementById('tName').value = '';
-  }
-
-  async function updateTeamData(id, field, value) {
-    await db.ref(`teams/${id}/${field}`).set(value);
-  }
-
-  async function updateHistory(id, index, val) {
-    const clean = val.trim() === '-' ? '-' : (parseFloat(val) || 0);
-    await db.ref(`teams/${id}/history/${index}`).set(clean);
-  }
-
-  async function deleteTeam(id) {
-    if(confirm('Remove team?')) await db.ref(`teams/${id}`).remove();
-  }
-
-  // --- ODDS CALC ---
-  function calculateOddsForTeams(t1, t2) {
-    let sH = calcStrength(t1.history);
-    let sA = calcStrength(t2.history);
-    if (sH === 0 && sA === 0) { sH = 1; sA = 1; }
-    if (sH === 0) sH = 0.1;
-    if (sA === 0) sA = 0.1;
-
-    const total = sH + sA;
-    const pH = (sH / total) * 0.88; 
-    const pA = (sA / total) * 0.88; 
-    const pX = 0.12; 
-
-    const o1 = (1 / pH).toFixed(2);
-    const oX = (1 / pX).toFixed(2); 
-    const o2 = (1 / pA).toFixed(2);
-    const finalOX = Math.min(Math.max(oX, 2.50), 6.50).toFixed(2);
-    return { '1': o1, 'X': finalOX, '2': o2 };
-  }
-
-  async function suggestOddsDOM() {
-    const hId = document.getElementById('gmHome').value;
-    const aId = document.getElementById('gmAway').value;
-    const t1 = globalTeams.find(t => t.id === hId);
-    const t2 = globalTeams.find(t => t.id === aId);
-    if (t1 && t2) {
-        const odds = calculateOddsForTeams(t1, t2);
-        document.getElementById('o1').value = odds['1'];
-        document.getElementById('oX').value = odds['X']; 
-        document.getElementById('o2').value = odds['2'];
-    }
-  }
-
+  // --- CORE LOGIC (TEAM STRENGTH & ODDS) ---
   function calcStrength(hist) {
     if (!hist) return 0; 
     const nums = hist.filter(x => x !== '-' && !isNaN(parseFloat(x))).map(Number);
@@ -514,33 +367,62 @@
     return nums.reduce((a,b) => a+b, 0) / nums.length;
   }
 
-  // --- GENERATORS ---
-  async function generateGroupMatches(legs) {
-    if (!confirm(`Generate ${legs}-leg matches for A, B, C, D (Excluding E)?`)) return;
+  function calculateOddsForTeams(t1, t2) {
+    const s1 = calcStrength(t1.history);
+    const s2 = calcStrength(t2.history);
+    const diff = s1 - s2; 
+    let p1 = 0.38, pX = 0.28, p2 = 0.34; // Base probabilities
+    p1 += (diff * 0.05); p2 -= (diff * 0.05);
+    p1 = Math.max(0.1, Math.min(0.8, p1));
+    p2 = Math.max(0.1, Math.min(0.8, p2));
+    pX = 1 - p1 - p2;
+    return {
+        '1': (1 / p1).toFixed(2),
+        'X': (1 / pX).toFixed(2),
+        '2': (1 / p2).toFixed(2)
+    };
+  }
 
+  // --- TEAM MGMT ---
+  function registerTeam() {
+    const name = document.getElementById('tName').value;
+    const grp = document.getElementById('tGroup').value;
+    if(!name) return;
+    const id = 't_' + Date.now();
+    db.ref('teams/'+id).set({ id, name, group: grp, history: [0,0,0,0,0] });
+  }
+
+  function updateDropdowns() {
+    const selects = ['brSF1H', 'brSF1A', 'brSF2H', 'brSF2A'];
+    selects.forEach(sid => {
+        const el = document.getElementById(sid);
+        if(!el) return;
+        el.innerHTML = globalTeams.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+    });
+  }
+
+  // --- MATCH GENERATORS ---
+  async function generateGroupMatches(legs) {
+    if(!confirm("Generate matches?")) return;
     const grouped = {};
     globalTeams.forEach(t => {
-        if(t.group === 'E') return; // EXCLUDE E
+        if(t.group === 'E') return; // Original logic: Skip Group E
         if(!grouped[t.group]) grouped[t.group] = [];
         grouped[t.group].push(t);
     });
-
     const updates = {};
     Object.keys(grouped).forEach(grp => {
         const teams = grouped[grp];
         for (let i = 0; i < teams.length; i++) {
             for (let j = i + 1; j < teams.length; j++) {
-                const tA = teams[i];
-                const tB = teams[j];
-                
+                const tA = teams[i], tB = teams[j];
                 const odds1 = calculateOddsForTeams(tA, tB);
-                const id1 = 'm_' + Date.now() + '_' + Math.floor(Math.random()*10000);
-                updates[`matches/${id1}`] = { home: tA.name, homeId: tA.id, away: tB.name, awayId: tB.id, odds: odds1, result: null, group: grp };
-
-                if (legs === 2) {
+                const mid1 = 'm_' + Date.now() + Math.random();
+                updates[`matches/${mid1}`] = { home: tA.name, homeId: tA.id, away: tB.name, awayId: tB.id, odds: odds1, result: null, group: grp };
+                if(legs === 2) {
                     const odds2 = calculateOddsForTeams(tB, tA);
-                    const id2 = 'm_' + (Date.now()+1) + '_' + Math.floor(Math.random()*10000);
-                    updates[`matches/${id2}`] = { home: tB.name, homeId: tB.id, away: tA.name, awayId: tA.id, odds: odds2, result: null, group: grp };
+                    const mid2 = 'm_' + Date.now() + Math.random();
+                    updates[`matches/${mid2}`] = { home: tB.name, homeId: tB.id, away: tA.name, awayId: tA.id, odds: odds2, result: null, group: grp };
                 }
             }
         }
@@ -548,542 +430,309 @@
     await db.ref().update(updates);
   }
 
-  // --- BRACKET LOGIC ---
   async function initBracket() {
-      const sf1H = globalTeams.find(t=>t.id===document.getElementById('brSF1H').value);
-      const sf1A = globalTeams.find(t=>t.id===document.getElementById('brSF1A').value);
-      const sf2H = globalTeams.find(t=>t.id===document.getElementById('brSF2H').value);
-      const sf2A = globalTeams.find(t=>t.id===document.getElementById('brSF2A').value);
-      const type = document.getElementById('sfType').value;
+    const sf1h = document.getElementById('brSF1H').value;
+    const sf1a = document.getElementById('brSF1A').value;
+    const sf2h = document.getElementById('brSF2H').value;
+    const sf2a = document.getElementById('brSF2A').value;
+    
+    const teams = [
+        globalTeams.find(t=>t.id===sf1h), globalTeams.find(t=>t.id===sf1a),
+        globalTeams.find(t=>t.id===sf2h), globalTeams.find(t=>t.id===sf2a)
+    ];
 
-      if (!sf1H || !sf1A || !sf2H || !sf2A) return alert("Select all 4 Semi-Finalists");
-
-      const updates = {};
-      const now = Date.now();
-
-      // Create SF matches as active betting events
-      const o1 = calculateOddsForTeams(sf1H, sf1A);
-      const o2 = calculateOddsForTeams(sf2H, sf2A);
-      
-      updates[`matches/br_sf1_L1`] = { home: sf1H.name, homeId: sf1H.id, away: sf1A.name, awayId: sf1A.id, odds: o1, result: null, stage: 'SF1', bracketId: 'sf1' };
-      updates[`matches/br_sf2_L1`] = { home: sf2H.name, homeId: sf2H.id, away: sf2A.name, awayId: sf2A.id, odds: o2, result: null, stage: 'SF2', bracketId: 'sf2' };
-
-      if(type === '2') {
-         const o1r = calculateOddsForTeams(sf1A, sf1H);
-         const o2r = calculateOddsForTeams(sf2A, sf2H);
-         updates[`matches/br_sf1_L2`] = { home: sf1A.name, homeId: sf1A.id, away: sf1H.name, awayId: sf1H.id, odds: o1r, result: null, stage: 'SF1', bracketId: 'sf1' };
-         updates[`matches/br_sf2_L2`] = { home: sf2A.name, homeId: sf2A.id, away: sf2H.name, awayId: sf2H.id, odds: o2r, result: null, stage: 'SF2', bracketId: 'sf2' };
-      }
-
-      // Add Placeholders for Final/3rd (NOT BETTABLE YET)
-      // We store a flag 'pending: true' so they don't appear in user lists
-      updates[`matches/br_final`] = { home: 'TBD', homeId: 'TBD', away: 'TBD', awayId: 'TBD', odds: {1:0,X:0,2:0}, result: null, stage: 'FINAL', pending: true };
-      updates[`matches/br_3rd`] = { home: 'TBD', homeId: 'TBD', away: 'TBD', awayId: 'TBD', odds: {1:0,X:0,2:0}, result: null, stage: '3RD', pending: true };
-
-      await db.ref().update(updates);
+    const updates = {};
+    const mid1 = 'm_sf1'; updates[`matches/${mid1}`] = { home: teams[0].name, homeId: teams[0].id, away: teams[1].name, awayId: teams[1].id, odds: calculateOddsForTeams(teams[0], teams[1]), result: null, stage: 'SF1' };
+    const mid2 = 'm_sf2'; updates[`matches/${mid2}`] = { home: teams[2].name, homeId: teams[2].id, away: teams[3].name, awayId: teams[3].id, odds: calculateOddsForTeams(teams[2], teams[3]), result: null, stage: 'SF2' };
+    
+    // Pending finals placeholders
+    updates[`matches/m_final`] = { home: 'TBD', away: 'TBD', odds: {'1':1,'X':1,'2':1}, result: null, stage: 'FINAL', pending: true };
+    updates[`matches/m_3rd`] = { home: 'TBD', away: 'TBD', odds: {'1':1,'X':1,'2':1}, result: null, stage: '3RD', pending: true };
+    
+    await db.ref().update(updates);
   }
 
-  // Check if SFs are done and spawn Final/3rd
-  async function checkBracketProgression(matches) {
-      // Find SF matches
-      const sf1Matches = Object.values(matches).filter(m => m.stage === 'SF1');
-      const sf2Matches = Object.values(matches).filter(m => m.stage === 'SF2');
-
-      if(sf1Matches.length === 0) return;
-
-      const isDone = (arr) => arr.length > 0 && arr.every(m => m.result);
-      
-      const sf1Done = isDone(sf1Matches);
-      const sf2Done = isDone(sf2Matches);
-      
-      // Get the Final/3rd placeholders
-      const finalMatchKey = Object.keys(matches).find(k => matches[k].stage === 'FINAL');
-      const thirdMatchKey = Object.keys(matches).find(k => matches[k].stage === '3RD');
-      
-      if(!finalMatchKey || !thirdMatchKey) return; // Should exist if bracket init
-      
-      const finalMatch = matches[finalMatchKey];
-      
-      // Only proceed if SFs are done AND Final is still TBD/Pending
-      if (sf1Done && sf2Done && finalMatch.pending) {
-          
-          const getWinnerLoser = (ms) => {
-              // Simple aggregate score logic
-              let hId = ms[0].homeId, aId = ms[0].awayId;
-              let hName = ms[0].home, aName = ms[0].away;
-              let hScore = 0, aScore = 0;
-
-              ms.forEach(m => {
-                  const [h, a] = m.result.split('-').map(Number);
-                  if (m.homeId === hId) { hScore += h; aScore += a; } 
-                  else { hScore += a; aScore += h; } // Inverted leg
-              });
-
-              if (hScore > aScore) return { wId: hId, wName: hName, lId: aId, lName: aName };
-              if (aScore > hScore) return { wId: aId, wName: aName, lId: hId, lName: hName };
-              // Tie-break (random/away goals not impl, taking home for now)
-              return { wId: hId, wName: hName, lId: aId, lName: aName };
-          };
-
-          const res1 = getWinnerLoser(sf1Matches);
-          const res2 = getWinnerLoser(sf2Matches);
-
-          // Calculate Odds
-          const tW1 = globalTeams.find(t=>t.id===res1.wId);
-          const tW2 = globalTeams.find(t=>t.id===res2.wId);
-          const tL1 = globalTeams.find(t=>t.id===res1.lId);
-          const tL2 = globalTeams.find(t=>t.id===res2.lId);
-
-          const oddsFinal = calculateOddsForTeams(tW1, tW2);
-          const odds3rd = calculateOddsForTeams(tL1, tL2);
-
-          const updates = {};
-          // Enable Final
-          updates[`matches/${finalMatchKey}`] = {
-              home: res1.wName, homeId: res1.wId,
-              away: res2.wName, awayId: res2.wId,
-              odds: oddsFinal, result: null, stage: 'FINAL', pending: null // REMOVE PENDING
-          };
-          // Enable 3rd
-          updates[`matches/${thirdMatchKey}`] = {
-              home: res1.lName, homeId: res1.lId,
-              away: res2.lName, awayId: res2.lId,
-              odds: odds3rd, result: null, stage: '3RD', pending: null // REMOVE PENDING
-          };
-
-          await db.ref().update(updates);
-          alert("Finals & 3rd Place Set! Betting is open.");
-      }
+  // --- BET SLIP (PARLAY) ---
+  function toggleSlip() {
+    const s = document.getElementById('bet-slip');
+    const a = document.getElementById('slip-arrow');
+    if(s.classList.contains('collapsed')) { s.classList.replace('collapsed', 'expanded'); a.textContent = '▼'; }
+    else { s.classList.replace('expanded', 'collapsed'); a.textContent = '▲'; }
   }
 
-  // --- ARCHIVE & COEFFICIENTS ---
+  function addToSlip(mId, pick, odds) {
+    if(betSlip.find(i => i.mId === mId)) betSlip = betSlip.filter(i => i.mId !== mId);
+    const m = globalMatches[mId];
+    betSlip.push({ mId, pick, odds: parseFloat(odds), home: m.home, away: m.away });
+    renderSlip();
+    const s = document.getElementById('bet-slip');
+    if(s.classList.contains('collapsed')) toggleSlip();
+  }
+
+  function removeFromSlip(mId) {
+    betSlip = betSlip.filter(i => i.mId !== mId);
+    renderSlip();
+  }
+
+  function renderSlip() {
+    const count = betSlip.length;
+    document.getElementById('slip-count').textContent = count;
+    let totalOdds = 1.0;
+    const html = betSlip.map(i => {
+        totalOdds *= i.odds;
+        return `<div class="slip-item">
+            <span class="slip-remove" onclick="removeFromSlip('${i.mId}')">×</span>
+            <div style="font-size:0.7rem; color:#aaa">${i.home} v ${i.away}</div>
+            <div style="font-weight:bold">${i.pick} <span style="color:var(--b365-accent-yellow)">@${i.odds}</span></div>
+        </div>`;
+    }).join('');
+    document.getElementById('slip-items').innerHTML = html || '<div style="padding:20px; text-align:center; color:#888">Empty Slip</div>';
+    document.getElementById('slip-total-odds').textContent = totalOdds.toFixed(2);
+    
+    const stakeIn = document.getElementById('slip-stake');
+    stakeIn.oninput = () => {
+        const stake = parseFloat(stakeIn.value) || 0;
+        document.getElementById('slip-payout').textContent = `$${(stake * totalOdds).toFixed(2)}`;
+    };
+  }
+
+  async function placeTicket() {
+    if(betSlip.length === 0) return;
+    const stake = parseFloat(document.getElementById('slip-stake').value);
+    if(!stake || stake <= 0) return alert("Invalid Stake");
+
+    const snap = await db.ref(`users/${currentUser}/credits`).get();
+    const bal = snap.val() || 0;
+    if(bal < stake) return alert("Insufficient funds");
+
+    let totalOdds = 1.0; betSlip.forEach(i => totalOdds *= i.odds);
+    const ticketId = 'tkt_' + Date.now();
+    const ticket = {
+        legs: betSlip,
+        stake,
+        totalOdds,
+        status: 'open',
+        payout: stake * totalOdds,
+        ts: Date.now()
+    };
+
+    const updates = {};
+    updates[`tickets/${currentUser}/${ticketId}`] = ticket;
+    updates[`users/${currentUser}/credits`] = bal - stake;
+    await db.ref().update(updates);
+    
+    betSlip = []; renderSlip(); toggleSlip();
+    alert("Ticket Placed!");
+  }
+
+  // --- RENDERING MATCHES ---
+  function renderMatches() {
+    const grouped = {};
+    Object.entries(globalMatches).forEach(([id, m]) => {
+        if(m.pending) return;
+        const key = m.group ? 'Group ' + m.group : (m.stage || 'Others');
+        if(!grouped[key]) grouped[key] = [];
+        grouped[key].push({id, ...m});
+    });
+
+    let html = '';
+    for(const [title, ms] of Object.entries(grouped)) {
+        html += `<div class="card"><div class="card-header">${title}</div><div class="card-body" style="padding:0">`;
+        ms.forEach(m => {
+            html += `<div class="match-row">
+                <div><div>${m.home} v ${m.away}</div><div style="font-size:0.7rem; color:#888">${m.result || 'Pre-match'}</div></div>
+                <div class="odds-group">
+                    <div class="odd-box" onclick="addToSlip('${m.id}','1','${m.odds['1']}')"><span class="odd-lbl">1</span><span class="odd-val">${m.odds['1']}</span></div>
+                    <div class="odd-box" onclick="addToSlip('${m.id}','X','${m.odds['X']}')"><span class="odd-lbl">X</span><span class="odd-val">${m.odds['X']}</span></div>
+                    <div class="odd-box" onclick="addToSlip('${m.id}','2','${m.odds['2']}')"><span class="odd-lbl">2</span><span class="odd-val">${m.odds['2']}</span></div>
+                </div>
+            </div>`;
+        });
+        html += `</div></div>`;
+    }
+    document.getElementById('match-list').innerHTML = html;
+  }
+
+  // --- ADMIN SETTLEMENT & TICKET LOGIC ---
+  async function adminSetResult(mId) {
+    const score = prompt("Result (H-A):");
+    if(!score || !score.includes('-')) return;
+    const [h, a] = score.split('-').map(Number);
+    let winOutcome = 'X'; if(h>a) winOutcome = '1'; else if(a>h) winOutcome = '2';
+
+    const updates = {};
+    updates[`matches/${mId}/result`] = score;
+
+    // Settle Tickets
+    const tSnap = await db.ref('tickets').once('value');
+    const allUsersTickets = tSnap.val() || {};
+
+    for(const [user, tickets] of Object.entries(allUsersTickets)) {
+        for(const [tId, tkt] of Object.entries(tickets)) {
+            if(tkt.status !== 'open') continue;
+            const leg = tkt.legs.find(l => l.mId === mId);
+            if(leg) {
+                if(leg.pick !== winOutcome) {
+                    updates[`tickets/${user}/${tId}/status`] = 'lost';
+                } else {
+                    // Check if entire parlay is now won
+                    const allWon = tkt.legs.every(l => {
+                        const mObj = globalMatches[l.mId];
+                        const mRes = (l.mId === mId) ? score : mObj.result;
+                        if(!mRes) return false;
+                        const [lh, la] = mRes.split('-').map(Number);
+                        let lWin = 'X'; if(lh>la) lWin='1'; else if(la>lh) lWin='2';
+                        return l.pick === lWin;
+                    });
+                    if(allWon) {
+                        updates[`tickets/${user}/${tId}/status`] = 'won';
+                        const uSnap = await db.ref(`users/${user}/credits`).get();
+                        updates[`users/${user}/credits`] = (uSnap.val() || 0) + tkt.payout;
+                    }
+                }
+            }
+        }
+    }
+    await db.ref().update(updates);
+    
+    // Original Logic: Auto-advance bracket if SF
+    if(mId === 'm_sf1' || mId === 'm_sf2') checkBracketAdvancement();
+  }
+
+  async function checkBracketAdvancement() {
+    const sf1 = globalMatches['m_sf1'], sf2 = globalMatches['m_sf2'];
+    if(sf1 && sf1.result && sf2 && sf2.result) {
+        const getW = (m) => {
+            const [h,a] = m.result.split('-').map(Number);
+            return h > a ? {id:m.homeId, n:m.home, lid:m.awayId, ln:m.away} : {id:m.awayId, n:m.away, lid:m.homeId, ln:m.home};
+        };
+        const w1 = getW(sf1), w2 = getW(sf2);
+        const updates = {};
+        updates['matches/m_final'] = { home: w1.n, homeId: w1.id, away: w2.n, awayId: w2.id, odds: calculateOddsForTeams(globalTeams.find(t=>t.id===w1.id), globalTeams.find(t=>t.id===w2.id)), result:null, stage:'FINAL' };
+        updates['matches/m_3rd'] = { home: w1.ln, homeId: w1.lid, away: w2.ln, awayId: w2.lid, odds: calculateOddsForTeams(globalTeams.find(t=>t.id===w1.lid), globalTeams.find(t=>t.id===w2.lid)), result:null, stage:'3RD' };
+        await db.ref().update(updates);
+    }
+  }
+
+  // --- SOCIAL & STANDINGS ---
+  function renderChat(msgs) {
+    if(!msgs) return;
+    const html = Object.values(msgs).map(m => `<div class="chat-msg"><b>${m.user}:</b> ${m.text}</div>`).join('');
+    const box = document.getElementById('chat-box');
+    box.innerHTML = html; box.scrollTop = box.scrollHeight;
+  }
+  function sendChat() {
+    const text = document.getElementById('chatInput').value;
+    if(!text) return;
+    db.ref('chat').push({ user: currentUser, text, ts: Date.now() });
+    document.getElementById('chatInput').value = '';
+  }
+
+  function renderLeaderboard(users) {
+    if(!users) return;
+    const sorted = Object.entries(users).map(([name, d]) => ({ name, credits: d.credits||0, net: (d.credits||0)-(d.initialCredits||100) })).sort((a,b) => b.credits - a.credits);
+    const html = `<table><tr><th>User</th><th>Credits</th><th>ROI</th></tr>
+    ${sorted.map(u => `<tr><td>${u.name}</td><td style="color:var(--b365-bright-green); font-weight:bold">$${u.credits.toFixed(2)}</td><td style="color:${u.net>=0?'#12ed80':'#f44'}">${u.net>=0?'+':''}${u.net.toFixed(2)}</td></tr>`).join('')}
+    </table>`;
+    document.getElementById('leaderboard-content').innerHTML = html;
+  }
+
+  function updateStandings() {
+    const stats = {};
+    globalTeams.forEach(t => stats[t.id] = { p:0, gd:0 });
+    Object.values(globalMatches).forEach(m => {
+        if(!m.result || m.stage) return;
+        const [h, a] = m.result.split('-').map(Number);
+        stats[m.homeId].gd += (h-a); stats[m.awayId].gd += (a-h);
+        if(h>a) stats[m.homeId].p+=3; else if(a>h) stats[m.awayId].p+=3; else { stats[m.homeId].p+=1; stats[m.awayId].p+=1; }
+    });
+    const grps = ['A','B','C','D','E'];
+    document.getElementById('standings-area').innerHTML = grps.map(g => {
+        const ts = globalTeams.filter(t=>t.group===g).map(t=>({n:t.name, ...stats[t.id]})).sort((a,b)=>b.p-a.p || b.gd-a.gd);
+        if(ts.length===0) return '';
+        return `<div class="card"><div class="card-header">Group ${g}</div><div class="card-body">
+            <table><tr><th>Team</th><th>P</th><th>GD</th></tr>
+            ${ts.map(t=>`<tr><td>${t.n}</td><td>${t.p}</td><td style="color:#888">${t.gd}</td></tr>`).join('')}
+            </table></div></div>`;
+    }).join('');
+  }
+
+  function renderUserTickets(tickets) {
+    if(!tickets) return;
+    const html = Object.values(tickets).reverse().map(t => `
+        <div style="background:#444; padding:10px; border-radius:4px; margin-bottom:10px; border-left:4px solid ${t.status==='won'?'#12ed80':(t.status==='lost'?'#f44':'#aaa')}">
+            <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#aaa">
+                <span>${new Date(t.ts).toLocaleDateString()}</span><span>${t.status.toUpperCase()}</span>
+            </div>
+            <div style="font-weight:bold; margin:5px 0">${t.legs.length} Leg Parlay @ ${t.totalOdds.toFixed(2)}</div>
+            <div style="font-size:0.8rem">${t.legs.map(l => `${l.home} (${l.pick})`).join(' • ')}</div>
+            <div style="margin-top:5px; font-size:0.8rem">Stake: $${t.stake} | Pot. Win: $${t.payout.toFixed(2)}</div>
+        </div>
+    `).join('');
+    document.getElementById('user-tickets').innerHTML = html || 'No tickets yet.';
+  }
+
+  // --- ARCHIVE & BONUSES ---
   async function archiveTournament() {
-      if(!confirm("⚠️ ARCHIVE SEASON? \nThis will:\n1. Calc Coefficient Points (Win=2, Draw=1, SF=1, Final=1, Champ=1)\n2. Shift Team History & Add Points\n3. DELETE all Matches & Bets.")) return;
-
-      const updates = {};
-      const teamPoints = {}; // { teamId: points }
-
-      // Init points
-      globalTeams.forEach(t => teamPoints[t.id] = 0);
-
-      // 1. Calculate Points from Matches
+      if(!confirm("📦 CALCULATE SEASON BONUSES & WIPE?")) return;
+      const teamPoints = {}; globalTeams.forEach(t => teamPoints[t.id] = 0);
+      
+      // Calculate based on results
       Object.values(globalMatches).forEach(m => {
           if(!m.result) return;
           const [h, a] = m.result.split('-').map(Number);
-          
-          // Win/Draw Points (Applicable to ALL matches including playoffs? 
-          // "3rd placement match does not earn extra points but the winner does get the usual 2 for win")
-          // Logic: Apply 2 for win, 1 for draw to EVERY match played.
-          if (h > a) { teamPoints[m.homeId] += 2; }
-          else if (a > h) { teamPoints[m.awayId] += 2; }
-          else { teamPoints[m.homeId] += 1; teamPoints[m.awayId] += 1; }
-
-          // Bonus Points for Stages
-          if (m.stage === 'SF1' || m.stage === 'SF2') {
-              // "Reaching the Semi final earns 1 point" -> If they played in SF, they reached it.
-              // Note: This adds 1 pt per leg if 2 legs. Assuming "Reaching" is a one-off bonus.
-              // Safer way: Assign bonus based on unique participants later.
+          if(h>a) teamPoints[m.homeId] += 3; else if(a>h) teamPoints[m.awayId] += 3; else { teamPoints[m.homeId]+=1; teamPoints[m.awayId]+=1; }
+          // Stage Bonuses
+          if(m.stage === 'FINAL' && m.result) {
+              const winId = h > a ? m.homeId : m.awayId;
+              teamPoints[winId] += 5; // Winning Final bonus
           }
       });
 
-      // 2. Bonus Points based on "Reaching" Stages (Robust method)
-      // Identify participants
-      const sfs = new Set();
-      const finalists = new Set();
-      let championId = null;
-
-      Object.values(globalMatches).forEach(m => {
-          if (m.stage && (m.stage.startsWith('SF'))) {
-              sfs.add(m.homeId); sfs.add(m.awayId);
-          }
-          if (m.stage === 'FINAL') {
-              finalists.add(m.homeId); finalists.add(m.awayId);
-              if (m.result) {
-                   const [h, a] = m.result.split('-').map(Number);
-                   if (h>a) championId = m.homeId;
-                   else if (a>h) championId = m.awayId;
-              }
-          }
-      });
-
-      // Apply Bonuses
-      sfs.forEach(tid => { if(teamPoints[tid] !== undefined) teamPoints[tid] += 1; }); // Reach SF
-      finalists.forEach(tid => { if(teamPoints[tid] !== undefined) teamPoints[tid] += 1; }); // Reach Final
-      if(championId && teamPoints[championId] !== undefined) teamPoints[championId] += 1; // Winner
-
-      // 3. Shift History & Set New Coeff
-      globalTeams.forEach(t => {
-          let arr = t.history ? [...t.history] : ['-','-','-','-','-'];
-          for(let i=0; i < arr.length - 1; i++) arr[i] = arr[i+1]; // Shift Left
-          
-          // Set New Score
-          arr[arr.length - 1] = teamPoints[t.id] || 0;
-          updates[`teams/${t.id}/history`] = arr;
-      });
-
-      // 4. Wipe Matches & Bets
-      updates['matches'] = null;
-      updates['bets'] = null;
-
-      await db.ref().update(updates);
-      alert("Season Archived. Points Calculated.");
-  }
-
-
-  // --- STANDARD MATCH FUNCTIONS ---
-  function createMatch() {
-    const hId = document.getElementById('gmHome').value;
-    const aId = document.getElementById('gmAway').value;
-    const hName = document.querySelector('#gmHome option:checked').textContent;
-    const aName = document.querySelector('#gmAway option:checked').textContent;
-    const odds = { 
-      '1': document.getElementById('o1').value, 
-      'X': document.getElementById('oX').value, 
-      '2': document.getElementById('o2').value 
-    };
-    db.ref('matches/m_'+Date.now()).set({ home: hName, homeId: hId, away: aName, awayId: aId, odds, result: null });
-  }
-
-  async function setScore(id) {
-    const res = prompt("Enter Final Score (e.g. 1-1)");
-    if (res && /^\d+-\d+$/.test(res)) {
-      await db.ref(`matches/${id}/result`).set(res);
-      // Resolve bets
-      const betsSnap = await db.ref('bets').once('value');
-      const allBets = betsSnap.val() || {};
       const updates = {};
-      for(const [user, userBets] of Object.entries(allBets)) {
-        if(userBets[id]) {
-          const bet = userBets[id];
-          const [h, a] = res.split('-').map(Number);
-          const actual = h > a ? '1' : h < a ? '2' : 'X';
-          const win = bet.outcome === actual;
-          const payout = win ? bet.stake * bet.odd : bet.stake;
-          const profit = payout - bet.stake;
-          const userSnap = await db.ref(`users/${user}/credits`).once('value');
-          const cur = userSnap.val() || 0;
-          updates[`users/${user}/credits`] = cur + payout;
-          updates[`history/${user}/${id}`] = {...bet, win, profit, result: res};
-          updates[`bets/${user}/${id}`] = null;
-          const notifKey = firebase.database().ref(`notifications/${user}`).push().key;
-          updates[`notifications/${user}/${notifKey}`] = `Bet on ${globalMatches[id].home} vs ${globalMatches[id].away} settled: ${win ? 'Win' : 'Loss'}, Profit: ${profit}`;
-        }
-      }
+      globalTeams.forEach(t => {
+          let h = t.history ? [...t.history] : [0,0,0,0,0];
+          h.shift(); h.push(teamPoints[t.id] || 0);
+          updates[`teams/${t.id}/history`] = h;
+      });
+      updates['matches'] = null; updates['tickets'] = null;
       await db.ref().update(updates);
-      // Check if this triggers Bracket events
-      const snap = await db.ref('matches').get();
-      checkBracketProgression(snap.val());
-    }
+      alert("Season Archived. Coefficients Updated.");
   }
 
-  async function deleteMatch(matchId) {
-    if(!confirm("DELETE Match & ROLLBACK all bets?")) return;
-    const betsSnap = await db.ref('bets').once('value');
-    const allBets = betsSnap.val() || {};
-    const usersSnap = await db.ref('users').once('value');
-    const allUsers = usersSnap.val() || {};
-    const updates = {};
-
-    for(const [username, userBets] of Object.entries(allBets)) {
-        if(userBets[matchId]) {
-            const bet = userBets[matchId];
-            const cur = allUsers[username] ? (allUsers[username].credits || 0) : 0;
-            updates[`users/${username}/credits`] = cur + bet.stake;
-            updates[`bets/${username}/${matchId}`] = null;
-        }
-    }
-    updates[`matches/${matchId}`] = null;
-    await db.ref().update(updates);
-  }
-
-  // --- USER MGMT ---
-  async function adjustCredits(user) {
-      const amount = prompt(`Adjust credits for ${user} (use - for penalty):`, "0");
-      if(!amount || isNaN(amount)) return;
-      const val = parseInt(amount);
-      const snap = await db.ref(`users/${user}/credits`).get();
-      const current = snap.val() || 0;
-      await db.ref(`users/${user}/credits`).set(current + val);
-  }
-
-  // --- RENDERERS ---
-  function updateDropdowns(teams) {
-    const opts = teams.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
-    document.getElementById('gmHome').innerHTML = opts;
-    document.getElementById('gmAway').innerHTML = opts;
-    const brOpts = '<option value="">--</option>' + opts;
-    ['brSF1H','brSF1A','brSF2H','brSF2A'].forEach(id => document.getElementById(id).innerHTML = brOpts);
-  }
-
-  function renderAdminMatches(matches) {
-    const html = Object.entries(matches).map(([id, m]) => {
-      const isPend = m.pending ? ' (Pending)' : '';
-      return `
-      <div style="padding:12px; border-bottom:1px solid #444; display:flex; justify-content:space-between; align-items:center; ${m.pending?'opacity:0.5':''}">
-        <div>
-            <span style="font-size:0.85rem">${m.home} vs ${m.away}</span>
-            <div style="font-size:0.7rem; color:#888">${m.group ? 'Grp '+m.group : (m.stage || 'Friend')}${isPend}</div>
+  function renderAdminMatches() {
+    const html = Object.entries(globalMatches).map(([id, m]) => `
+        <div style="padding:10px; border-bottom:1px solid #444; display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:0.8rem">${m.home} v ${m.away} (${m.group||m.stage})</span>
+            <button class="refresh-btn" style="padding:4px 8px; font-size:0.7rem" onclick="adminSetResult('${id}')">${m.result || 'Set Score'}</button>
         </div>
-        <div>
-            ${!m.pending ? `<button class="refresh-btn" style="font-size:0.7rem; padding:4px 8px;" onclick="setScore('${id}')">${m.result || 'Set Result'}</button>` : ''}
-            <button class="delete-btn" style="margin-left:5px" onclick="deleteMatch('${id}')">X</button>
-        </div>
-      </div>
-    `}).join('');
-    document.getElementById('admin-match-list').innerHTML = html || 'No matches.';
+    `).join('');
+    document.getElementById('admin-match-list').innerHTML = `<div class="card"><div class="card-header">Settle Matches</div>${html}</div>`;
   }
 
-  function renderBracketView(matches) {
-      const getM = (st) => Object.values(matches).find(m => m.stage === st && !m.bracketId) || {home:'TBD', away:'TBD', result:''};
-      // For SFs which might be multiple legs, just grab the first valid ones for display or distinct
-      const sf1 = Object.values(matches).filter(m => m.stage === 'SF1');
-      const sf2 = Object.values(matches).filter(m => m.stage === 'SF2');
-      const fin = Object.values(matches).find(m => m.stage === 'FINAL') || {home:'TBD', away:'TBD', result:''};
-      const third = Object.values(matches).find(m => m.stage === '3RD') || {home:'TBD', away:'TBD', result:''};
+  function renderAdminTeams() {
+    const html = globalTeams.map(t => `<tr><td>${t.name}</td><td>${t.group}</td><td>${calcStrength(t.history).toFixed(1)}</td></tr>`).join('');
+    document.getElementById('admin-user-list').innerHTML = `<div class="card"><div class="card-header">Team Roster</div><table><tr><th>Team</th><th>Grp</th><th>Str</th></tr>${html}</table></div>`;
+  }
 
-      const renderNode = (arr, label) => {
-          if(!arr.length) return `<div class="bracket-match"><strong>${label}</strong><br><span style="color:#666">...</span></div>`;
-          return arr.map(m => `
-            <div class="bracket-match">
-                <strong>${m.home} vs ${m.away}</strong><br>
-                <span style="color:var(--b365-accent-yellow)">${m.result || 'v'}</span>
-                <div class="bracket-status">${label}</div>
-            </div>
-          `).join('');
-      };
-
-      const html = `
+  function renderBracket() {
+    const b = document.getElementById('bracket-display');
+    const sf1 = globalMatches['m_sf1'], sf2 = globalMatches['m_sf2'], fin = globalMatches['m_final'];
+    if(!sf1 || !sf2) { b.style.display = 'none'; return; }
+    b.style.display = 'flex';
+    b.innerHTML = `
         <div class="bracket-col">
-            ${renderNode(sf1, 'SF 1')}
-            ${renderNode(sf2, 'SF 2')}
+            <div class="bracket-match"><b>SF1</b><br>${sf1.home} v ${sf1.away}<div class="bracket-status">${sf1.result||''}</div></div>
+            <div class="bracket-match"><b>SF2</b><br>${sf2.home} v ${sf2.away}<div class="bracket-status">${sf2.result||''}</div></div>
         </div>
         <div class="bracket-line"></div>
         <div class="bracket-col">
-             <div class="bracket-match" style="border-color:var(--b365-accent-yellow)">
-                <strong>${fin.home} vs ${fin.away}</strong><br>
-                <span style="color:var(--b365-accent-yellow)">${fin.result || 'FINAL'}</span>
-             </div>
-             <div class="bracket-match">
-                <strong>${third.home} vs ${third.away}</strong><br>
-                <span style="color:#aaa">${third.result || '3rd Place'}</span>
-             </div>
+            <div class="bracket-match" style="border-color:var(--b365-accent-yellow)"><b>FINAL</b><br>${fin?.home||'TBD'} v ${fin?.away||'TBD'}<div class="bracket-status">${fin?.result||''}</div></div>
         </div>
-      `;
-      if(sf1.length > 0) document.getElementById('bracket-display').innerHTML = html;
-  }
-
-  function renderAdminUserList(users) {
-      if(!users) return;
-      const html = `<table>
-        <tr><th>User / Team</th><th>Credits</th><th>GF</th><th>GA</th><th>Action</th></tr>
-        ${Object.entries(users).map(([key, u]) => {
-            const stats = globalTeamStats[key] || { gf: 0, ga: 0 };
-            return `<tr>
-                <td>${key}</td>
-                <td style="color:var(--b365-bright-green)">${u.credits}</td>
-                <td>${stats.gf}</td>
-                <td>${stats.ga}</td>
-                <td><button class="small-btn" onclick="adjustCredits('${key}')">+/-</button></td>
-            </tr>`;
-        }).join('')}
-      </table>`;
-      document.getElementById('user-list-admin').innerHTML = html;
-  }
-
-  function renderActiveBets(bets, matches) {
-      if(!bets) { document.getElementById('admin-active-bets').innerHTML = 'No bets.'; return; }
-      let html = '<table style="font-size:0.85rem">';
-      html += '<tr><th>User</th><th>Match</th><th>Pick</th><th>Stake</th></tr>';
-      
-      Object.entries(bets).forEach(([user, userBets]) => {
-          Object.entries(userBets).forEach(([mId, b]) => {
-             const m = matches[mId];
-             const mName = m ? `${m.home} v ${m.away}` : mId;
-             const status = b.resolved ? (b.win ? '✅' : '❌') : '⏳';
-             
-             html += `<tr>
-                <td>${user}</td>
-                <td>${mName}</td>
-                <td>${b.outcome}</td>
-                <td>${b.stake} ${status}</td>
-             </tr>`;
-          });
-      });
-      html += '</table>';
-      document.getElementById('admin-active-bets').innerHTML = html;
-  }
-
-  function renderAdminBetHistory(history, matches) {
-    if(!history) { document.getElementById('admin-bet-history').innerHTML = 'No history.'; return; }
-    let html = '<table style="font-size:0.85rem">';
-    html += '<tr><th>User</th><th>Match</th><th>Pick</th><th>Stake</th><th>Profit</th></tr>';
-    Object.entries(history).forEach(([user, userHistory]) => {
-      Object.entries(userHistory).forEach(([mId, h]) => {
-        const m = matches[mId] || {home: 'Unknown', away: 'Unknown'};
-        html += `<tr><td>${user}</td><td>${m.home} v ${m.away}</td><td>${h.outcome}</td><td>${h.stake}</td><td>${h.profit}</td></tr>`;
-      });
-    });
-    html += '</table>';
-    document.getElementById('admin-bet-history').innerHTML = html;
-  }
-
-  function renderUserBetHistory(history, matches) {
-    if(!history) { document.getElementById('user-bet-history').innerHTML = 'No history.'; return; }
-    let html = '<table style="font-size:0.85rem">';
-    html += '<tr><th>Match</th><th>Pick</th><th>Stake</th><th>Profit</th></tr>';
-    Object.entries(history).forEach(([mId, h]) => {
-      const m = matches[mId] || {home: 'Unknown', away: 'Unknown'};
-      html += `<tr><td>${m.home} v ${m.away}</td><td>${h.outcome}</td><td>${h.stake}</td><td>${h.profit}</td></tr>`;
-    });
-    html += '</table>';
-    document.getElementById('user-bet-history').innerHTML = html;
-  }
-
-  function showNotification(msg) {
-    const div = document.createElement('div');
-    div.style = 'background:var(--b365-bright-green); color:#000; padding:10px; margin-bottom:10px; border-radius:4px;';
-    div.textContent = msg;
-    document.getElementById('notifications').appendChild(div);
-    setTimeout(() => div.remove(), 5000);
-  }
-
-  function renderAnalytics(history) {
-    if(!history) { document.getElementById('analytics-dashboard').innerHTML = 'No data.'; return; }
-    let totalBets = 0, totalWins = 0, totalProfit = 0;
-    Object.entries(history).forEach(([user, userHistory]) => {
-      Object.entries(userHistory).forEach(([mId, h]) => {
-        totalBets++;
-        if(h.win) totalWins++;
-        totalProfit += h.profit;
-      });
-    });
-    const html = `
-      <p>Total Bets: ${totalBets}</p>
-      <p>Total Wins: ${totalWins}</p>
-      <p>Total Profit: ${totalProfit}</p>
     `;
-    document.getElementById('analytics-dashboard').innerHTML = html;
   }
 
-  function renderUserOdds(matches) {
-    const html = Object.entries(matches)
-        .filter(([id, m]) => !m.result && !m.pending) // Hide Pending (Bracket placeholders)
-        .map(([id, m]) => `
-      <div class="match-row">
-        <div>
-            <div style="font-weight:bold">${m.home}</div>
-            <div style="font-weight:bold">${m.away}</div>
-            <div style="font-size:0.7rem; color:#888">${m.stage || 'Group ' + (m.group||'Match')}</div>
-        </div>
-        <div class="odds-group">
-          <div class="odd-box" onclick="addToSlip('${id}', '1', ${m.odds['1']})"><span class="odd-lbl">1</span><span class="odd-val">${m.odds['1']}</span></div>
-          <div class="odd-box" onclick="addToSlip('${id}', 'X', ${m.odds['X']})"><span class="odd-lbl">X</span><span class="odd-val">${m.odds['X']}</span></div>
-          <div class="odd-box" onclick="addToSlip('${id}', '2', ${m.odds['2']})"><span class="odd-lbl">2</span><span class="odd-val">${m.odds['2']}</span></div>
-        </div>
-      </div>
-    `).join('');
-    document.getElementById('user-betting-odds').innerHTML = html || '<div style="padding:20px; color:#888;">No active markets.</div>';
-  }
-
-  async function updateStandings(teams, matches) {
-    const stats = {};
-    // Init stats
-    teams.forEach(t => { 
-        stats[t.id] = {p:0, gd:0, gf:0, ga:0};
-        globalTeamStats[t.name] = { gf: 0, ga: 0 }; 
-    });
-
-    Object.values(matches).forEach(m => {
-      if(!m.result) return;
-      // SKIP Playoffs for Points
-      if(m.stage && ['SF1','SF2','FINAL','3RD'].includes(m.stage)) return;
-
-      const [hG, aG] = m.result.split('-').map(Number);
-      if(!stats[m.homeId]) stats[m.homeId] = {p:0,gd:0,gf:0,ga:0};
-      if(!stats[m.awayId]) stats[m.awayId] = {p:0,gd:0,gf:0,ga:0};
-
-      stats[m.homeId].gf += hG; stats[m.homeId].ga += aG;
-      stats[m.awayId].gf += aG; stats[m.awayId].ga += hG;
-      stats[m.homeId].gd += (hG-aG); stats[m.awayId].gd += (aG-hG);
-      
-      if(hG>aG) stats[m.homeId].p+=3; else if(aG>hG) stats[m.awayId].p+=3; else { stats[m.homeId].p+=1; stats[m.awayId].p+=1; }
-
-      // Global stats (GF/GA) DO include playoffs? Usually total stats do, but prompt said "do not add points to the group table".
-      // I will update globalTeamStats here just for the User Management view.
-      if (m.home) globalTeamStats[m.home] = { gf: stats[m.homeId].gf, ga: stats[m.homeId].ga };
-      if (m.away) globalTeamStats[m.away] = { gf: stats[m.awayId].gf, ga: stats[m.awayId].ga };
-    });
-
-    const groups = ['A','B','C','D','E'];
-    document.getElementById('standings-area').innerHTML = groups.map(g => {
-      const gTeams = teams.filter(t => t.group === g).map(t => ({n: t.name, ...stats[t.id]||{p:0, gd:0, gf:0, ga:0}})).sort((a,b) => b.p - a.p || b.gd - a.gd);
-      if(gTeams.length === 0) return '';
-      return `<div class="card"><div class="card-header">Group ${g}</div><div class="card-body">
-        <table>
-            <tr><th>Team</th><th>P</th><th>GD</th></tr>
-            ${gTeams.map(t => `<tr><td>${t.n}</td><td style="text-align:right"><strong>${t.p}</strong></td><td style="text-align:right; color:#888; font-size:0.7rem">${t.gd}</td></tr>`).join('')}
-        </table>
-      </div></div>`;
-    }).join('');
-  }
-
-  function renderAdminTeamsTable(teams) {
-    const groups = ['A','B','C','D','E'];
-    const html = teams.map(t => {
-      const hist = t.history || ['-','-','-','-','-'];
-      const str = calcStrength(hist).toFixed(2);
-      const histInputs = hist.map((val, i) => `<input class="hist-input" value="${val}" onchange="updateHistory('${t.id}', ${i}, this.value)">`).join('');
-      const grpSelect = `<select style="margin:0; padding:4px; width:auto;" onchange="updateTeamData('${t.id}', 'group', this.value)">${groups.map(g => `<option value="${g}" ${t.group===g?'selected':''}>${g}</option>`).join('')}</select>`;
-      return `<tr>
-        <td><strong>${t.name}</strong></td>
-        <td>${grpSelect}</td>
-        <td style="white-space:nowrap">${histInputs}</td>
-        <td style="color:var(--b365-accent-yellow); font-weight:bold;">${str}</td>
-        <td><button onclick="deleteTeam('${t.id}')" style="background:transparent; color:#ff4444; border:none; cursor:pointer;">X</button></td>
-      </tr>`;
-    }).join('');
-    document.getElementById('admin-teams-body').innerHTML = html;
-  }
-
-  function addToSlip(matchId, outcome, odd) {
-    const m = globalMatches[matchId];
-    if (m.home === currentUser && outcome !== '1') return alert('You can only bet on your team to win.');
-    if (m.away === currentUser && outcome !== '2') return alert('You can only bet on your team to win.');
-    betSlip.push({matchId, outcome, odd});
-    updateBetSlip();
-  }
-
-  function updateBetSlip() {
-    const itemsDiv = document.getElementById('slip-items');
-    itemsDiv.innerHTML = betSlip.map((item, index) => {
-      const m = globalMatches[item.matchId];
-      return `<div>${m.home} vs ${m.away} - ${item.outcome} @ ${item.odd} <button onclick="removeFromSlip(${index})">Remove</button></div>`;
-    }).join('');
-    document.getElementById('bet-slip').style.display = betSlip.length > 0 ? 'block' : 'none';
-  }
-
-  function removeFromSlip(index) {
-    betSlip.splice(index, 1);
-    updateBetSlip();
-  }
-
-  async function placeBetsFromSlip() {
-    const stake = parseFloat(document.getElementById('slip-stake').value);
-    if (isNaN(stake) || stake <= 0) return alert('Invalid stake');
-    const totalStake = stake * betSlip.length;
-    const balanceSnap = await db.ref(`users/${currentUser}/credits`).once('value');
-    const balance = balanceSnap.val() || 0;
-    if (totalStake > balance) return alert('Insufficient balance');
-    const updates = {};
-    updates[`users/${currentUser}/credits`] = balance - totalStake;
-    betSlip.forEach(item => {
-      updates[`bets/${currentUser}/${item.matchId}`] = {outcome: item.outcome, stake, odd: item.odd};
-    });
-    await db.ref().update(updates);
-    betSlip = [];
-    updateBetSlip();
-    alert('Bets placed');
-  }
+  document.getElementById('chatInput').onkeypress = (e) => { if(e.key==='Enter') sendChat(); };
 </script>
 </body>
 </html>
