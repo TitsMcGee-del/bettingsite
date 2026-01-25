@@ -1,69 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Bet365 Elite Dashboard</title>
-  <link rel="stylesheet" href="style.css">
-  <script defer src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script defer src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Bet365 Elite</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 </head>
 <body>
+    <header>
+        <div class="logo">BET365 <span>ELITE</span></div>
+        <div id="user-info"></div>
+    </header>
 
-  <header>
-    <div class="logo">BET365 <span>ELITE</span></div>
-    <div id="user-info" style="font-size:0.8rem; text-align:right;"></div>
-  </header>
+    <nav id="main-nav" style="display:none">
+        <div class="nav-item active" onclick="showTab('standings', this)">Standings</div>
+        <div class="nav-item" onclick="showTab('matches', this)">Matches</div>
+        <div class="nav-item" onclick="showTab('bracket', this)">Bracket</div>
+        <div id="admin-tab-link" class="nav-item" style="display:none; color:#ffdf1b" onclick="showTab('admin', this)">Admin</div>
+        <div class="nav-item" onclick="location.reload()" style="color:#ff4444">Logout</div>
+    </nav>
 
-  <nav id="main-nav" style="display:none">
-    <div class="nav-item active" onclick="showTab('standings')">Standings</div>
-    <div class="nav-item" onclick="showTab('matches')">Matches</div>
-    <div class="nav-item" onclick="showTab('bracket')">Bracket</div>
-    <div class="nav-item" onclick="showTab('chat')">Chat</div>
-    <div id="admin-tab-link" class="nav-item" style="display:none; color:#ffdf1b" onclick="showTab('admin')">Admin</div>
-    <div class="nav-item" onclick="location.reload()" style="color:#ff4444">Logout</div>
-  </nav>
-
-  <div id="login-screen" class="container">
-    <div class="card" style="max-width:400px; margin: 50px auto;">
-      <div class="card-header">Secure Login</div>
-      <div style="padding:20px">
-        <input type="text" id="userIn" placeholder="Username" style="width:100%; padding:12px; margin-bottom:10px; box-sizing:border-box; background:#222; color:white; border:1px solid #444;">
-        <input type="password" id="passIn" placeholder="Password" style="width:100%; padding:12px; margin-bottom:20px; box-sizing:border-box; background:#222; color:white; border:1px solid #444;">
-        <button class="bet-btn" onclick="handleLogin()" style="width:100%; padding:15px;">Enter Dashboard</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="app" class="container" style="display:none">
-    <div id="tab-standings" class="tab-content active-tab"><div id="group-tables-container"></div></div>
-    <div id="tab-matches" class="tab-content"><div id="match-list"></div></div>
-    <div id="tab-bracket" class="tab-content"><div id="bracket-container" class="bracket-wrapper"></div></div>
-    <div id="tab-chat" class="tab-content">
-      <div class="card">
-        <div id="chat-box"></div>
-        <div style="display:flex; padding:10px; background:#222">
-          <input type="text" id="chatInput" placeholder="Message..." style="flex:1; background:#333; color:white; border:none; padding:10px;">
-          <button class="bet-btn" onclick="sendChat()">Send</button>
+    <div id="login-screen" class="container">
+        <div class="card" style="max-width:400px; margin: 50px auto;">
+            <div class="card-header">Secure Login</div>
+            <div style="padding:20px">
+                <input type="text" id="userIn" placeholder="Username" class="login-input">
+                <input type="password" id="passIn" placeholder="Password" class="login-input">
+                <button class="bet-btn" onclick="handleLogin()" style="width:100%; padding:15px;">Enter Dashboard</button>
+            </div>
         </div>
-      </div>
     </div>
-    <div id="tab-admin" class="tab-content">
-        <div id="admin-controls"></div>
-        <div id="admin-team-list"></div>
-        <div id="admin-match-list"></div>
-    </div>
-  </div>
 
-  <script src="app.js"></script>
-  <script src="admin.js"></script>
-  <script>
-    // This part makes "Enter" work for login
-    document.addEventListener('keypress', function (e) {
-      if (e.key === 'Enter' && document.getElementById('login-screen').style.display !== 'none') {
-        handleLogin();
-      }
-    });
-  </script>
+    <div id="app" class="container" style="display:none">
+        <div id="tab-standings" class="tab-content active-tab">
+            <div id="group-tables-container"></div>
+        </div>
+        <div id="tab-matches" class="tab-content">
+            <div id="match-list"></div>
+        </div>
+        <div id="tab-bracket" class="tab-content">
+            <div id="bracket-container" class="card" style="padding:20px; overflow-x:auto;"></div>
+        </div>
+        <div id="tab-admin" class="tab-content">
+            <div id="admin-team-list"></div>
+            <div id="admin-match-list"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
 </body>
 </html>
