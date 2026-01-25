@@ -1,122 +1,21 @@
-:root {
-  --b365-dark-green: #007355;
-  --b365-bright-green: #12ed80;
-  --b365-header-bg: #333333;
-  --b365-body-bg: #282828;
-  --b365-card-bg: #383838;
-  --b365-text-white: #ffffff;
-  --b365-text-gray: #bbbbbb;
-  --b365-accent-yellow: #ffdf1b;
-  --b365-border: #444444;
-}
-
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: var(--b365-body-bg);
-  color: var(--b365-text-white);
-  margin: 0; padding-bottom: 70px;
-}
-
-header {
-  background-color: var(--b365-header-bg);
-  padding: 10px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 3px solid var(--b365-dark-green);
-}
-
-.logo { font-weight: bold; font-size: 1.4rem; color: var(--b365-bright-green); }
-.logo span { color: white; }
-
-nav {
-  background: #333;
-  display: flex;
-  overflow-x: auto;
-  border-bottom: 1px solid var(--b365-border);
-}
-
-.nav-item {
-  padding: 12px 20px;
-  white-space: nowrap;
-  cursor: pointer;
-  color: var(--b365-text-gray);
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-.nav-item.active {
-  color: white;
-  border-bottom: 3px solid var(--b365-bright-green);
-}
-
-.container { padding: 15px; max-width: 1000px; margin: auto; }
-
-.card {
-  background: var(--b365-card-bg);
-  border-radius: 4px;
-  margin-bottom: 15px;
-  overflow: hidden;
-}
-
-.card-header {
-  background: #404040;
-  padding: 10px 15px;
-  font-weight: bold;
-  font-size: 0.85rem;
-  color: var(--b365-bright-green);
-  border-bottom: 1px solid var(--b365-border);
-}
-
-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-th { background: #333; color: var(--b365-text-gray); text-align: left; padding: 10px; }
-td { padding: 10px; border-bottom: 1px solid var(--b365-border); }
-
-.strength-input {
-  width: 40px;
-  background: #222;
-  color: var(--b365-bright-green);
-  border: 1px solid #555;
-  text-align: center;
-  padding: 2px;
-}
-
-.bet-btn {
-  background: var(--b365-dark-green);
-  color: white;
-  border: none;
-  padding: 8px 15px;
-  border-radius: 3px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.refresh-btn {
-  background: var(--b365-bright-green);
-  color: #000;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 3px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.tab-content { display: none; }
+:root { --b365-dark: #1a1a1a; --b365-green: #008060; --b365-bright: #00ffcc; --b365-card: #2b2b2b; }
+body { font-family: 'Segoe UI', sans-serif; background: var(--b365-dark); color: white; margin: 0; }
+header { background: #333; padding: 15px; display: flex; justify-content: space-between; border-bottom: 2px solid var(--b365-green); }
+.logo { font-weight: bold; font-size: 1.4rem; }
+.logo span { color: var(--b365-bright); }
+.container { max-width: 900px; margin: auto; padding: 10px; }
+#main-nav { display: flex; background: #222; }
+.nav-item { padding: 15px; cursor: pointer; flex: 1; text-align: center; border-bottom: 3px solid transparent; transition: 0.3s; }
+.nav-item.active { border-bottom-color: var(--b365-green); color: var(--b365-bright); }
+.card { background: var(--b365-card); border-radius: 4px; margin-bottom: 20px; border: 1px solid #444; }
+.card-header { background: rgba(0,0,0,0.3); padding: 12px; font-weight: bold; border-bottom: 1px solid #444; color: var(--b365-bright); }
+.login-input { width: 100%; padding: 12px; margin-bottom: 10px; box-sizing: border-box; background: #222; color: white; border: 1px solid #444; }
+.bet-btn { background: var(--b365-green); color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 4px; font-weight: bold; }
+.bet-btn:hover { background: #009975; }
+.tab-content { display: none; padding-top: 20px; }
 .active-tab { display: block; }
-
-#chat-box {
-  height: 300px;
-  overflow-y: auto;
-  padding: 15px;
-  background: #2a2a2a;
-  display: flex;
-  flex-direction: column;
-}
-
-.bracket-wrapper {
-    display: flex;
-    flex-direction: row;
-    gap: 20px;
-    padding: 20px;
-    overflow-x: auto;
-}
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { padding: 10px; text-align: center; border-bottom: 1px solid #3d3d3d; }
+.strength-input { width: 35px; background: #111; color: white; border: 1px solid #555; text-align: center; padding: 2px; }
+.bracket-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; min-width: 600px; }
+.match-box { background: #333; padding: 10px; border-radius: 4px; margin-bottom: 10px; border-left: 4px solid var(--b365-green); }
