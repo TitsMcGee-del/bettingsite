@@ -758,14 +758,15 @@
           const [h, a] = res.split('-').map(Number);
           const actual = h > a ? '1' : h < a ? '2' : 'X';
           const win = bet.outcome === actual;
-          const payout = win ? bet.stake * bet.odd : 0;
+          const payout = win ? bet.stake * bet.odd : bet.stake;
           const profit = payout - bet.stake;
           const userSnap = await db.ref(`users/${user}/credits`).once('value');
           const cur = userSnap.val() || 0;
           updates[`users/${user}/credits`] = cur + payout;
           updates[`history/${user}/${id}`] = {...bet, win, profit, result: res};
           updates[`bets/${user}/${id}`] = null;
-          updates[`notifications/${user}`].push(`Bet on ${globalMatches[id].home} vs ${globalMatches[id].away} settled: ${win ? 'Win' : 'Loss'}, Profit: ${profit}`);
+          const notifKey = firebase.database().ref(`notifications/${user}`).push().key;
+          updates[`notifications/${user}/${notifKey}`] = `Bet on ${globalMatches[id].home} vs ${globalMatches[id].away} settled: ${win ? 'Win' : 'Loss'}, Profit: ${profit}`;
         }
       }
       await db.ref().update(updates);
