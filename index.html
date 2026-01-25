@@ -4,11 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Bet365 Elite Dashboard</title>
-  
-  <!-- This links to your CSS file (The "Paint") -->
   <link rel="stylesheet" href="style.css">
-
-  <!-- These are the "Engine" parts from Google (Firebase) -->
   <script defer src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 </head>
@@ -24,69 +20,50 @@
     <div class="nav-item" onclick="showTab('matches')">Matches</div>
     <div class="nav-item" onclick="showTab('bracket')">Bracket</div>
     <div class="nav-item" onclick="showTab('chat')">Chat</div>
-    <div id="admin-tab-link" class="nav-item" style="display:none; color:var(--b365-accent-yellow)" onclick="showTab('admin')">Admin</div>
-    <div class="nav-item" onclick="logout()" style="color:#ff4444">Logout</div>
+    <div id="admin-tab-link" class="nav-item" style="display:none; color:#ffdf1b" onclick="showTab('admin')">Admin</div>
+    <div class="nav-item" onclick="location.reload()" style="color:#ff4444">Logout</div>
   </nav>
 
   <div id="login-screen" class="container">
-    <div class="card">
+    <div class="card" style="max-width:400px; margin: 50px auto;">
       <div class="card-header">Secure Login</div>
       <div style="padding:20px">
-        <input type="text" id="username" placeholder="Username" style="width:100%; padding:12px; margin-bottom:10px; box-sizing:border-box;">
-        <button class="bet-btn" onclick="login()" style="width:100%">Enter Dashboard</button>
+        <input type="text" id="userIn" placeholder="Username" style="width:100%; padding:12px; margin-bottom:10px; box-sizing:border-box; background:#222; color:white; border:1px solid #444;">
+        <input type="password" id="passIn" placeholder="Password" style="width:100%; padding:12px; margin-bottom:20px; box-sizing:border-box; background:#222; color:white; border:1px solid #444;">
+        <button class="bet-btn" onclick="handleLogin()" style="width:100%; padding:15px;">Enter Dashboard</button>
       </div>
     </div>
   </div>
 
   <div id="app" class="container" style="display:none">
-    <!-- STANDINGS TAB -->
-    <div id="tab-standings" class="tab-content active-tab">
-      <div id="group-tables-container"></div>
-    </div>
-
-    <!-- MATCHES TAB -->
-    <div id="tab-matches" class="tab-content">
-      <div id="match-list"></div>
-    </div>
-
-    <!-- BRACKET TAB -->
-    <div id="tab-bracket" class="tab-content">
-        <div id="bracket-container" class="bracket-wrapper"></div>
-    </div>
-
-    <!-- CHAT TAB -->
+    <div id="tab-standings" class="tab-content active-tab"><div id="group-tables-container"></div></div>
+    <div id="tab-matches" class="tab-content"><div id="match-list"></div></div>
+    <div id="tab-bracket" class="tab-content"><div id="bracket-container" class="bracket-wrapper"></div></div>
     <div id="tab-chat" class="tab-content">
       <div class="card">
-        <div class="card-header">Global Chat</div>
         <div id="chat-box"></div>
         <div style="display:flex; padding:10px; background:#222">
-          <input type="text" id="chatInput" placeholder="Write a message..." style="flex:1; background:#333; color:white; border:none; padding:10px; border-radius:4px;">
-          <button class="bet-btn" onclick="sendChat()" style="margin-left:5px">Send</button>
+          <input type="text" id="chatInput" placeholder="Message..." style="flex:1; background:#333; color:white; border:none; padding:10px;">
+          <button class="bet-btn" onclick="sendChat()">Send</button>
         </div>
       </div>
     </div>
-
-    <!-- ADMIN TAB -->
     <div id="tab-admin" class="tab-content">
-      <div class="card" style="margin-bottom:15px">
-        <div class="card-header">Tournament Controls</div>
-        <div style="padding:15px; display:flex; flex-wrap:wrap; gap:10px;">
-          <button class="refresh-btn" onclick="generateGroupMatches()">Regenerate Groups</button>
-          <button class="refresh-btn" style="background:#666" onclick="archiveTournament()">Archive Season</button>
-          <select id="leg-selector" style="background:#444; color:white; padding:8px; border:none;">
-            <option value="1">1 Leg (Final)</option>
-            <option value="2">2 Legs (KO)</option>
-          </select>
-        </div>
-      </div>
-      <div id="admin-team-list"></div>
-      <div id="admin-match-list" style="margin-top:15px"></div>
+        <div id="admin-controls"></div>
+        <div id="admin-team-list"></div>
+        <div id="admin-match-list"></div>
     </div>
   </div>
 
-  <!-- These link to your JavaScript files (The "Brain") -->
-  <!-- Logic order: 1. Data/Config, 2. Main Logic, 3. Admin Tools -->
   <script src="app.js"></script>
   <script src="admin.js"></script>
+  <script>
+    // This part makes "Enter" work for login
+    document.addEventListener('keypress', function (e) {
+      if (e.key === 'Enter' && document.getElementById('login-screen').style.display !== 'none') {
+        handleLogin();
+      }
+    });
+  </script>
 </body>
 </html>
