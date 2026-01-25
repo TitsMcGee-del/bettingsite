@@ -144,6 +144,11 @@
     }
     .slip-badge { background: var(--b365-bright-green); color: #000; border-radius: 50%; padding: 2px 8px; font-size: 0.8rem; }
     #login-screen { max-width: 400px; margin: 100px auto; }
+
+    .strength-input {
+        width: 35px; background: #222; border: 1px solid #555; color: var(--b365-accent-yellow);
+        text-align: center; font-size: 0.75rem; padding: 2px; border-radius: 2px; margin-right: 2px;
+    }
   </style>
 
   <script src="https://www.gstatic.com/firebasejs/12.5.0/firebase-app-compat.js"></script>
@@ -151,7 +156,6 @@
 </head>
 <body>
 
-  <!-- LOGIN -->
   <div id="login-screen" class="card">
     <div class="card-header">Member Login</div>
     <div class="card-body">
@@ -161,7 +165,6 @@
     </div>
   </div>
 
-  <!-- MAIN APP -->
   <div id="app" style="display:none">
     <header>
       <div class="logo">bet365 <span>Elite</span></div>
@@ -184,18 +187,15 @@
     </nav>
 
     <div class="container">
-      <!-- TAB: MATCHES -->
       <div id="tab-matches" class="tab-pane">
         <div id="bracket-display" style="display:none;"></div>
         <div id="match-list"></div>
       </div>
 
-      <!-- TAB: STANDINGS -->
       <div id="tab-standings" class="tab-pane" style="display:none">
         <div id="standings-area" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:15px;"></div>
       </div>
 
-      <!-- TAB: MY BETS -->
       <div id="tab-my-bets" class="tab-pane" style="display:none">
         <div class="card">
             <div class="card-header">Active Tickets</div>
@@ -203,7 +203,6 @@
         </div>
       </div>
 
-      <!-- TAB: LEADERBOARD -->
       <div id="tab-leaderboard" class="tab-pane" style="display:none">
         <div class="card">
             <div class="card-header">Global Rankings</div>
@@ -211,7 +210,6 @@
         </div>
       </div>
 
-      <!-- TAB: CHAT -->
       <div id="tab-chat" class="tab-pane" style="display:none">
         <div class="card">
             <div class="card-header">Group Chat</div>
@@ -223,7 +221,6 @@
         </div>
       </div>
 
-      <!-- TAB: ADMIN -->
       <div id="tab-admin" class="tab-pane" style="display:none">
         <div class="card">
             <div class="card-header">Monitoring: Open Bets</div>
@@ -264,7 +261,6 @@
       </div>
     </div>
 
-    <!-- BET SLIP -->
     <div id="bet-slip" class="collapsed" style="display:none">
         <div class="slip-header" onclick="toggleSlip()">
             <span>BET SLIP <span class="slip-badge" id="slip-count">0</span></span>
@@ -287,7 +283,6 @@
   </div>
 
 <script>
-  // Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyDPgcnptW0O2OFlE-_TOsTXctjG6RPBZm8",
     authDomain: "fc26-full-bets.firebaseapp.com",
@@ -393,12 +388,10 @@
     const s2h = document.getElementById('brSF2H').value, s2a = document.getElementById('brSF2A').value;
     const legs = parseInt(document.getElementById('brLegs').value);
     const updates = {};
-    
     const setMatch = (key, hId, aId, stage) => {
         const t1 = globalTeams.find(t=>t.id===hId), t2 = globalTeams.find(t=>t.id===aId);
         updates[`matches/${key}`] = { home: t1.name, homeId: hId, away: t2.name, awayId: aId, odds: calculateOddsForTeams(t1, t2), result:null, stage };
     };
-
     setMatch('m_sf1', s1h, s1a, 'SF1');
     setMatch('m_sf2', s2h, s2a, 'SF2');
     if(legs === 2) {
@@ -448,11 +441,9 @@
     const sf1 = globalMatches['m_sf1'], sf2 = globalMatches['m_sf2'], fin = globalMatches['m_final'];
     if(!sf1 || !sf2) { b.style.display = 'none'; return; }
     b.style.display = 'block';
-    
     const getRes = (id) => globalMatches[id]?.result || 'vs';
     const sf1txt = globalMatches['m_sf1_L2'] ? `${getRes('m_sf1')} / ${getRes('m_sf1_L2')}` : getRes('m_sf1');
     const sf2txt = globalMatches['m_sf2_L2'] ? `${getRes('m_sf2')} / ${getRes('m_sf2_L2')}` : getRes('m_sf2');
-
     b.innerHTML = `
         <div class="card-header">Playoff Bracket</div>
         <div class="bracket-container">
@@ -469,7 +460,6 @@
   function checkBracketAdvancement() {
     const m1 = globalMatches['m_sf1'], m1b = globalMatches['m_sf1_L2'];
     const m2 = globalMatches['m_sf2'], m2b = globalMatches['m_sf2_L2'];
-    
     const getWinner = (ma, mb) => {
         if(!ma.result) return null;
         if(mb && !mb.result) return null;
@@ -479,7 +469,6 @@
         const totH = h1 + a2, totA = a1 + h2;
         return totH > totA ? {id:ma.homeId, n:ma.home} : {id:ma.awayId, n:ma.away};
     };
-
     const w1 = getWinner(m1, m1b), w2 = getWinner(m2, m2b);
     if(w1 && w2) {
         const t1 = globalTeams.find(t=>t.id===w1.id), t2 = globalTeams.find(t=>t.id===w2.id);
@@ -612,9 +601,22 @@
     document.getElementById('tName').value = '';
   }
 
+  function updateTeamHistory(tid, idx, val) {
+    db.ref(`teams/${tid}/history/${idx}`).set(parseInt(val) || 0);
+  }
+
   function renderAdminTeams() {
-    const h = globalTeams.map(t=>`<tr><td>${t.name}</td><td>${t.group}</td><td>${calcStrength(t.history).toFixed(1)}</td></tr>`).join('');
-    document.getElementById('admin-team-list').innerHTML = `<div class="card"><div class="card-header">Teams</div><table><tr><th>Name</th><th>Grp</th><th>Str</th></tr>${h}</table></div>`;
+    const h = globalTeams.map(t => {
+        const hist = t.history || [0,0,0,0,0];
+        const inputs = hist.map((v, i) => `<input type="number" class="strength-input" value="${v}" onchange="updateTeamHistory('${t.id}', ${i}, this.value)">`).join('');
+        return `<tr>
+            <td>${t.name}</td>
+            <td>${t.group}</td>
+            <td style="white-space:nowrap">${inputs}</td>
+            <td style="color:var(--b365-accent-yellow); font-weight:bold">${calcStrength(t.history).toFixed(1)}</td>
+        </tr>`;
+    }).join('');
+    document.getElementById('admin-team-list').innerHTML = `<div class="card"><div class="card-header">Team Management (Strength History)</div><table><tr><th>Name</th><th>Grp</th><th>History (Last 5)</th><th>Avg</th></tr>${h}</table></div>`;
   }
 
   function renderAdminMatches() {
@@ -622,7 +624,7 @@
   }
 
   async function archiveTournament() {
-      if(!confirm("Archive season?")) return;
+      if(!confirm("Archive season? This shifts strength and wipes matches.")) return;
       const points = {}; globalTeams.forEach(t => points[t.id] = 0);
       Object.values(globalMatches).forEach(m => {
           if(!m.result) return;
