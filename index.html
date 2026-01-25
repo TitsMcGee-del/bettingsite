@@ -548,12 +548,18 @@
   async function createMatch() {
     const hId = document.getElementById('gmHome').value;
     const aId = document.getElementById('gmAway').value;
-    const hName = document.querySelector('#gmHome option:checked').textContent;
-    const aName = document.querySelector('#gmAway option:checked').textContent;
+    if (!hId || !aId) return alert('Please select both home and away teams.');
+    if (hId === aId) return alert('Home and away teams must be different.');
+    const hOption = document.querySelector('#gmHome option[value="' + hId + '"]');
+    const aOption = document.querySelector('#gmAway option[value="' + aId + '"]');
+    const hName = hOption ? hOption.textContent : '';
+    const aName = aOption ? aOption.textContent : '';
+    if (!hName || !aName) return alert('Invalid team selection.');
     
     const t1 = globalTeams.find(t=>t.id===hId);
     const t2 = globalTeams.find(t=>t.id===aId);
     const generated = generateFullMarkets(t1, t2);
+    if (!generated) return alert('Unable to generate markets. Check team data.');
 
     const m1 = document.getElementById('o1').value;
     const mX = document.getElementById('oX').value;
@@ -565,12 +571,18 @@
     db.ref('matches/m_'+Date.now()).set({ 
         home: hName, homeId: hId, away: aName, awayId: aId, 
         odds: generated['1X2'], markets: generated, result: null 
+    }).then(() => {
+      alert('Match created successfully!');
+    }).catch(error => {
+      console.error('Error creating match:', error);
+      alert('Failed to create match. Check console for details.');
     });
   }
 
   async function suggestOddsDOM() {
     const hId = document.getElementById('gmHome').value;
     const aId = document.getElementById('gmAway').value;
+    if (!hId || !aId) return alert('Select teams first.');
     const t1 = globalTeams.find(t => t.id === hId);
     const t2 = globalTeams.find(t => t.id === aId);
     if (t1 && t2) {
@@ -578,6 +590,8 @@
         document.getElementById('o1').value = m['1X2']['1'];
         document.getElementById('oX').value = m['1X2']['X']; 
         document.getElementById('o2').value = m['1X2']['2'];
+    } else {
+      alert('Invalid teams selected.');
     }
   }
 
@@ -590,6 +604,11 @@
         if(!grouped[t.group]) grouped[t.group] = [];
         grouped[t.group].push(t);
     });
+    let hasTeams = false;
+    Object.keys(grouped).forEach(grp => {
+        if (grouped[grp].length >= 2) hasTeams = true;
+    });
+    if (!hasTeams) return alert('No sufficient teams in groups A-D to generate matches. Add teams first.');
     const updates = {};
     Object.keys(grouped).forEach(grp => {
         const teams = grouped[grp];
@@ -1035,16 +1054,19 @@
   
   // Bracket Utils for Init/Progression (Same as before)
   async function initBracket() {
-      const sf1H = globalTeams.find(t=>t.id===document.getElementById('brSF1H').value);
-      const sf1A = globalTeams.find(t=>t.id===document.getElementById('brSF1A').value);
-      const sf2H = globalTeams.find(t=>t.id===document.getElementById('brSF2H').value);
-      const sf2A = globalTeams.find(t=>t.id===document.getElementById('brSF2A').value);
+      const sf1Hid = document.getElementById('brSF1H').value;
+      const sf1Aid = document.getElementById('brSF1A').value;
+      const sf2Hid = document.getElementById('brSF2H').value;
+      const sf2Aid = document.getElementById('brSF2A').value;
+      if (!sf1Hid || !sf1Aid || !sf2Hid || !sf2Aid) return alert("Select all 4 Semi-Finalists");
+      const sf1H = globalTeams.find(t=>t.id===sf1Hid);
+      const sf1A = globalTeams.find(t=>t.id===sf1Aid);
+      const sf2H = globalTeams.find(t=>t.id===sf2Hid);
+      const sf2A = globalTeams.find(t=>t.id===sf2Aid);
+      if (!sf1H || !sf1A || !sf2H || !sf2A) return alert("Invalid team selection.");
       const type = document.getElementById('sfType').value;
-      if (!sf1H || !sf1A || !sf2H || !sf2A) return alert("Select all 4 Semi-Finalists");
       const updates = {};
       const now = Date.now();
-      const o1 = getProbabilities(sf1H, sf1A); const o2 = getProbabilities(sf2H, sf2A);
-      
       const m1 = generateFullMarkets(sf1H, sf1A);
       const m2 = generateFullMarkets(sf2H, sf2A);
       
@@ -1059,6 +1081,7 @@
       updates[`matches/br_final`] = { home: 'TBD', homeId: 'TBD', away: 'TBD', awayId: 'TBD', odds: {1:0,X:0,2:0}, result: null, stage: 'FINAL', pending: true };
       updates[`matches/br_3rd`] = { home: 'TBD', homeId: 'TBD', away: 'TBD', awayId: 'TBD', odds: {1:0,X:0,2:0}, result: null, stage: '3RD', pending: true };
       await db.ref().update(updates);
+      alert('Bracket initialized!');
   }
   async function checkBracketProgression(matches) {
       // (Simplified Progression Logic same as before)
