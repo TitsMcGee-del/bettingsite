@@ -295,6 +295,12 @@
       <div id="standings-area" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:15px; margin-top:20px;"></div>
 
     </div>
+    <div id="bet-slip" style="position:fixed; bottom:0; right:0; width:300px; background:var(--b365-card-bg); border:1px solid var(--b365-border); padding:15px; display:none; z-index:99;">
+      <h3>Bet Slip</h3>
+      <div id="slip-items"></div>
+      <input id="slip-stake" type="number" placeholder="Stake" style="margin-top:10px;" />
+      <button class="action-btn" style="margin-top:10px;" onclick="placeBetsFromSlip()">Place Bet</button>
+    </div>
   </div>
 
 <script>
@@ -315,6 +321,7 @@
   let globalTeams = []; 
   let globalTeamStats = {}; 
   let globalMatches = {};
+  let betSlip = [];
 
   // --- AUTH / SESSION ---
   window.onload = function() {
@@ -839,8 +846,6 @@
       
       Object.entries(bets).forEach(([user, userBets]) => {
           Object.entries(userBets).forEach(([mId, b]) => {
-             // Only show active (though resolved might be in DB, usually removed on payout?)
-             // Assuming history is kept:
              const m = matches[mId];
              const mName = m ? `${m.home} v ${m.away}` : mId;
              const status = b.resolved ? (b.win ? '✅' : '❌') : '⏳';
@@ -868,9 +873,9 @@
             <div style="font-size:0.7rem; color:#888">${m.stage || 'Group ' + (m.group||'Match')}</div>
         </div>
         <div class="odds-group">
-          <div class="odd-box" onclick="placeBet('${id}', '1', ${m.odds['1']})"><span class="odd-lbl">1</span><span class="odd-val">${m.odds['1']}</span></div>
-          <div class="odd-box" onclick="placeBet('${id}', 'X', ${m.odds['X']})"><span class="odd-lbl">X</span><span class="odd-val">${m.odds['X']}</span></div>
-          <div class="odd-box" onclick="placeBet('${id}', '2', ${m.odds['2']})"><span class="odd-lbl">2</span><span class="odd-val">${m.odds['2']}</span></div>
+          <div class="odd-box" onclick="addToSlip('${id}', '1', ${m.odds['1']})"><span class="odd-lbl">1</span><span class="odd-val">${m.odds['1']}</span></div>
+          <div class="odd-box" onclick="addToSlip('${id}', 'X', ${m.odds['X']})"><span class="odd-lbl">X</span><span class="odd-val">${m.odds['X']}</span></div>
+          <div class="odd-box" onclick="addToSlip('${id}', '2', ${m.odds['2']})"><span class="odd-lbl">2</span><span class="odd-val">${m.odds['2']}</span></div>
         </div>
       </div>
     `).join('');
@@ -935,6 +940,46 @@
       </tr>`;
     }).join('');
     document.getElementById('admin-teams-body').innerHTML = html;
+  }
+
+  function addToSlip(matchId, outcome, odd) {
+    const m = globalMatches[matchId];
+    if (m.home === currentUser && outcome !== '1') return alert('You can only bet on your team to win.');
+    if (m.away === currentUser && outcome !== '2') return alert('You can only bet on your team to win.');
+    betSlip.push({matchId, outcome, odd});
+    updateBetSlip();
+  }
+
+  function updateBetSlip() {
+    const itemsDiv = document.getElementById('slip-items');
+    itemsDiv.innerHTML = betSlip.map((item, index) => {
+      const m = globalMatches[item.matchId];
+      return `<div>${m.home} vs ${m.away} - ${item.outcome} @ ${item.odd} <button onclick="removeFromSlip(${index})">Remove</button></div>`;
+    }).join('');
+    document.getElementById('bet-slip').style.display = betSlip.length > 0 ? 'block' : 'none';
+  }
+
+  function removeFromSlip(index) {
+    betSlip.splice(index, 1);
+    updateBetSlip();
+  }
+
+  async function placeBetsFromSlip() {
+    const stake = parseFloat(document.getElementById('slip-stake').value);
+    if (isNaN(stake) || stake <= 0) return alert('Invalid stake');
+    const totalStake = stake * betSlip.length;
+    const balanceSnap = await db.ref(`users/${currentUser}/credits`).once('value');
+    const balance = balanceSnap.val() || 0;
+    if (totalStake > balance) return alert('Insufficient balance');
+    const updates = {};
+    updates[`users/${currentUser}/credits`] = balance - totalStake;
+    betSlip.forEach(item => {
+      updates[`bets/${currentUser}/${item.matchId}`] = {outcome: item.outcome, stake, odd: item.odd};
+    });
+    await db.ref().update(updates);
+    betSlip = [];
+    updateBetSlip();
+    alert('Bets placed');
   }
 </script>
 </body>
