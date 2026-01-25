@@ -25,7 +25,7 @@
       background-color: var(--b365-body-bg);
       color: var(--b365-text-white);
       margin: 0; padding: 0;
-      padding-bottom: 70px;
+      padding-bottom: 70px; /* Space for the sticky slip */
     }
 
     header {
@@ -70,6 +70,12 @@
     }
     .card-body { padding: 15px; }
 
+    .logout-btn {
+      background: none; border: 1px solid #555; color: #888;
+      padding: 4px 8px; font-size: 0.7rem; cursor: pointer; margin-left: 10px; border-radius: 3px;
+    }
+    .logout-btn:hover { color: white; border-color: white; }
+
     .refresh-btn {
       background: var(--b365-dark-green);
       color: white; border: none; padding: 8px 16px;
@@ -89,18 +95,11 @@
       background: #444; padding: 10px; text-align: center; flex: 1;
       cursor: pointer; border-radius: 2px; transition: 0.2s;
     }
-    .odd-box:hover { background: #505050; border: 1px solid var(--b365-bright-green); }
-    .odd-box.admin-disabled { cursor: default; opacity: 0.8; }
-    .odd-box.admin-disabled:hover { border: none; background: #444; }
+    .odd-box:not(.admin-disabled):hover { background: #505050; border: 1px solid var(--b365-bright-green); }
+    .odd-box.admin-disabled { cursor: default; opacity: 0.7; }
+    
     .odd-val { color: var(--b365-accent-yellow); font-weight: bold; display: block; font-size: 1.1rem; }
     .odd-lbl { font-size: 0.7rem; color: var(--b365-text-gray); }
-
-    .bracket-container {
-        display: flex; justify-content: space-around; align-items: center; padding: 20px; background: #333; overflow-x: auto;
-    }
-    .bracket-col { display: flex; flex-direction: column; gap: 40px; }
-    .bracket-match { border: 1px solid #555; background: #444; padding: 10px; width: 200px; text-align: center; position:relative;}
-    .bracket-status { font-size:0.7rem; color:var(--b365-accent-yellow); position:absolute; top:2px; right:5px; }
 
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     th { text-align: left; background: #333; color: var(--b365-text-gray); padding: 10px; font-size: 0.75rem; text-transform: uppercase; }
@@ -117,6 +116,7 @@
     .chat-msg { font-size: 0.85rem; padding: 6px 12px; border-radius: 4px; background: #333; align-self: flex-start; max-width: 85%; }
     .chat-msg b { color: var(--b365-bright-green); margin-right: 5px; }
 
+    /* BET SLIP DRAWER */
     #bet-slip {
       position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
       width: 100%; max-width: 500px; background: #383838;
@@ -153,13 +153,16 @@
     </div>
   </div>
 
-  <!-- APP CONTENT -->
+  <!-- MAIN APP -->
   <div id="app" style="display:none">
     <header>
       <div class="logo">bet365 <span>Elite</span></div>
-      <div style="text-align:right">
-        <span id="headerUser" style="font-weight:bold; color:#aaa; font-size:0.8rem;"></span><br>
-        <span id="display-balance" style="color:var(--b365-bright-green); font-weight:bold">$0.00</span>
+      <div style="display:flex; align-items:center;">
+        <div style="text-align:right">
+          <span id="headerUser" style="font-weight:bold; color:#aaa; font-size:0.8rem;"></span><br>
+          <span id="display-balance" style="color:var(--b365-bright-green); font-weight:bold">$0.00</span>
+        </div>
+        <button class="logout-btn" onclick="handleLogout()">Logout</button>
       </div>
     </header>
 
@@ -173,10 +176,9 @@
     </nav>
 
     <div class="container">
-      
       <!-- TAB: MATCHES -->
       <div id="tab-matches" class="tab-pane">
-        <div id="bracket-display" class="bracket-container" style="display:none; margin-bottom:20px;"></div>
+        <div id="bracket-display" style="display:none; margin-bottom:20px;"></div>
         <div id="match-list"></div>
       </div>
 
@@ -188,8 +190,8 @@
       <!-- TAB: MY BETS -->
       <div id="tab-my-bets" class="tab-pane" style="display:none">
         <div class="card">
-            <div class="card-header">Your Active Tickets</div>
-            <div id="user-tickets"></div>
+            <div class="card-header">Active Tickets</div>
+            <div id="user-tickets" style="padding:10px;"></div>
         </div>
       </div>
 
@@ -215,10 +217,10 @@
 
       <!-- TAB: ADMIN -->
       <div id="tab-admin" class="tab-pane" style="display:none">
-        
+        <!-- MONITOR OPEN BETS -->
         <div class="card">
-            <div class="card-header">Open Tickets (All Users)</div>
-            <div id="admin-all-tickets" style="padding:10px; max-height:400px; overflow-y:auto;"></div>
+            <div class="card-header">Open User Tickets</div>
+            <div id="admin-all-tickets" style="padding:10px; max-height:200px; overflow-y:auto; font-size:0.8rem;"></div>
         </div>
 
         <div class="card">
@@ -231,30 +233,29 @@
         </div>
 
         <div class="card">
-            <div class="card-header">Tournament Management</div>
+            <div class="card-header">Match Management</div>
             <div class="card-body">
                 <div style="display:flex; gap:5px; margin-bottom:10px;">
                     <button class="refresh-btn" onclick="generateGroupMatches(1)">Groups (1 Leg)</button>
                     <button class="refresh-btn" style="background:#fff; color:#000" onclick="generateGroupMatches(2)">Groups (2 Legs)</button>
                 </div>
                 <div style="background:#444; padding:10px; border-radius:4px;">
-                    <label style="font-size:0.7rem">Finals Bracket</label>
-                    <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                    <label style="font-size:0.7rem">Manual Bracket Setup</label>
+                    <div style="display:flex; gap:5px; flex-wrap:wrap; margin-top:5px;">
                         SF1: <select id="brSF1H"></select> v <select id="brSF1A"></select>
                         SF2: <select id="brSF2H"></select> v <select id="brSF2A"></select>
-                        <button class="refresh-btn" onclick="initBracket()">Start Bracket</button>
+                        <button class="refresh-btn" onclick="initBracket()">Init SF</button>
                     </div>
                 </div>
                 <button class="delete-btn" style="width:100%; margin-top:10px;" onclick="archiveTournament()">📦 ARCHIVE SEASON & SHIFT HISTORY</button>
             </div>
         </div>
         <div id="admin-match-list"></div>
-        <div id="admin-user-list"></div>
+        <div id="admin-team-list"></div>
       </div>
-
     </div>
 
-    <!-- BET SLIP -->
+    <!-- BET SLIP DRAWER -->
     <div id="bet-slip" class="collapsed" style="display:none">
         <div class="slip-header" onclick="toggleSlip()">
             <span>BET SLIP <span class="slip-badge" id="slip-count">0</span></span>
@@ -266,7 +267,7 @@
                 <span style="font-size:0.8rem">Total Odds:</span>
                 <span id="slip-total-odds" style="color:var(--b365-accent-yellow); font-weight:bold">1.00</span>
             </div>
-            <input type="number" id="slip-stake" placeholder="Stake Amount" style="width:100%; margin-bottom:10px;" />
+            <input type="number" id="slip-stake" placeholder="Stake Amount" style="width:100%; margin-bottom:10px;" oninput="renderSlip()" />
             <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
                 <span style="font-size:0.8rem">Potential Payout:</span>
                 <span id="slip-payout" style="color:var(--b365-bright-green); font-weight:bold">$0.00</span>
@@ -277,6 +278,7 @@
   </div>
 
 <script>
+  // Firebase Configuration
   const firebaseConfig = {
     apiKey: "AIzaSyDPgcnptW0O2OFlE-_TOsTXctjG6RPBZm8",
     authDomain: "fc26-full-bets.firebaseapp.com",
@@ -302,6 +304,7 @@
     const p = document.getElementById('passIn').value;
     if(!u || !p) return;
 
+    // Admin Credentials
     if(u === 'Admin' && p === 'IBM99ibm') {
         currentUser = 'Admin'; isAdmin = true; launch();
     } else {
@@ -319,16 +322,28 @@
     }
   }
 
+  function handleLogout() {
+    currentUser = null; isAdmin = false;
+    db.ref().off();
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'block';
+    document.getElementById('userIn').value = '';
+    document.getElementById('passIn').value = '';
+  }
+
   function launch() {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     document.getElementById('headerUser').textContent = currentUser;
+    
     if(isAdmin) {
         document.getElementById('admin-nav').style.display = 'block';
         document.getElementById('bet-slip').style.display = 'none';
         document.getElementById('display-balance').style.display = 'none';
     } else {
+        document.getElementById('admin-nav').style.display = 'none';
         document.getElementById('bet-slip').style.display = 'block';
+        document.getElementById('display-balance').style.display = 'inline';
     }
     initListeners();
   }
@@ -362,64 +377,57 @@
     } else {
         db.ref('tickets').on('value', s => renderAdminAllTickets(s.val()));
     }
-    db.ref('chat').limitToLast(15).on('value', s => renderChat(s.val()));
+    db.ref('chat').limitToLast(20).on('value', s => renderChat(s.val()));
     db.ref('users').on('value', s => renderLeaderboard(s.val()));
   }
 
-  // --- ORIGINAL STRENGTH & ODDS LOGIC ---
+  // --- STRENGTH & ODDS ---
   function calcStrength(hist) {
-    if (!hist) return 0; 
-    const nums = hist.filter(x => x !== '-' && !isNaN(parseFloat(x))).map(Number);
-    if (nums.length === 0) return 0; 
-    return nums.reduce((a,b) => a+b, 0) / nums.length;
+    if (!hist) return 0;
+    const nums = hist.filter(x => x !== '-' && !isNaN(x)).map(Number);
+    return nums.length ? (nums.reduce((a,b)=>a+b,0)/nums.length) : 0;
   }
 
   function calculateOddsForTeams(t1, t2) {
     const s1 = calcStrength(t1.history);
     const s2 = calcStrength(t2.history);
-    const diff = s1 - s2; 
-    let p1 = 0.38, pX = 0.28, p2 = 0.34;
-    p1 += (diff * 0.05); p2 -= (diff * 0.05);
+    const diff = s1 - s2;
+    let p1 = 0.38 + (diff * 0.05), p2 = 0.34 - (diff * 0.05);
     p1 = Math.max(0.1, Math.min(0.8, p1));
     p2 = Math.max(0.1, Math.min(0.8, p2));
-    pX = 1 - p1 - p2;
-    return {
-        '1': (1 / p1).toFixed(2),
-        'X': (1 / pX).toFixed(2),
-        '2': (1 / p2).toFixed(2)
-    };
+    let pX = 1 - p1 - p2;
+    return { '1': (1/p1).toFixed(2), 'X': (1/pX).toFixed(2), '2': (1/p2).toFixed(2) };
   }
 
-  // --- ADMIN FUNCTIONS ---
+  // --- ADMIN TOOLS ---
   function registerTeam() {
-    const name = document.getElementById('tName').value;
+    const name = document.getElementById('tName').value.trim();
     const grp = document.getElementById('tGroup').value;
     if(!name) return;
     const id = 't_' + Date.now();
     db.ref('teams/'+id).set({ id, name, group: grp, history: [0,0,0,0,0] });
+    document.getElementById('tName').value = '';
   }
 
   async function generateGroupMatches(legs) {
-    if(!confirm("Generate group matches?")) return;
+    const updates = {};
     const grouped = {};
     globalTeams.forEach(t => {
-        if(t.group === 'E') return; // Preserving exclusion
+        if(t.group === 'E') return; // EXCLUSION LOGIC
         if(!grouped[t.group]) grouped[t.group] = [];
         grouped[t.group].push(t);
     });
-    const updates = {};
-    Object.keys(grouped).forEach(grp => {
-        const teams = grouped[grp];
-        for (let i = 0; i < teams.length; i++) {
-            for (let j = i + 1; j < teams.length; j++) {
-                const tA = teams[i], tB = teams[j];
-                const odds1 = calculateOddsForTeams(tA, tB);
-                const mid1 = 'm_' + Date.now() + Math.random();
-                updates[`matches/${mid1}`] = { home: tA.name, homeId: tA.id, away: tB.name, awayId: tB.id, odds: odds1, result: null, group: grp };
+
+    Object.keys(grouped).forEach(grpKey => {
+        const ts = grouped[grpKey];
+        for(let i=0; i<ts.length; i++) {
+            for(let j=i+1; j<ts.length; j++) {
+                const tA = ts[i], tB = ts[j];
+                const m1Id = `m_${grpKey}_${tA.id}_${tB.id}_1`;
+                updates[`matches/${m1Id}`] = { home: tA.name, homeId: tA.id, away: tB.name, awayId: tB.id, odds: calculateOddsForTeams(tA, tB), result: null, group: grpKey };
                 if(legs === 2) {
-                    const odds2 = calculateOddsForTeams(tB, tA);
-                    const mid2 = 'm_' + Date.now() + Math.random();
-                    updates[`matches/${mid2}`] = { home: tB.name, homeId: tB.id, away: tA.name, awayId: tA.id, odds: odds2, result: null, group: grp };
+                    const m2Id = `m_${grpKey}_${tA.id}_${tB.id}_2`;
+                    updates[`matches/${m2Id}`] = { home: tB.name, homeId: tB.id, away: tA.name, awayId: tA.id, odds: calculateOddsForTeams(tB, tA), result: null, group: grpKey };
                 }
             }
         }
@@ -428,152 +436,123 @@
   }
 
   async function adminSetResult(mId) {
-    const score = prompt("Result (H-A):");
+    const score = prompt("Result (Home-Away):");
     if(!score || !score.includes('-')) return;
     const [h, a] = score.split('-').map(Number);
-    let winOutcome = 'X'; if(h>a) winOutcome = '1'; else if(a>h) winOutcome = '2';
+    let winOutcome = (h > a) ? '1' : (a > h ? '2' : 'X');
 
     const updates = {};
     updates[`matches/${mId}/result`] = score;
 
     const tSnap = await db.ref('tickets').once('value');
-    const allUsersTickets = tSnap.val() || {};
+    const allTkts = tSnap.val() || {};
 
-    for(const [user, tickets] of Object.entries(allUsersTickets)) {
-        for(const [tId, tkt] of Object.entries(tickets)) {
-            if(tkt.status !== 'open') continue;
-            const leg = tkt.legs.find(l => l.mId === mId);
+    for (const [user, tkts] of Object.entries(allTkts)) {
+        for (const [tid, t] of Object.entries(tkts)) {
+            if(t.status !== 'open') continue;
+            const leg = t.legs.find(l => l.mId === mId);
             if(leg) {
                 if(leg.pick !== winOutcome) {
-                    updates[`tickets/${user}/${tId}/status`] = 'lost';
+                    updates[`tickets/${user}/${tid}/status`] = 'lost';
                 } else {
-                    const allWon = tkt.legs.every(l => {
-                        const mObj = globalMatches[l.mId];
-                        const mRes = (l.mId === mId) ? score : mObj.result;
-                        if(!mRes) return false;
-                        const [lh, la] = mRes.split('-').map(Number);
-                        let lWin = 'X'; if(lh>la) lWin='1'; else if(la>lh) lWin='2';
-                        return l.pick === lWin;
-                    });
-                    if(allWon) {
-                        updates[`tickets/${user}/${tId}/status`] = 'won';
-                        const uSnap = await db.ref(`users/${user}/credits`).get();
-                        updates[`users/${user}/credits`] = (uSnap.val() || 0) + tkt.payout;
+                    const mObj = globalMatches[mId];
+                    const allDone = t.legs.every(l => (l.mId === mId ? score : globalMatches[l.mId]?.result) != null);
+                    if(allDone) {
+                        const allWin = t.legs.every(l => {
+                            const res = (l.mId === mId ? score : globalMatches[l.mId].result);
+                            const [lh, la] = res.split('-').map(Number);
+                            const w = (lh > la) ? '1' : (la > lh ? '2' : 'X');
+                            return l.pick === w;
+                        });
+                        if(allWin) {
+                            updates[`tickets/${user}/${tid}/status`] = 'won';
+                            const uCr = (await db.ref(`users/${user}/credits`).get()).val() || 0;
+                            updates[`users/${user}/credits`] = uCr + t.payout;
+                        }
                     }
                 }
             }
         }
     }
     await db.ref().update(updates);
-    if(mId === 'm_sf1' || mId === 'm_sf2') checkBracketAdvancement();
+    if(mId.includes('m_sf')) checkBracketAdvancement();
   }
 
   async function archiveTournament() {
-      if(!confirm("📦 CALCULATE HISTORY & WIPE?")) return;
-      const teamPoints = {}; globalTeams.forEach(t => teamPoints[t.id] = 0);
+      if(!confirm("Archive season? This wipes matches and shifts histories.")) return;
+      const points = {}; globalTeams.forEach(t => points[t.id] = 0);
       Object.values(globalMatches).forEach(m => {
           if(!m.result) return;
-          const [h, a] = m.result.split('-').map(Number);
-          if(h>a) teamPoints[m.homeId] += 3; else if(a>h) teamPoints[m.awayId] += 3; else { teamPoints[m.homeId]+=1; teamPoints[m.awayId]+=1; }
-          if(m.stage === 'FINAL' && m.result) {
-              const winId = h > a ? m.homeId : m.awayId;
-              teamPoints[winId] += 5;
-          }
+          const [h,a] = m.result.split('-').map(Number);
+          if(h>a) points[m.homeId]+=3; else if(a>h) points[m.awayId]+=3; else { points[m.homeId]+=1; points[m.awayId]+=1; }
       });
       const updates = {};
       globalTeams.forEach(t => {
           let h = t.history ? [...t.history] : [0,0,0,0,0];
-          h.shift(); h.push(teamPoints[t.id] || 0);
+          h.shift(); h.push(points[t.id] || 0);
           updates[`teams/${t.id}/history`] = h;
       });
       updates['matches'] = null; updates['tickets'] = null;
       await db.ref().update(updates);
-      alert("Season Archived. History shifted.");
   }
 
-  // --- USER BETTING LOGIC ---
-  function toggleSlip() {
+  // --- BETTING ---
+  function addToSlip(mId, pick, odds) {
     if(isAdmin) return;
+    betSlip = betSlip.filter(i => i.mId !== mId);
+    const m = globalMatches[mId];
+    betSlip.push({ mId, pick, odds: parseFloat(odds), home: m.home, away: m.away });
+    renderSlip();
+    if(document.getElementById('bet-slip').classList.contains('collapsed')) toggleSlip();
+  }
+  function removeFromSlip(mId) { betSlip = betSlip.filter(i => i.mId !== mId); renderSlip(); }
+  function toggleSlip() {
     const s = document.getElementById('bet-slip');
     const a = document.getElementById('slip-arrow');
     if(s.classList.contains('collapsed')) { s.classList.replace('collapsed', 'expanded'); a.textContent = '▼'; }
     else { s.classList.replace('expanded', 'collapsed'); a.textContent = '▲'; }
   }
-
-  function addToSlip(mId, pick, odds) {
-    if(isAdmin) return;
-    if(betSlip.find(i => i.mId === mId)) betSlip = betSlip.filter(i => i.mId !== mId);
-    const m = globalMatches[mId];
-    betSlip.push({ mId, pick, odds: parseFloat(odds), home: m.home, away: m.away });
-    renderSlip();
-    const s = document.getElementById('bet-slip');
-    if(s.classList.contains('collapsed')) toggleSlip();
-  }
-
-  function removeFromSlip(mId) {
-    betSlip = betSlip.filter(i => i.mId !== mId);
-    renderSlip();
-  }
-
   function renderSlip() {
     const count = betSlip.length;
     document.getElementById('slip-count').textContent = count;
     let totalOdds = 1.0;
-    const html = betSlip.map(i => {
+    document.getElementById('slip-items').innerHTML = betSlip.map(i => {
         totalOdds *= i.odds;
-        return `<div class="slip-item">
-            <span class="slip-remove" onclick="removeFromSlip('${i.mId}')">×</span>
-            <div style="font-size:0.7rem; color:#aaa">${i.home} v ${i.away}</div>
-            <div style="font-weight:bold">${i.pick} <span style="color:var(--b365-accent-yellow)">@${i.odds}</span></div>
-        </div>`;
-    }).join('');
-    document.getElementById('slip-items').innerHTML = html || '<div style="padding:20px; text-align:center; color:#888">No selections</div>';
+        return `<div class="slip-item"><span class="slip-remove" onclick="removeFromSlip('${i.mId}')">×</span><div style="font-size:0.7rem; color:#aaa">${i.home} v ${i.away}</div><div style="font-weight:bold">${i.pick} <span style="color:var(--b365-accent-yellow)">@${i.odds}</span></div></div>`;
+    }).join('') || '<div style="padding:20px; text-align:center; color:#888">Add selections to start</div>';
     document.getElementById('slip-total-odds').textContent = totalOdds.toFixed(2);
-    
-    const stakeIn = document.getElementById('slip-stake');
-    stakeIn.oninput = () => {
-        const stake = parseFloat(stakeIn.value) || 0;
-        document.getElementById('slip-payout').textContent = `$${(stake * totalOdds).toFixed(2)}`;
-    };
+    const stake = parseFloat(document.getElementById('slip-stake').value) || 0;
+    document.getElementById('slip-payout').textContent = `$${(stake * totalOdds).toFixed(2)}`;
   }
-
   async function placeTicket() {
-    if(isAdmin) return;
-    if(betSlip.length === 0) return;
     const stake = parseFloat(document.getElementById('slip-stake').value);
-    if(!stake || stake <= 0) return alert("Enter stake");
-    const snap = await db.ref(`users/${currentUser}/credits`).get();
-    const bal = snap.val() || 0;
-    if(bal < stake) return alert("Insufficient funds");
-
-    let totalOdds = 1.0; betSlip.forEach(i => totalOdds *= i.odds);
-    const ticketId = 'tkt_' + Date.now();
-    const ticket = { legs: betSlip, stake, totalOdds, status: 'open', payout: stake * totalOdds, ts: Date.now() };
-
+    if(!stake || stake <= 0 || !betSlip.length) return alert("Check stake/slip");
+    const s = await db.ref(`users/${currentUser}/credits`).get();
+    if(s.val() < stake) return alert("Insufficient funds");
+    let totalOdds = 1; betSlip.forEach(i=>totalOdds*=i.odds);
+    const tId = 'tkt_'+Date.now();
     const updates = {};
-    updates[`tickets/${currentUser}/${ticketId}`] = ticket;
-    updates[`users/${currentUser}/credits`] = bal - stake;
+    updates[`tickets/${currentUser}/${tId}`] = { legs: betSlip, stake, totalOdds, status: 'open', payout: stake*totalOdds, ts: Date.now() };
+    updates[`users/${currentUser}/credits`] = s.val() - stake;
     await db.ref().update(updates);
     betSlip = []; renderSlip(); toggleSlip();
     alert("Ticket Placed!");
   }
 
-  // --- RENDERING VIEWS ---
+  // --- RENDERING ---
   function renderMatches() {
-    const grouped = {};
+    const grps = {};
     Object.entries(globalMatches).forEach(([id, m]) => {
-        if(m.pending) return;
-        const key = m.group ? 'Group ' + m.group : (m.stage || 'Friendlies');
-        if(!grouped[key]) grouped[key] = [];
-        grouped[key].push({id, ...m});
+        const k = m.group ? 'Group ' + m.group : (m.stage || 'Finals');
+        if(!grps[k]) grps[k] = [];
+        grps[k].push({id, ...m});
     });
-
     let html = '';
-    for(const [title, ms] of Object.entries(grouped)) {
+    for(const [title, ms] of Object.entries(grps)) {
         html += `<div class="card"><div class="card-header">${title}</div><div class="card-body" style="padding:0">`;
         ms.forEach(m => {
             html += `<div class="match-row">
-                <div><div>${m.home} v ${m.away}</div><div style="font-size:0.7rem; color:#888">${m.result || 'Active'}</div></div>
+                <div><div>${m.home} v ${m.away}</div><div style="font-size:0.7rem; color:#888">${m.result || 'LIVE'}</div></div>
                 <div class="odds-group">
                     <div class="odd-box ${isAdmin?'admin-disabled':''}" onclick="addToSlip('${m.id}','1','${m.odds['1']}')"><span class="odd-lbl">1</span><span class="odd-val">${m.odds['1']}</span></div>
                     <div class="odd-box ${isAdmin?'admin-disabled':''}" onclick="addToSlip('${m.id}','X','${m.odds['X']}')"><span class="odd-lbl">X</span><span class="odd-val">${m.odds['X']}</span></div>
@@ -583,130 +562,109 @@
         });
         html += `</div></div>`;
     }
-    document.getElementById('match-list').innerHTML = html || 'No matches found.';
-  }
-
-  function renderAdminAllTickets(allUsersTickets) {
-    if(!allUsersTickets) { document.getElementById('admin-all-tickets').innerHTML = 'No open bets.'; return; }
-    let html = '';
-    for(const [user, tickets] of Object.entries(allUsersTickets)) {
-        for(const [tId, t] of Object.entries(tickets)) {
-            if(t.status !== 'open') continue;
-            html += `<div style="font-size:0.75rem; background:#333; padding:8px; border-bottom:1px solid #444; margin-bottom:5px;">
-                <b style="color:var(--b365-bright-green)">${user}</b>: ${t.legs.length} Leg Parlay @ ${t.totalOdds.toFixed(2)} ($${t.stake})
-                <div style="color:#aaa">${t.legs.map(l => `${l.home} v ${l.away} (${l.pick})`).join(', ')}</div>
-            </div>`;
-        }
-    }
-    document.getElementById('admin-all-tickets').innerHTML = html || 'No open tickets.';
-  }
-
-  function renderUserTickets(tickets) {
-    if(!tickets) { document.getElementById('user-tickets').innerHTML = 'No bets placed.'; return; }
-    const html = Object.values(tickets).reverse().map(t => `
-        <div style="background:#444; padding:10px; border-radius:4px; margin-bottom:10px; border-left:4px solid ${t.status==='won'?'#12ed80':(t.status==='lost'?'#f44':'#aaa')}">
-            <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#aaa">
-                <span>${new Date(t.ts).toLocaleDateString()}</span><span>${t.status.toUpperCase()}</span>
-            </div>
-            <div style="font-weight:bold; margin:5px 0">${t.legs.length} Leg Parlay @ ${t.totalOdds.toFixed(2)}</div>
-            <div style="font-size:0.8rem">${t.legs.map(l => `${l.home} (${l.pick})`).join(' • ')}</div>
-            <div style="margin-top:5px; font-size:0.8rem">Stake: $${t.stake} | Payout: $${t.payout.toFixed(2)}</div>
-        </div>
-    `).join('');
-    document.getElementById('user-tickets').innerHTML = html;
+    document.getElementById('match-list').innerHTML = html || 'No active matches.';
   }
 
   function updateStandings() {
-    const stats = {};
-    globalTeams.forEach(t => stats[t.id] = { p:0, gd:0 });
-    Object.values(globalMatches).forEach(m => {
+    const stats = {}; globalTeams.forEach(t=>stats[t.id]={p:0,gd:0});
+    Object.values(globalMatches).forEach(m=>{
         if(!m.result || m.stage) return;
-        const [h, a] = m.result.split('-').map(Number);
-        stats[m.homeId].gd += (h-a); stats[m.awayId].gd += (a-h);
+        const [h,a] = m.result.split('-').map(Number);
+        stats[m.homeId].gd+=(h-a); stats[m.awayId].gd+=(a-h);
         if(h>a) stats[m.homeId].p+=3; else if(a>h) stats[m.awayId].p+=3; else { stats[m.homeId].p+=1; stats[m.awayId].p+=1; }
     });
-    const grps = ['A','B','C','D','E'];
-    document.getElementById('standings-area').innerHTML = grps.map(g => {
+    document.getElementById('standings-area').innerHTML = ['A','B','C','D','E'].map(g => {
         const ts = globalTeams.filter(t=>t.group===g).map(t=>({n:t.name, ...stats[t.id]})).sort((a,b)=>b.p-a.p || b.gd-a.gd);
-        if(ts.length===0) return '';
-        return `<div class="card"><div class="card-header">Group ${g}</div><div class="card-body">
-            <table><tr><th>Team</th><th>P</th><th>GD</th></tr>
-            ${ts.map(t=>`<tr><td>${t.n}</td><td>${t.p}</td><td>${t.gd}</td></tr>`).join('')}
-            </table></div></div>`;
+        if(!ts.length) return '';
+        return `<div class="card"><div class="card-header">Group ${g}</div><table><tr><th>Team</th><th>P</th><th>GD</th></tr>${ts.map(t=>`<tr><td>${t.n}</td><td>${t.p}</td><td>${t.gd}</td></tr>`).join('')}</table></div>`;
     }).join('');
   }
 
-  function renderLeaderboard(users) {
-    if(!users) return;
-    const sorted = Object.entries(users).map(([name, d]) => ({ name, credits: d.credits||0, net: (d.credits||0)-(d.initialCredits||100) })).sort((a,b) => b.credits - a.credits);
-    const html = `<table><tr><th>User</th><th>Credits</th><th>ROI</th></tr>
-    ${sorted.map(u => `<tr><td>${u.name}</td><td style="color:var(--b365-bright-green); font-weight:bold">$${u.credits.toFixed(2)}</td><td style="color:${u.net>=0?'#12ed80':'#f44'}">${u.net>=0?'+':''}${u.net.toFixed(2)}</td></tr>`).join('')}
-    </table>`;
-    document.getElementById('leaderboard-content').innerHTML = html;
+  function renderAdminAllTickets(all) {
+    if(!all) return;
+    let h = '';
+    for(const [u, tkts] of Object.entries(all)) {
+        for(const [tid, t] of Object.entries(tkts)) {
+            if(t.status==='open') h += `<div><b>${u}</b>: $${t.stake} on ${t.legs.length} matches</div>`;
+        }
+    }
+    document.getElementById('admin-all-tickets').innerHTML = h || 'No open bets.';
   }
 
-  function renderChat(msgs) {
-    if(!msgs) return;
-    const html = Object.values(msgs).map(m => `<div class="chat-msg"><b>${m.user}:</b> ${m.text}</div>`).join('');
-    const box = document.getElementById('chat-box');
-    box.innerHTML = html; box.scrollTop = box.scrollHeight;
-  }
-  function sendChat() {
-    const text = document.getElementById('chatInput').value;
-    if(!text) return;
-    db.ref('chat').push({ user: currentUser, text, ts: Date.now() });
-    document.getElementById('chatInput').value = '';
-  }
-
-  function renderAdminMatches() {
-    const html = Object.entries(globalMatches).map(([id, m]) => `
-        <div style="padding:10px; border-bottom:1px solid #444; display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-size:0.8rem">${m.home} v ${m.away} (${m.group||m.stage})</span>
-            <button class="refresh-btn" style="padding:4px 8px; font-size:0.7rem" onclick="adminSetResult('${id}')">${m.result || 'Result'}</button>
+  function renderUserTickets(tkts) {
+    if(!tkts) return;
+    document.getElementById('user-tickets').innerHTML = Object.values(tkts).reverse().map(t => `
+        <div style="background:#444; padding:10px; border-radius:4px; margin-bottom:8px; border-left:4px solid ${t.status==='won'?'#12ed80':(t.status==='lost'?'#f44':'#888')}">
+            <div style="display:flex; justify-content:space-between; font-size:0.7rem;"><span>${t.status.toUpperCase()}</span><span>$${t.stake} → $${t.payout.toFixed(2)}</span></div>
+            <div style="font-size:0.8rem; margin-top:5px;">${t.legs.map(l=>`${l.home} (${l.pick})`).join(' • ')}</div>
         </div>
     `).join('');
-    document.getElementById('admin-match-list').innerHTML = `<div class="card"><div class="card-header">Settle Matches</div>${html}</div>`;
   }
 
-  function renderAdminTeams() {
-    const html = globalTeams.map(t => `<tr><td>${t.name}</td><td>${t.group}</td><td>${calcStrength(t.history).toFixed(1)}</td></tr>`).join('');
-    document.getElementById('admin-user-list').innerHTML = `<div class="card"><div class="card-header">Teams</div><table><tr><th>Team</th><th>Grp</th><th>Str</th></tr>${html}</table></div>`;
+  function renderLeaderboard(users) {
+    const sorted = Object.entries(users).map(([n,d])=>({n, c:d.credits||0, net:(d.credits||0)-(d.initialCredits||100)})).sort((a,b)=>b.c-a.c);
+    document.getElementById('leaderboard-content').innerHTML = `<table><tr><th>User</th><th>Credits</th><th>Profit</th></tr>${sorted.map(u=>`<tr><td>${u.n}</td><td style="color:#12ed80">$${u.c.toFixed(2)}</td><td style="color:${u.net>=0?'#12ed80':'#f44'}">${u.net.toFixed(2)}</td></tr>`).join('')}</table>`;
   }
 
-  function renderBracket() {
-    const b = document.getElementById('bracket-display');
-    const sf1 = globalMatches['m_sf1'], sf2 = globalMatches['m_sf2'], fin = globalMatches['m_final'];
-    if(!sf1 || !sf2) { b.style.display = 'none'; return; }
-    b.style.display = 'flex';
-    b.innerHTML = `
-        <div class="bracket-col">
-            <div class="bracket-match"><b>SF1</b><br>${sf1.home} v ${sf1.away}<div class="bracket-status">${sf1.result||''}</div></div>
-            <div class="bracket-match"><b>SF2</b><br>${sf2.home} v ${sf2.away}<div class="bracket-status">${sf2.result||''}</div></div>
-        </div>
-        <div class="bracket-col"><div class="bracket-match" style="border-color:var(--b365-accent-yellow)"><b>FINAL</b><br>${fin?.home||'TBD'} v ${fin?.away||'TBD'}<div class="bracket-status">${fin?.result||''}</div></div></div>
-    `;
+  function renderChat(m) {
+    if(!m) return;
+    document.getElementById('chat-box').innerHTML = Object.values(m).map(i=>`<div class="chat-msg"><b>${i.user}:</b> ${i.text}</div>`).join('');
+    document.getElementById('chat-box').scrollTop = 9999;
+  }
+  function sendChat() {
+    const t = document.getElementById('chatInput').value;
+    if(t) { db.ref('chat').push({ user: currentUser, text: t, ts: Date.now() }); document.getElementById('chatInput').value = ''; }
   }
 
   function updateDropdowns() {
-    ['brSF1H', 'brSF1A', 'brSF2H', 'brSF2A'].forEach(sid => {
-        const el = document.getElementById(sid);
-        if(el) el.innerHTML = globalTeams.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
-    });
+    const h = globalTeams.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
+    ['brSF1H','brSF1A','brSF2H','brSF2A'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).innerHTML = h; });
   }
 
-  async function checkBracketAdvancement() {
-    const sf1 = globalMatches['m_sf1'], sf2 = globalMatches['m_sf2'];
-    if(sf1?.result && sf2?.result) {
+  function renderAdminTeams() {
+    const h = globalTeams.map(t=>`<tr><td>${t.name}</td><td>${t.group}</td><td>${calcStrength(t.history).toFixed(1)}</td></tr>`).join('');
+    document.getElementById('admin-team-list').innerHTML = `<div class="card"><div class="card-header">Teams</div><table><tr><th>Name</th><th>Grp</th><th>Str</th></tr>${h}</table></div>`;
+  }
+
+  function renderAdminMatches() {
+    document.getElementById('admin-match-list').innerHTML = `<div class="card"><div class="card-header">Settle Matches</div>${Object.entries(globalMatches).map(([id,m])=>`<div style="padding:10px; border-bottom:1px solid #444; display:flex; justify-content:space-between;"><span>${m.home} v ${m.away}</span><button class="refresh-btn" style="padding:4px 8px" onclick="adminSetResult('${id}')">${m.result||'Score'}</button></div>`).join('')}</div>`;
+  }
+
+  function initBracket() {
+    const s1h = document.getElementById('brSF1H').value, s1a = document.getElementById('brSF1A').value;
+    const s2h = document.getElementById('brSF2H').value, s2a = document.getElementById('brSF2A').value;
+    const updates = {};
+    updates['matches/m_sf1'] = { home: globalTeams.find(t=>t.id===s1h).name, homeId: s1h, away: globalTeams.find(t=>t.id===s1a).name, awayId: s1a, odds: calculateOddsForTeams(globalTeams.find(t=>t.id===s1h), globalTeams.find(t=>t.id===s1a)), result:null, stage:'SF1' };
+    updates['matches/m_sf2'] = { home: globalTeams.find(t=>t.id===s2h).name, homeId: s2h, away: globalTeams.find(t=>t.id===s2a).name, awayId: s2a, odds: calculateOddsForTeams(globalTeams.find(t=>t.id===s2h), globalTeams.find(t=>t.id===s2a)), result:null, stage:'SF2' };
+    db.ref().update(updates);
+  }
+
+  function checkBracketAdvancement() {
+    const m1 = globalMatches['m_sf1'], m2 = globalMatches['m_sf2'];
+    if(m1?.result && m2?.result) {
         const getW = (m) => {
             const [h,a] = m.result.split('-').map(Number);
-            return h > a ? {id:m.homeId, n:m.home, lid:m.awayId, ln:m.away} : {id:m.awayId, n:m.away, lid:m.homeId, ln:m.home};
+            return h>a ? {id:m.homeId, n:m.home, lid:m.awayId, ln:m.away} : {id:m.awayId, n:m.away, lid:m.homeId, ln:m.home};
         };
-        const w1 = getW(sf1), w2 = getW(sf2);
+        const w1 = getW(m1), w2 = getW(m2);
         const updates = {};
         updates['matches/m_final'] = { home: w1.n, homeId: w1.id, away: w2.n, awayId: w2.id, odds: calculateOddsForTeams(globalTeams.find(t=>t.id===w1.id), globalTeams.find(t=>t.id===w2.id)), result:null, stage:'FINAL' };
-        updates['matches/m_3rd'] = { home: w1.ln, homeId: w1.lid, away: w2.ln, awayId: w2.lid, odds: calculateOddsForTeams(globalTeams.find(t=>t.id===w1.lid), globalTeams.find(t=>t.id===w2.lid)), result:null, stage:'3RD' };
-        await db.ref().update(updates);
+        db.ref().update(updates);
     }
+  }
+
+  function renderBracket() {
+    const sf1 = globalMatches['m_sf1'], sf2 = globalMatches['m_sf2'], fin = globalMatches['m_final'];
+    if(!sf1 || !sf2) return;
+    document.getElementById('bracket-display').style.display = 'block';
+    document.getElementById('bracket-display').innerHTML = `
+        <div class="card"><div class="card-header">Finals Bracket</div>
+            <div style="display:flex; justify-content:space-around; padding:15px; text-align:center;">
+                <div><b>SF1</b><br>${sf1.home} ${sf1.result||'vs'} ${sf1.away}</div>
+                <div><b>SF2</b><br>${sf2.home} ${sf2.result||'vs'} ${sf2.away}</div>
+                <div style="color:var(--b365-accent-yellow)"><b>FINAL</b><br>${fin? `${fin.home} ${fin.result||'vs'} ${fin.away}` : 'TBD'}</div>
+            </div>
+        </div>`;
   }
 </script>
 </body>
