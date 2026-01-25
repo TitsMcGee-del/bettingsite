@@ -1,46 +1,33 @@
 function renderAdminTeams() {
-  let html = `<div class="card"><div class="card-header">Edit Team Strength (5 Column History)</div>
-  <table><tr><th>Team</th><th>Grp</th><th colspan="5">Last 5 Games (Points)</th><th>Avg</th></tr>`;
-
-  globalTeams.forEach(t => {
-    const history = t.history || [0, 0, 0, 0, 0];
-    let inputs = '';
-    history.forEach((val, index) => {
-      inputs += `<td><input type="number" class="strength-input" value="${val}" 
-                 onchange="updateStrength('${t.id}', ${index}, this.value)"></td>`;
+    let html = `<div class="card"><div class="card-header">Admin: Team Performance</div><table>`;
+    globalTeams.forEach(t => {
+        const history = t.history || [0,0,0,0,0];
+        html += `<tr><td>${t.name}</td><td>
+            <input type="number" value="${history[0]}" onchange="updateHistory('${t.id}', 0, this.value)" style="width:40px">
+            <input type="number" value="${history[1]}" onchange="updateHistory('${t.id}', 1, this.value)" style="width:40px">
+        </td></tr>`;
     });
-
-    html += `<tr>
-        <td>${t.name}</td>
-        <td>${t.group}</td>
-        ${inputs}
-        <td style="color:var(--b365-bright-green); font-weight:bold">${calcStrength(history).toFixed(1)}</td>
-    </tr>`;
-  });
-
-  html += `</table></div>`;
-  document.getElementById('admin-team-list').innerHTML = html;
+    html += `</table></div>`;
+    document.getElementById('admin-team-list').innerHTML = html;
 }
 
-async function updateStrength(teamId, index, newValue) {
-    const val = parseInt(newValue) || 0;
-    await db.ref(`teams/${teamId}/history/${index}`).set(val);
-}
-
-function adminSetResult(matchId) {
-    const res = prompt("Enter score (e.g. 2-1):");
-    if(res) db.ref(`matches/${matchId}/result`).set(res);
+function updateHistory(id, index, val) {
+    db.ref(`teams/${id}/history/${index}`).set(parseInt(val));
 }
 
 function renderAdminMatches() {
-    const container = document.getElementById('admin-match-list');
-    let html = `<div class="card"><div class="card-header">Manage Scores</div>`;
+    let html = `<div class="card"><div class="card-header">Set Results</div>`;
     Object.entries(globalMatches).forEach(([id, m]) => {
         html += `<div style="padding:10px; border-bottom:1px solid #444; display:flex; justify-content:space-between;">
             <span>${m.home} v ${m.away}</span>
-            <button class="refresh-btn" onclick="adminSetResult('${id}')">${m.result || 'Set Score'}</button>
+            <button class="refresh-btn" onclick="setRes('${id}')">${m.result || 'Enter Score'}</button>
         </div>`;
     });
     html += `</div>`;
-    container.innerHTML = html;
+    document.getElementById('admin-match-list').innerHTML = html;
+}
+
+function setRes(id) {
+    const s = prompt("Score (e.g. 1-0):");
+    if(s) db.ref(`matches/${id}/result`).set(s);
 }
