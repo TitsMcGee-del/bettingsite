@@ -1,128 +1,108 @@
-// 1. CONFIGURATION (Replace with your actual Firebase config)
+// 1. DATABASE CONFIG (Replace with your actual keys)
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT.firebaseio.com",
-  projectId: "YOUR_PROJECT",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_ID",
-  appId: "YOUR_APP_ID"
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+    projectId: "YOUR_PROJECT",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_ID",
+    appId: "YOUR_APP_ID"
 };
-
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// 2. GLOBAL STATE
+// 2. STATE
 let currentUser = null;
+let isAdmin = false;
 let globalTeams = [];
 let globalMatches = {};
 
 // 3. LOGIN LOGIC
-function login() {
-  const user = document.getElementById('username').value.trim();
-  if(!user) return alert("Enter username");
-  currentUser = user;
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  document.getElementById('main-nav').style.display = 'flex';
-  document.getElementById('user-info').innerText = `User: ${user}`;
-  
-  if(user.toLowerCase() === 'admin') {
-    document.getElementById('admin-tab-link').style.display = 'block';
-  }
-  initData();
+function handleLogin() {
+    const u = document.getElementById('userIn').value.trim();
+    const p = document.getElementById('passIn').value;
+    
+    if(!u || !p) return alert("Please fill all fields");
+
+    if(u === 'Admin' && p === 'IBM99ibm') {
+        currentUser = 'Admin';
+        isAdmin = true;
+        launchApp();
+    } else {
+        db.ref('users/' + u).once('value', s => {
+            const userData = s.val();
+            if(userData) {
+                if(userData.pass === p) {
+                    currentUser = u;
+                    isAdmin = false;
+                    launchApp();
+                } else {
+                    alert("Wrong password");
+                }
+            } else {
+                // Register new user
+                db.ref('users/' + u).set({ pass: p, credits: 100 }).then(() => {
+                    currentUser = u;
+                    isAdmin = false;
+                    launchApp();
+                });
+            }
+        });
+    }
 }
 
-function logout() { location.reload(); }
+function launchApp() {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('main-nav').style.display = 'flex';
+    document.getElementById('user-info').innerText = `Logged in as: ${currentUser}`;
+    if(isAdmin) document.getElementById('admin-tab-link').style.display = 'block';
+    initData();
+}
 
-function showTab(tabId) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('tab-' + tabId).classList.add('active-tab');
-  event.currentTarget.classList.add('active');
+function showTab(id) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active-tab');
+    event.currentTarget.classList.add('active');
 }
 
 // 4. DATA SYNC
 function initData() {
-  db.ref('teams').on('value', snap => {
-    const val = snap.val();
-    globalTeams = val ? Object.values(val) : [];
-    renderStandings();
-    if(currentUser === 'admin') renderAdminTeams();
-  });
-
-  db.ref('matches').on('value', snap => {
-    globalMatches = snap.val() || {};
-    renderMatches();
-    renderBracket();
-    if(currentUser === 'admin') renderAdminMatches();
-  });
-
-  db.ref('chat').limitToLast(20).on('value', snap => {
-    const box = document.getElementById('chat-box');
-    box.innerHTML = '';
-    snap.forEach(child => {
-      const m = child.val();
-      const div = document.createElement('div');
-      div.innerHTML = `<small style="color:#888">${m.user}:</small> <span style="color:#ddd">${m.text}</span>`;
-      div.style.marginBottom = "5px";
-      box.appendChild(div);
+    db.ref('teams').on('value', s => { 
+        globalTeams = s.val() ? Object.values(s.val()) : []; 
+        renderStandings(); 
+        if(isAdmin) renderAdminTeams();
     });
-    box.scrollTop = box.scrollHeight;
-  });
+    db.ref('matches').on('value', s => { 
+        globalMatches = s.val() || {}; 
+        renderMatches(); 
+        if(isAdmin) renderAdminMatches();
+    });
 }
 
-// 5. RENDERING FUNCTIONS
 function calcStrength(history) {
     if(!history) return 0;
     const h = Object.values(history);
     return h.reduce((a,b)=>a+b,0) / h.length;
 }
 
-function renderStandings() {
-  const groups = {};
-  globalTeams.forEach(t => {
-    if(!groups[t.group]) groups[t.group] = [];
-    groups[t.group].push(t);
-  });
-
-  let html = '';
-  // Sort and display (Exclude Group E logic here if needed)
-  Object.keys(groups).sort().forEach(gName => {
-    if(gName === 'E') return; 
-    html += `<div class="card"><div class="card-header">Group ${gName}</div><table>
-      <tr><th>Team</th><th>Str</th></tr>`;
-    groups[gName].forEach(t => {
-      html += `<tr><td>${t.name}</td><td>${calcStrength(t.history).toFixed(1)}</td></tr>`;
-    });
-    html += `</table></div>`;
-  });
-  document.getElementById('group-tables-container').innerHTML = html;
-}
-
 function renderMatches() {
     const list = document.getElementById('match-list');
     list.innerHTML = Object.entries(globalMatches).map(([id, m]) => {
-        const sH = calcStrength(globalTeams.find(t=>t.id===m.homeId)?.history);
-        const sA = calcStrength(globalTeams.find(t=>t.id===m.awayId)?.history);
-        const total = sH + sA;
-        const oddH = total ? (total/sH).toFixed(2) : "2.00";
-        const oddA = total ? (total/sA).toFixed(2) : "2.00";
-
+        // Admin sees the match but NO bet buttons
+        if(isAdmin) {
+            return `<div class="card"><div class="card-header">${m.home} vs ${m.away}</div>
+                    <div style="padding:15px; text-align:center;">Score: ${m.result || 'Pending'}</div></div>`;
+        }
+        // Users see bet buttons
         return `<div class="card">
             <div class="card-header">${m.home} vs ${m.away}</div>
             <div style="display:flex; justify-content:space-around; padding:15px;">
-                <button class="bet-btn" onclick="placeBet('${id}','H')">${oddH}<br><small>Home</small></button>
-                <div style="font-size:1.2rem; font-weight:bold; color:var(--b365-accent-yellow)">${m.result || 'VS'}</div>
-                <button class="bet-btn" onclick="placeBet('${id}','A')">${oddA}<br><small>Away</small></button>
+                <button class="bet-btn" onclick="alert('Bet Placed')">Home</button>
+                <div style="font-weight:bold">${m.result || 'VS'}</div>
+                <button class="bet-btn" onclick="alert('Bet Placed')">Away</button>
             </div>
         </div>`;
     }).join('');
-}
-
-function sendChat() {
-  const txt = document.getElementById('chatInput').value;
-  if(!txt) return;
-  db.ref('chat').push({ user: currentUser, text: txt });
-  document.getElementById('chatInput').value = '';
 }
