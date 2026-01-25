@@ -719,6 +719,24 @@
     const res = prompt("Enter Final Score (e.g. 1-1)");
     if (res && /^\d+-\d+$/.test(res)) {
       await db.ref(`matches/${id}/result`).set(res);
+      // Resolve bets
+      const betsSnap = await db.ref('bets').once('value');
+      const allBets = betsSnap.val() || {};
+      const updates = {};
+      for(const [user, userBets] of Object.entries(allBets)) {
+        if(userBets[id]) {
+          const bet = userBets[id];
+          const [h, a] = res.split('-').map(Number);
+          const actual = h > a ? '1' : h < a ? '2' : 'X';
+          const win = bet.outcome === actual;
+          const payout = win ? bet.stake * bet.odd : 0;
+          const userSnap = await db.ref(`users/${user}/credits`).once('value');
+          const cur = userSnap.val() || 0;
+          updates[`users/${user}/credits`] = cur + payout;
+          updates[`bets/${user}/${id}`] = null;
+        }
+      }
+      await db.ref().update(updates);
       // Check if this triggers Bracket events
       const snap = await db.ref('matches').get();
       checkBracketProgression(snap.val());
