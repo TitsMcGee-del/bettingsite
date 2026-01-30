@@ -5027,37 +5027,58 @@
         stakeInput.addEventListener('input', updateBetSlip);
       }
 
-      let summaryHtml = '';
-      if (betSlip.length > 1) {
-        summaryHtml = `
-          <div style="padding:15px 0; border-bottom:1px solid rgba(255,255,255,0.1);">
-            <label style="
-              display:flex; 
-              align-items:center; 
-              gap:12px; 
-              cursor:pointer;
-              padding: 12px 15px;
-              background: ${isParlay ? 'rgba(18, 237, 128, 0.15)' : 'rgba(255,255,255,0.05)'};
-              border: 2px solid ${isParlay ? 'var(--b365-bright-green)' : 'transparent'};
-              border-radius: 10px;
-              transition: all 0.2s;
-            ">
-              <input type="checkbox" id="is-parlay" onchange="updateBetSlip()" ${isParlay ? 'checked' : ''} 
-                style="width:20px; height:20px; accent-color: var(--b365-bright-green);">
-              <div style="flex:1;">
-                <div style="font-weight:600;">Combine as Parlay</div>
-                <div style="font-size:0.8rem; color:#888;">All selections must win</div>
-              </div>
-              <div style="text-align:right;">
-                <div style="color:var(--b365-accent-yellow); font-weight:bold; font-size:1.2rem;">x${totalOdds.toFixed(2)}</div>
-                <div style="font-size:0.7rem; color:#888;">Combined Odds</div>
-              </div>
-            </label>
-          </div>
-        `;
-      }
+      const slipExtras = document.getElementById('slip-extras');
 
-      document.getElementById('slip-extras').innerHTML = summaryHtml;
+      if (betSlip.length > 1) {
+        let parlayContainer = document.getElementById('parlay-container');
+
+        if (!parlayContainer) {
+          // Initial Render - Create structure
+          slipExtras.innerHTML = `
+            <div id="parlay-container" style="padding:15px 0; border-bottom:1px solid rgba(255,255,255,0.1);">
+              <label id="parlay-label" style="
+                display:flex;
+                align-items:center;
+                gap:12px;
+                cursor:pointer;
+                padding: 12px 15px;
+                border-radius: 10px;
+                transition: all 0.2s;
+              ">
+                <input type="checkbox" id="is-parlay" onchange="updateBetSlip()"
+                  style="width:20px; height:20px; accent-color: var(--b365-bright-green);">
+                <div style="flex:1;">
+                  <div style="font-weight:600;">Combine as Parlay</div>
+                  <div style="font-size:0.8rem; color:#888;">All selections must win</div>
+                </div>
+                <div style="text-align:right;">
+                  <div id="parlay-odds-display" style="color:var(--b365-accent-yellow); font-weight:bold; font-size:1.2rem;"></div>
+                  <div style="font-size:0.7rem; color:#888;">Combined Odds</div>
+                </div>
+              </label>
+            </div>
+          `;
+          parlayContainer = document.getElementById('parlay-container');
+        }
+
+        // Safe DOM Update (Preserves Checkbox State)
+        const checkbox = document.getElementById('is-parlay');
+        const label = document.getElementById('parlay-label');
+        const oddsDisplay = document.getElementById('parlay-odds-display');
+
+        // We rely on the element's current state (or default false if just created)
+        const currentIsParlay = checkbox.checked;
+
+        // Update Styles
+        label.style.background = currentIsParlay ? 'rgba(18, 237, 128, 0.15)' : 'rgba(255,255,255,0.05)';
+        label.style.border = currentIsParlay ? '2px solid var(--b365-bright-green)' : '2px solid transparent';
+
+        // Update Text
+        oddsDisplay.textContent = `x${totalOdds.toFixed(2)}`;
+
+      } else {
+        slipExtras.innerHTML = '';
+      }
       container.style.display = betSlip.length > 0 ? 'block' : 'none';
     }
 
