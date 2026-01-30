@@ -3250,16 +3250,36 @@
         if (isAdmin) refreshAdminUserView();
       });
 
-      db.ref('matches').on('value', s => {
-        globalMatches = s.val() || {};
-        if (isAdmin) {
-          renderAdminMatches(globalMatches);
-          renderBracketView(globalMatches);
-        } else {
-          renderUserOdds(globalMatches);
-          renderMyMatches(globalMatches); // Self-report feature
-        }
-        if (globalTeams.length) updateStandings(globalTeams, globalMatches);
+      // Optimize data fetching: use child listeners instead of fetching whole object
+      const matchesRef = db.ref('matches');
+      let renderTimeout;
+      const debouncedRender = () => {
+        if (renderTimeout) clearTimeout(renderTimeout);
+        renderTimeout = setTimeout(() => {
+          if (isAdmin) {
+            renderAdminMatches(globalMatches);
+            renderBracketView(globalMatches);
+          } else {
+            renderUserOdds(globalMatches);
+            renderMyMatches(globalMatches); // Self-report feature
+          }
+          if (globalTeams.length) updateStandings(globalTeams, globalMatches);
+        }, 50);
+      };
+
+      matchesRef.on('child_added', s => {
+        globalMatches[s.key] = s.val();
+        debouncedRender();
+      });
+
+      matchesRef.on('child_changed', s => {
+        globalMatches[s.key] = s.val();
+        debouncedRender();
+      });
+
+      matchesRef.on('child_removed', s => {
+        delete globalMatches[s.key];
+        debouncedRender();
       });
 
       // Bets listener for Admin Active Bets tab
