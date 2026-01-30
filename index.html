@@ -5100,6 +5100,10 @@
       const [h, a] = score.split('-').map(Number);
       const actual = h > a ? '1' : h < a ? '2' : 'X';
 
+      // Identify winning parlays first
+      const payoutUsers = new Set();
+      const userPayouts = {}; // user -> total payout for this batch
+
       // Loop users
       for (const [user, userParlays] of Object.entries(allParlays)) {
         for (const [pId, parlay] of Object.entries(userParlays)) {
@@ -5147,22 +5151,28 @@
             updates[`parlays/${user}/${pId}/settledAt`] = Date.now();
             const payout = parlay.stake * parlay.totalOdds;
 
-            // Fetch user creds again in case multiple updates
-            // We can't do await here inside sync loop comfortably without careful batching, 
-            // but we can trust the previous read or just do a transaction. 
-            // Simple path: read updates from 'updates' obj if present? No.
-            // Just push a credit update.
-            const userSnap = await db.ref(`users/${user}/credits`).once('value');
-            let cur = userSnap.val() || 0;
-            // If we already have a credit update for this user in `updates`, use it
-            if (updates[`users/${user}/credits`]) cur = updates[`users/${user}/credits`];
-
-            updates[`users/${user}/credits`] = cur + payout;
+            payoutUsers.add(user);
+            userPayouts[user] = (userPayouts[user] || 0) + payout;
 
             const notifKey = firebase.database().ref(`notifications/${user}`).push().key;
             updates[`notifications/${user}/${notifKey}`] = `🎉 PARLAY WON! All legs correct - Payout: +${payout.toFixed(2)}`;
           }
         }
+      }
+
+      // Fetch all relevant users in parallel
+      const usersToFetch = Array.from(payoutUsers);
+      if (usersToFetch.length > 0) {
+        const snapshots = await Promise.all(
+          usersToFetch.map(u => db.ref(`users/${u}/credits`).once('value'))
+        );
+
+        snapshots.forEach((s, i) => {
+          const user = usersToFetch[i];
+          const currentCredits = s.val() || 0;
+          const payout = userPayouts[user];
+          updates[`users/${user}/credits`] = currentCredits + payout;
+        });
       }
 
       await db.ref().update(updates);
