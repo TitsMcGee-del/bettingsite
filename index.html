@@ -4276,51 +4276,95 @@
     }
 
     function renderAdminMatches(matches) {
-      const html = Object.entries(matches).map(([id, m]) => {
-        const isPend = m.pending ? ' (Pending)' : '';
+      const container = document.getElementById('admin-match-list');
+      const entries = Object.entries(matches);
 
-        // Self-report status display
+      // Handle empty state transition
+      if (entries.length > 0 && container.innerHTML === 'No matches.') {
+        container.innerHTML = '';
+      }
+
+      const validIds = new Set();
+
+      // 1. Update/Create phase
+      entries.forEach(([id, m]) => {
+        const domId = `match-${id}`;
+        validIds.add(domId);
+
+        let el = document.getElementById(domId);
+
+        if (!el) {
+          el = document.createElement('div');
+          el.id = domId;
+          el.style.padding = '12px';
+          el.style.borderBottom = '1px solid #444';
+          // We append later to ensure order
+        }
+
+        // Ensure correct order in DOM
+        container.appendChild(el);
+
+        // Generate Content
+        const isPend = m.pending ? ' (Pending)' : '';
         let selfReportHtml = '';
         if (!m.result && !m.pending && m.selfReports) {
           const homeReport = m.selfReports.home;
           const awayReport = m.selfReports.away;
-
           if (homeReport && awayReport) {
             if (homeReport === awayReport) {
               selfReportHtml = `<div class="admin-self-reports" style="background:rgba(18,237,128,0.2);">
-                <span class="reported">✅ Both agreed: ${homeReport}</span>
-              </div>`;
+                        <span class="reported">✅ Both agreed: ${homeReport}</span>
+                    </div>`;
             } else {
               selfReportHtml = `<div class="admin-self-reports" style="background:rgba(255,68,68,0.2);">
-                <span class="report-item reported">⚠️ ${m.home}: ${homeReport}</span>
-                <span class="report-item reported">${m.away}: ${awayReport}</span>
-                <span style="color:#ff4444; font-weight:bold;"> CONFLICT</span>
-              </div>`;
+                        <span class="report-item reported">⚠️ ${m.home}: ${homeReport}</span>
+                        <span class="report-item reported">${m.away}: ${awayReport}</span>
+                        <span style="color:#ff4444; font-weight:bold;"> CONFLICT</span>
+                    </div>`;
             }
           } else {
             selfReportHtml = `<div class="admin-self-reports">
-              <span class="report-item ${homeReport ? 'reported' : 'waiting'}">${m.home}: ${homeReport || 'waiting'}</span>
-              <span class="report-item ${awayReport ? 'reported' : 'waiting'}">${m.away}: ${awayReport || 'waiting'}</span>
-            </div>`;
+                    <span class="report-item ${homeReport ? 'reported' : 'waiting'}">${m.home}: ${homeReport || 'waiting'}</span>
+                    <span class="report-item ${awayReport ? 'reported' : 'waiting'}">${m.away}: ${awayReport || 'waiting'}</span>
+                </div>`;
           }
         }
 
-        return `
-      <div style="padding:12px; border-bottom:1px solid #444; ${m.pending ? 'opacity:0.5' : ''}">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <div>
-              <span style="font-size:0.85rem">${m.home} vs ${m.away}</span>
-              <div style="font-size:0.7rem; color:#888">${m.group ? 'Grp ' + m.group : (m.stage || 'Friend')}${isPend}</div>
-          </div>
-          <div>
-              ${!m.pending ? `<button class="refresh-btn" style="font-size:0.7rem; padding:4px 8px;" onclick="setScore('${id}')">${m.result || 'Set Result'}</button>` : ''}
-              <button class="delete-btn" style="margin-left:5px" onclick="deleteMatch('${id}')">X</button>
-          </div>
-        </div>
-        ${selfReportHtml}
-      </div>
-    `}).join('');
-      document.getElementById('admin-match-list').innerHTML = html || 'No matches.';
+        // Apply opacity style directly
+        el.style.opacity = m.pending ? '0.5' : '1';
+
+        const newInnerHtml = `
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                  <span style="font-size:0.85rem">${m.home} vs ${m.away}</span>
+                  <div style="font-size:0.7rem; color:#888">${m.group ? 'Grp ' + m.group : (m.stage || 'Friend')}${isPend}</div>
+              </div>
+              <div>
+                  ${!m.pending ? `<button class="refresh-btn" style="font-size:0.7rem; padding:4px 8px;" onclick="setScore('${id}')">${m.result || 'Set Result'}</button>` : ''}
+                  <button class="delete-btn" style="margin-left:5px" onclick="deleteMatch('${id}')">X</button>
+              </div>
+            </div>
+            ${selfReportHtml}
+        `;
+
+        // Only update DOM if changed
+        if (el._lastHtml !== newInnerHtml) {
+          el.innerHTML = newInnerHtml;
+          el._lastHtml = newInnerHtml;
+        }
+      });
+
+      // 2. Cleanup phase
+      // Convert to array to avoid issues while modifying the live collection
+      Array.from(container.children).forEach(child => {
+        if (!validIds.has(child.id)) {
+          container.removeChild(child);
+        }
+      });
+
+      if (entries.length === 0) {
+        container.innerHTML = 'No matches.';
+      }
     }
 
     function renderBracketView(matches) {
