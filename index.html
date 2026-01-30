@@ -4760,23 +4760,87 @@
     }
 
     function renderUserOdds(matches) {
-      const html = Object.entries(matches)
-        .filter(([id, m]) => !m.result && !m.pending) // Hide Pending (Bracket placeholders)
-        .map(([id, m]) => `
-      <div class="match-row">
+      const container = document.getElementById('user-betting-odds');
+      if (!container) return;
+
+      const activeMatches = Object.entries(matches)
+        .filter(([id, m]) => !m.result && !m.pending);
+
+      if (activeMatches.length === 0) {
+        container.innerHTML = '<div style="padding:20px; color:#888;">No active markets.</div>';
+        return;
+      }
+
+      // 1. Remove stale
+      const activeIds = new Set(activeMatches.map(([id]) => 'match-' + id));
+      Array.from(container.children).forEach(child => {
+        if (child.id && child.id.startsWith('match-') && !activeIds.has(child.id)) {
+          container.removeChild(child);
+        }
+        if ((!child.id || (child.className === 'match-row' && !child.id)) && activeMatches.length > 0) {
+          container.removeChild(child);
+        }
+      });
+
+      // 2. Update/Create
+      activeMatches.forEach(([id, m]) => {
+        const domId = 'match-' + id;
+        let el = document.getElementById(domId);
+
+        if (!el) {
+          el = document.createElement('div');
+          el.className = 'match-row';
+          el.id = domId;
+          el.innerHTML = `
         <div>
-            <div style="font-weight:bold">${m.home}</div>
-            <div style="font-weight:bold">${m.away}</div>
-            <div style="font-size:0.7rem; color:#888">${m.stage || 'Group ' + (m.group || 'Match')}</div>
+            <div class="team-home" style="font-weight:bold">${m.home}</div>
+            <div class="team-away" style="font-weight:bold">${m.away}</div>
+            <div class="match-stage" style="font-size:0.7rem; color:#888">${m.stage || 'Group ' + (m.group || 'Match')}</div>
         </div>
         <div class="odds-group">
-          <div class="odd-box" onclick="addToSlip('${id}', '1', ${m.odds['1']})"><span class="odd-lbl">1</span><span class="odd-val">${m.odds['1']}</span></div>
-          <div class="odd-box" onclick="addToSlip('${id}', 'X', ${m.odds['X']})"><span class="odd-lbl">X</span><span class="odd-val">${m.odds['X']}</span></div>
-          <div class="odd-box" onclick="addToSlip('${id}', '2', ${m.odds['2']})"><span class="odd-lbl">2</span><span class="odd-val">${m.odds['2']}</span></div>
-        </div>
-      </div>
-    `).join('');
-      document.getElementById('user-betting-odds').innerHTML = html || '<div style="padding:20px; color:#888;">No active markets.</div>';
+          <div class="odd-box odd-1" onclick="addToSlip('${id}', '1', ${m.odds['1']})"><span class="odd-lbl">1</span><span class="odd-val">${m.odds['1']}</span></div>
+          <div class="odd-box odd-x" onclick="addToSlip('${id}', 'X', ${m.odds['X']})"><span class="odd-lbl">X</span><span class="odd-val">${m.odds['X']}</span></div>
+          <div class="odd-box odd-2" onclick="addToSlip('${id}', '2', ${m.odds['2']})"><span class="odd-lbl">2</span><span class="odd-val">${m.odds['2']}</span></div>
+        </div>`;
+          container.appendChild(el);
+        } else {
+          // Update existing
+          const homeEl = el.querySelector('.team-home');
+          if (homeEl && homeEl.textContent !== m.home) homeEl.textContent = m.home;
+
+          const awayEl = el.querySelector('.team-away');
+          if (awayEl && awayEl.textContent !== m.away) awayEl.textContent = m.away;
+
+          const stageEl = el.querySelector('.match-stage');
+          const stageTxt = m.stage || 'Group ' + (m.group || 'Match');
+          if (stageEl && stageEl.textContent !== stageTxt) stageEl.textContent = stageTxt;
+
+          const odd1 = el.querySelector('.odd-1');
+          if (odd1) {
+            const val = odd1.querySelector('.odd-val');
+            if (val && val.textContent != m.odds['1']) {
+              val.textContent = m.odds['1'];
+              odd1.setAttribute('onclick', `addToSlip('${id}', '1', ${m.odds['1']})`);
+            }
+          }
+          const oddX = el.querySelector('.odd-x');
+          if (oddX) {
+            const val = oddX.querySelector('.odd-val');
+            if (val && val.textContent != m.odds['X']) {
+              val.textContent = m.odds['X'];
+              oddX.setAttribute('onclick', `addToSlip('${id}', 'X', ${m.odds['X']})`);
+            }
+          }
+          const odd2 = el.querySelector('.odd-2');
+          if (odd2) {
+            const val = odd2.querySelector('.odd-val');
+            if (val && val.textContent != m.odds['2']) {
+              val.textContent = m.odds['2'];
+              odd2.setAttribute('onclick', `addToSlip('${id}', '2', ${m.odds['2']})`);
+            }
+          }
+        }
+      });
     }
 
     async function updateStandings(teams, matches) {

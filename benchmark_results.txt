@@ -1,0 +1,4 @@
+Running benchmark with 500 matches over 100 iterations.
+Original: 48898.86ms
+Optimized: 7540.24ms
+Improvement: 6.49x faster
