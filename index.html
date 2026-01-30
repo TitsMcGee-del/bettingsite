@@ -3241,14 +3241,34 @@
     }
 
     // --- DATA SYNC ---
+    let teamsMap = {};
+    let historyMap = {};
+
+    function rebuildGlobalTeams() {
+      globalTeams = Object.values(teamsMap).map(t => {
+        // If history exists in map, use it. Else fallback to existing history or default.
+        const hist = historyMap[t.id] || t.history || ['-', '-', '-', '-', '-'];
+        return { ...t, history: hist };
+      });
+
+      updateDropdowns(globalTeams);
+      if (isAdmin) renderAdminTeamsTable(globalTeams);
+      updateStandings(globalTeams, globalMatches);
+      if (isAdmin) refreshAdminUserView();
+    }
+
     function initListeners() {
       db.ref('teams').on('value', s => {
-        globalTeams = Object.values(s.val() || {});
-        updateDropdowns(globalTeams);
-        if (isAdmin) renderAdminTeamsTable(globalTeams);
-        updateStandings(globalTeams, globalMatches);
-        if (isAdmin) refreshAdminUserView();
+        teamsMap = s.val() || {};
+        rebuildGlobalTeams();
       });
+
+      if (isAdmin) {
+        db.ref('teams_history').on('value', s => {
+          historyMap = s.val() || {};
+          rebuildGlobalTeams();
+        });
+      }
 
       db.ref('matches').on('value', s => {
         globalMatches = s.val() || {};
@@ -3386,7 +3406,12 @@
       const group = document.getElementById('tGroup').value;
       if (!name) return;
       const id = 't_' + Date.now();
-      await db.ref('teams/' + id).set({ id, name, group, history: ['-', '-', '-', '-', '-'] });
+
+      const updates = {};
+      updates[`teams/${id}`] = { id, name, group };
+      updates[`teams_history/${id}`] = ['-', '-', '-', '-', '-'];
+
+      await db.ref().update(updates);
       document.getElementById('tName').value = '';
     }
 
@@ -3396,11 +3421,16 @@
 
     async function updateHistory(id, index, val) {
       const clean = val.trim() === '-' ? '-' : (parseFloat(val) || 0);
-      await db.ref(`teams/${id}/history/${index}`).set(clean);
+      await db.ref(`teams_history/${id}/${index}`).set(clean);
     }
 
     async function deleteTeam(id) {
-      if (confirm('Remove team?')) await db.ref(`teams/${id}`).remove();
+      if (confirm('Remove team?')) {
+        const updates = {};
+        updates[`teams/${id}`] = null;
+        updates[`teams_history/${id}`] = null;
+        await db.ref().update(updates);
+      }
     }
 
     // --- ODDS CALC ---
@@ -3796,7 +3826,7 @@
 
           // Set New Score
           arr[arr.length - 1] = teamPoints[t.id] || 0;
-          updates[`teams/${t.id}/history`] = arr;
+          updates[`teams_history/${t.id}`] = arr;
         });
 
         // 4. Wipe Matches & Bets
