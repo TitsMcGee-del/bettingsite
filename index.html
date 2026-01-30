@@ -2840,6 +2840,7 @@
     let globalMatches = {};
     let betSlip = [];
     let betCart = []; // Saved bet slips for later
+    let parlayMode = false;
     let outrightMarket = { open: false, odds: {} };
     let selectedOutrightTeam = null;
 
@@ -2980,7 +2981,7 @@
         return alert('No selections to save!');
       }
 
-      const isParlay = document.getElementById('is-parlay')?.checked || false;
+      const isParlay = parlayMode;
       const stake = parseFloat(document.getElementById('slip-stake').value) || 0;
 
       const savedSlip = {
@@ -2999,6 +3000,7 @@
 
       // Clear current slip
       betSlip = [];
+      parlayMode = false;
       document.getElementById('slip-stake').value = '';
       updateBetSlip();
 
@@ -3029,21 +3031,13 @@
       // Load into current slip
       betSlip = validSelections;
       document.getElementById('slip-stake').value = saved.stake || '';
+      parlayMode = !!saved.isParlay;
 
       // Remove from cart
       removeFromCart(cartIndex);
 
       // Update UI
       updateBetSlip();
-
-      // Wait for DOM update then set parlay checkbox
-      setTimeout(() => {
-        const parlayCheckbox = document.getElementById('is-parlay');
-        if (parlayCheckbox && saved.isParlay) {
-          parlayCheckbox.checked = true;
-          updateBetSlip();
-        }
-      }, 100);
 
       // Close cart dropdown
       document.getElementById('cart-dropdown').classList.remove('show');
@@ -4928,6 +4922,11 @@
       updateBetSlip();
     }
 
+    function setParlayMode(checked) {
+      parlayMode = checked;
+      updateBetSlip();
+    }
+
     function updateBetSlip() {
       const itemsDiv = document.getElementById('slip-items');
       const container = document.getElementById('bet-slip');
@@ -4991,7 +4990,7 @@
         }).join('');
       }
 
-      const isParlay = document.getElementById('is-parlay') && document.getElementById('is-parlay').checked;
+      const isParlay = parlayMode;
       const totalOdds = betSlip.reduce((acc, item) => acc * parseFloat(item.odd), 1);
 
       // Update potential win
@@ -5023,7 +5022,7 @@
               border-radius: 10px;
               transition: all 0.2s;
             ">
-              <input type="checkbox" id="is-parlay" onchange="updateBetSlip()" ${isParlay ? 'checked' : ''} 
+              <input type="checkbox" id="is-parlay" onchange="setParlayMode(this.checked)" ${isParlay ? 'checked' : ''}
                 style="width:20px; height:20px; accent-color: var(--b365-bright-green);">
               <div style="flex:1;">
                 <div style="font-weight:600;">Combine as Parlay</div>
@@ -5051,7 +5050,7 @@
       const stake = parseFloat(document.getElementById('slip-stake').value);
       if (isNaN(stake) || stake <= 0) return alert('Invalid stake');
 
-      const isParlay = document.getElementById('is-parlay') && document.getElementById('is-parlay').checked && betSlip.length > 1;
+      const isParlay = parlayMode && betSlip.length > 1;
 
       const balanceSnap = await db.ref(`users/${currentUser}/credits`).once('value');
       const balance = balanceSnap.val() || 0;
@@ -5087,6 +5086,7 @@
 
       await db.ref().update(updates);
       betSlip = [];
+      parlayMode = false;
       updateBetSlip();
       showNotification(isParlay ? 'Parlay Placed!' : 'Bets Placed!');
     }
