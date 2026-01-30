@@ -3250,16 +3250,35 @@
         if (isAdmin) refreshAdminUserView();
       });
 
-      db.ref('matches').on('value', s => {
-        globalMatches = s.val() || {};
-        if (isAdmin) {
-          renderAdminMatches(globalMatches);
-          renderBracketView(globalMatches);
-        } else {
-          renderUserOdds(globalMatches);
-          renderMyMatches(globalMatches); // Self-report feature
-        }
-        if (globalTeams.length) updateStandings(globalTeams, globalMatches);
+      let renderPending = false;
+      const renderUI = () => {
+        if (renderPending) return;
+        renderPending = true;
+        requestAnimationFrame(() => {
+          if (isAdmin) {
+            renderAdminMatches(globalMatches);
+            renderBracketView(globalMatches);
+          } else {
+            renderUserOdds(globalMatches);
+            renderMyMatches(globalMatches); // Self-report feature
+          }
+          if (globalTeams.length) updateStandings(globalTeams, globalMatches);
+          renderPending = false;
+        });
+      };
+
+      const matchesRef = db.ref('matches');
+      matchesRef.on('child_added', s => {
+        globalMatches[s.key] = s.val();
+        renderUI();
+      });
+      matchesRef.on('child_changed', s => {
+        globalMatches[s.key] = s.val();
+        renderUI();
+      });
+      matchesRef.on('child_removed', s => {
+        delete globalMatches[s.key];
+        renderUI();
       });
 
       // Bets listener for Admin Active Bets tab
