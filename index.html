@@ -2843,6 +2843,11 @@
     let outrightMarket = { open: false, odds: {} };
     let selectedOutrightTeam = null;
 
+    let lastHistoryData = null;
+    let lastParlaysData = null;
+    let lastMatchesData = null;
+    let historyRenderLimit = 50;
+
     // --- AUTH / SESSION ---
     window.onload = function () {
       const savedUser = localStorage.getItem('bet365_user');
@@ -4649,6 +4654,11 @@
     }
 
     function renderUserBetHistory(history, parlays, matches) {
+      // Store for pagination
+      lastHistoryData = history;
+      lastParlaysData = parlays;
+      lastMatchesData = matches;
+
       let items = [];
       if (history) {
         Object.entries(history).forEach(([mId, h]) => {
@@ -4666,10 +4676,14 @@
 
       if (items.length === 0) { document.getElementById('user-bet-history').innerHTML = 'No history.'; return; }
 
+      // Pagination Logic
+      const totalItems = items.length;
+      const displayItems = items.slice(0, historyRenderLimit);
+
       let html = '<table style="font-size:0.85rem; width:100%; border-collapse:collapse;">';
       html += '<tr><th>Match/Type</th><th>Pick</th><th>Stake</th><th>Profit</th></tr>';
 
-      items.forEach((item, idx) => {
+      displayItems.forEach((item, idx) => {
         const isParlay = item.type === 'parlay';
         const bg = item.win ? 'rgba(0,255,0,0.1)' : 'rgba(255,0,0,0.1)';
 
@@ -4708,8 +4722,31 @@
              </tr>`;
         }
       });
+
+      // Show More Button
+      if (totalItems > historyRenderLimit) {
+        html += `<tr>
+          <td colspan="4" style="text-align:center; padding:10px;">
+            <button onclick="showMoreHistory()" style="
+              background: #444;
+              color: white;
+              border: 1px solid #555;
+              padding: 8px 20px;
+              border-radius: 20px;
+              cursor: pointer;
+              font-size: 0.8rem;
+            ">Show More (${totalItems - historyRenderLimit} remaining)</button>
+          </td>
+        </tr>`;
+      }
+
       html += '</table>';
       document.getElementById('user-bet-history').innerHTML = html;
+    }
+
+    function showMoreHistory() {
+      historyRenderLimit += 50;
+      renderUserBetHistory(lastHistoryData, lastParlaysData, lastMatchesData);
     }
 
     function toggleDetails(id) {
