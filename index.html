@@ -3283,7 +3283,7 @@
           });
         });
 
-        db.ref('bets').on('value', s => {
+        db.ref('bets').limitToLast(50).on('value', s => {
           renderActiveBets(s.val(), globalMatches);
         });
         db.ref('users').on('value', s => {
