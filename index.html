@@ -3918,6 +3918,10 @@
       await db.ref(`matches/${id}/result`).set(res);
       const betsSnap = await db.ref('bets').once('value');
       const allBets = betsSnap.val() || {};
+
+      const usersSnap = await db.ref('users').once('value');
+      const allUsers = usersSnap.val() || {};
+
       const updates = {};
       for (const [user, userBets] of Object.entries(allBets)) {
         if (userBets[id]) {
@@ -3927,8 +3931,7 @@
           const win = bet.outcome === actual;
           const payout = win ? bet.stake * bet.odd : bet.stake;
           const profit = payout - bet.stake;
-          const userSnap = await db.ref(`users/${user}/credits`).once('value');
-          const cur = userSnap.val() || 0;
+          const cur = allUsers[user] ? (allUsers[user].credits || 0) : 0;
           updates[`users/${user}/credits`] = cur + payout;
           updates[`history/${user}/${id}`] = { ...bet, win, profit, result: res };
           updates[`bets/${user}/${id}`] = null;
@@ -4132,6 +4135,10 @@
 
         const betsSnap = await db.ref('bets').once('value');
         const allBets = betsSnap.val() || {};
+
+        const usersSnap = await db.ref('users').once('value');
+        const allUsers = usersSnap.val() || {};
+
         const updates = {};
 
         for (const [user, userBets] of Object.entries(allBets)) {
@@ -4142,8 +4149,7 @@
             const win = bet.outcome === actual;
             const payout = win ? bet.stake * bet.odd : bet.stake;
             const profit = payout - bet.stake;
-            const userSnap = await db.ref(`users/${user}/credits`).once('value');
-            const cur = userSnap.val() || 0;
+            const cur = allUsers[user] ? (allUsers[user].credits || 0) : 0;
             updates[`users/${user}/credits`] = cur + payout;
             updates[`history/${user}/${matchId}`] = { ...bet, win, profit, result };
             updates[`bets/${user}/${matchId}`] = null;
