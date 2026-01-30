@@ -4650,8 +4650,15 @@
       document.getElementById('admin-active-bets').innerHTML = html;
     }
 
+    let allAdminHistoryItems = [];
+    let renderedAdminHistoryCount = 0;
+    const ADMIN_HISTORY_PAGE_SIZE = 50;
+    let currentMatchesRef = {}; // Store matches reference for append
+
     function renderAdminBetHistory(history, parlays, matches) {
       let items = [];
+      currentMatchesRef = matches; // Save for appending
+
       if (history) {
         Object.entries(history).forEach(([user, userHistory]) => {
           Object.entries(userHistory).forEach(([mId, h]) => {
@@ -4673,16 +4680,40 @@
 
       if (items.length === 0) { document.getElementById('admin-bet-history').innerHTML = 'No history.'; return; }
 
-      // Sort by roughly timestamp if available, else random
-      // Singles don't have timestamp stored historically (oops), but new parlays do.
-      // We'll just display them.
+      // Sort logic (optional, keeping original "order" mostly, but could sort by timestamp if available)
+      // items.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
+      allAdminHistoryItems = items;
+      renderedAdminHistoryCount = 0;
+
+      // Setup Table Structure
       let html = '<table style="font-size:0.85rem; width:100%; border-collapse:collapse;">';
-      html += '<tr><th>User</th><th>Type/Match</th><th>Pick</th><th>Stake</th><th>Profit</th></tr>';
+      html += '<thead><tr><th>User</th><th>Type/Match</th><th>Pick</th><th>Stake</th><th>Profit</th></tr></thead>';
+      html += '<tbody id="admin-history-body"></tbody>';
+      html += '</table>';
+      html += '<div id="admin-history-more" style="text-align:center; padding:10px; display:none;">';
+      html += '<button class="action-btn" style="width:auto; padding:8px 20px;" onclick="loadMoreAdminHistory()">Load More</button>';
+      html += '</div>';
 
-      items.forEach((item, idx) => {
+      document.getElementById('admin-bet-history').innerHTML = html;
+
+      appendAdminHistoryBatch();
+    }
+
+    function appendAdminHistoryBatch() {
+      const start = renderedAdminHistoryCount;
+      const end = start + ADMIN_HISTORY_PAGE_SIZE;
+      const batch = allAdminHistoryItems.slice(start, end);
+      const matches = currentMatchesRef;
+
+      if (batch.length === 0) return;
+
+      let html = '';
+      batch.forEach((item, i) => {
+        const idx = start + i; // Global index for unique IDs
         const isParlay = item.type === 'parlay';
         const bg = item.win ? 'rgba(0,255,0,0.1)' : 'rgba(255,0,0,0.1)';
+
         if (!isParlay) {
           html += `<tr style="background:${bg}">
                 <td>${item.user}</td>
@@ -4705,9 +4736,6 @@
           // Details Row
           const legsHtml = item.legs.map(l => {
             const m = matches[l.matchId] || { home: '?', away: '?' };
-            // Determine leg status if known
-            // We don't store leg status persistently in parlay object easily unless we updated it. 
-            // But we can check globalMatches result.
             let status = '⏳';
             if (m.result) {
               const [h, a] = m.result.split('-').map(Number);
@@ -4726,8 +4754,22 @@
         }
       });
 
-      html += '</table>';
-      document.getElementById('admin-bet-history').innerHTML = html;
+      document.getElementById('admin-history-body').insertAdjacentHTML('beforeend', html);
+      renderedAdminHistoryCount += batch.length;
+
+      // Update Load More Button
+      const moreBtn = document.getElementById('admin-history-more');
+      const btn = moreBtn.querySelector('button');
+      if (renderedAdminHistoryCount < allAdminHistoryItems.length) {
+        moreBtn.style.display = 'block';
+        btn.textContent = `Load More (${allAdminHistoryItems.length - renderedAdminHistoryCount} remaining)`;
+      } else {
+        moreBtn.style.display = 'none';
+      }
+    }
+
+    function loadMoreAdminHistory() {
+      appendAdminHistoryBatch();
     }
 
     function renderUserBetHistory(history, parlays, matches) {
