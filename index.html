@@ -1110,9 +1110,9 @@
       </div>
       <div class="card-body" style="padding: 30px;">
         <div style="margin-bottom: 20px;">
-          <label
+          <label for="userIn"
             style="font-size: 0.75rem; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 8px;">Username</label>
-          <input id="userIn" placeholder="Enter username" onkeydown="if(event.key==='Enter') handleLogin()" style="
+          <input id="userIn" autocomplete="username" placeholder="Enter username" onkeydown="if(event.key==='Enter') handleLogin()" style="
             width: 100%;
             padding: 14px 16px;
             background: rgba(0,0,0,0.3);
@@ -1125,9 +1125,9 @@
             onblur="this.style.borderColor='rgba(255,255,255,0.1)'" />
         </div>
         <div style="margin-bottom: 25px;">
-          <label
+          <label for="passIn"
             style="font-size: 0.75rem; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 8px;">Password</label>
-          <input id="passIn" placeholder="Enter password" type="password"
+          <input id="passIn" autocomplete="current-password" placeholder="Enter password" type="password"
             onkeydown="if(event.key==='Enter') handleLogin()" style="
             width: 100%;
             padding: 14px 16px;
@@ -1140,7 +1140,7 @@
           " onfocus="this.style.borderColor='var(--b365-bright-green)'"
             onblur="this.style.borderColor='rgba(255,255,255,0.1)'" />
         </div>
-        <button onclick="handleLogin()" style="
+        <button id="loginBtn" onclick="handleLogin()" style="
           width: 100%;
           padding: 16px;
           background: linear-gradient(135deg, var(--b365-bright-green) 0%, #0fa968 100%);
@@ -3181,13 +3181,27 @@
     function handleLogin() {
       const user = document.getElementById('userIn').value.trim();
       const pass = document.getElementById('passIn').value;
+      const btn = document.getElementById('loginBtn');
+
+      btn.disabled = true;
+      btn.innerHTML = '⌛ Signing In...';
+
       if (user === 'Admin' && pass === 'IBM99ibm') {
         setUserSession('Admin', true);
       } else {
         db.ref('users/' + user).once('value', s => {
           const d = s.val();
-          if (d && d.pass === pass) setUserSession(user, false);
-          else alert('Invalid Login');
+          if (d && d.pass === pass) {
+            setUserSession(user, false);
+          } else {
+            alert('Invalid Login');
+            btn.disabled = false;
+            btn.innerHTML = '🔐 Sign In';
+          }
+        }, err => {
+          alert('Login Error: ' + err.message);
+          btn.disabled = false;
+          btn.innerHTML = '🔐 Sign In';
         });
       }
     }
