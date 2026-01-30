@@ -4793,10 +4793,49 @@
     }
 
     function renderUserOdds(matches) {
-      const html = Object.entries(matches)
-        .filter(([id, m]) => !m.result && !m.pending) // Hide Pending (Bracket placeholders)
-        .map(([id, m]) => `
-      <div class="match-row">
+      const container = document.getElementById('user-betting-odds');
+      const activeMatches = Object.entries(matches)
+        .filter(([id, m]) => !m.result && !m.pending);
+
+      if (activeMatches.length === 0) {
+        if (!container.querySelector('.no-markets')) {
+          container.innerHTML = '<div class="no-markets" style="padding:20px; color:#888;">No active markets.</div>';
+        }
+        return;
+      } else {
+        const noMarkets = container.querySelector('.no-markets');
+        if (noMarkets) noMarkets.remove();
+      }
+
+      const matchMap = new Map(activeMatches);
+      const existingElements = new Map();
+
+      Array.from(container.children).forEach(child => {
+        const id = child.getAttribute('data-match-id');
+        if (id) {
+          existingElements.set(id, child);
+        } else {
+          // Remove any element without data-match-id (e.g. legacy placeholder)
+          if (!child.classList.contains('no-markets')) {
+            child.remove();
+          }
+        }
+      });
+
+      // Cleanup removed matches
+      existingElements.forEach((el, id) => {
+        if (!matchMap.has(id)) {
+          el.remove();
+          existingElements.delete(id);
+        }
+      });
+
+      // Update or Create
+      activeMatches.forEach(([id, m]) => {
+        let el = existingElements.get(id);
+        const dataStr = JSON.stringify(m); // Check for data changes
+
+        const content = `
         <div>
             <div style="font-weight:bold">${m.home}</div>
             <div style="font-weight:bold">${m.away}</div>
@@ -4807,9 +4846,23 @@
           <div class="odd-box" onclick="addToSlip('${id}', 'X', ${m.odds['X']})"><span class="odd-lbl">X</span><span class="odd-val">${m.odds['X']}</span></div>
           <div class="odd-box" onclick="addToSlip('${id}', '2', ${m.odds['2']})"><span class="odd-lbl">2</span><span class="odd-val">${m.odds['2']}</span></div>
         </div>
-      </div>
-    `).join('');
-      document.getElementById('user-betting-odds').innerHTML = html || '<div style="padding:20px; color:#888;">No active markets.</div>';
+      `;
+
+        if (el) {
+          if (el.getAttribute('data-hash') !== dataStr) {
+            el.innerHTML = content;
+            el.setAttribute('data-hash', dataStr);
+          }
+        } else {
+          el = document.createElement('div');
+          el.className = 'match-row';
+          el.setAttribute('data-match-id', id);
+          el.setAttribute('data-hash', dataStr);
+          el.innerHTML = content;
+        }
+        // Ensure order by appending (moves existing nodes to end)
+        container.appendChild(el);
+      });
     }
 
     async function updateStandings(teams, matches) {
