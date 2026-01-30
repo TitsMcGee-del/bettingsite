@@ -3486,8 +3486,13 @@
       if (!confirm(`Generate ${legs}-leg matches for A, B, C, D (Excluding E)?`)) return;
 
       // Check existing matches to prevent duplicates
+      const existingMatchKeys = new Set();
+      Object.values(globalMatches || {}).forEach(m => {
+        if (m.homeId && m.awayId) existingMatchKeys.add(`${m.homeId}_${m.awayId}`);
+      });
+
       const checkExists = (hId, aId) => {
-        return Object.values(globalMatches || {}).some(m => m.homeId === hId && m.awayId === aId);
+        return existingMatchKeys.has(`${hId}_${aId}`);
       };
 
       const grouped = {};
