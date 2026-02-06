@@ -276,6 +276,12 @@
       border: 1px solid var(--b365-bright-green);
     }
 
+    .odd-box:focus-visible {
+      outline: 2px solid var(--b365-accent-yellow);
+      outline-offset: -2px;
+      background: #505050;
+    }
+
     .odd-val {
       color: var(--b365-accent-yellow);
       font-weight: bold;
@@ -4976,9 +4982,9 @@
             <div style="font-size:0.7rem; color:#888">${m.stage || 'Group ' + (m.group || 'Match')}</div>
         </div>
         <div class="odds-group">
-          <div class="odd-box" onclick="addToSlip('${id}', '1', ${m.odds['1']})"><span class="odd-lbl">1</span><span class="odd-val">${m.odds['1']}</span></div>
-          <div class="odd-box" onclick="addToSlip('${id}', 'X', ${m.odds['X']})"><span class="odd-lbl">X</span><span class="odd-val">${m.odds['X']}</span></div>
-          <div class="odd-box" onclick="addToSlip('${id}', '2', ${m.odds['2']})"><span class="odd-lbl">2</span><span class="odd-val">${m.odds['2']}</span></div>
+          <div class="odd-box" role="button" tabindex="0" aria-label="Bet ${m.home} Win @ ${m.odds['1']}" onclick="addToSlip('${id}', '1', ${m.odds['1']})" onkeydown="handleOddKey(event, '${id}', '1', ${m.odds['1']})"><span class="odd-lbl">1</span><span class="odd-val">${m.odds['1']}</span></div>
+          <div class="odd-box" role="button" tabindex="0" aria-label="Bet Draw @ ${m.odds['X']}" onclick="addToSlip('${id}', 'X', ${m.odds['X']})" onkeydown="handleOddKey(event, '${id}', 'X', ${m.odds['X']})"><span class="odd-lbl">X</span><span class="odd-val">${m.odds['X']}</span></div>
+          <div class="odd-box" role="button" tabindex="0" aria-label="Bet ${m.away} Win @ ${m.odds['2']}" onclick="addToSlip('${id}', '2', ${m.odds['2']})" onkeydown="handleOddKey(event, '${id}', '2', ${m.odds['2']})"><span class="odd-lbl">2</span><span class="odd-val">${m.odds['2']}</span></div>
         </div>
       `;
 
@@ -5138,6 +5144,13 @@
       </tr>`;
       }).join('');
       document.getElementById('admin-teams-body').innerHTML = html;
+    }
+
+    function handleOddKey(event, id, type, odd) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        addToSlip(id, type, odd);
+      }
     }
 
     function addToSlip(matchId, outcome, odd) {
